@@ -9,19 +9,35 @@ A modern, animated marketing website for Franklink - an AI Career Agent in iMess
 - **Responsive Design**: Fully responsive layout that works on desktop, tablet, and mobile devices
 - **Smooth Animations**: Scroll-based animations for stats and content sections
 - **Modern UI**: Clean, professional design with gradient effects and smooth transitions
+- **Legal Compliance**: Complete privacy policy, terms of service, and data deletion instructions
+- **Unified Footer**: Consistent footer on all pages with legal links and copyright
 
 ## Project Structure
 
 ```
 franklink_marketing_website/
-├── index.html                 # Main HTML file
-├── styles.css                 # All styling and animations
-├── script.js                  # JavaScript for interactions
-├── Franklink Banner 2.png    # Franklink logo
-├── Franklink webpage main.png # Design reference
-├── iMessage Demo 1.png       # First demo reference
-├── iMessage Demo 2.png       # Second demo reference
+├── index.html                 # Main marketing page
+├── about.html                 # About page
+├── team.html                  # Team page
+├── faq.html                   # FAQ page
+├── contact.html               # Contact page
+├── privacy.html               # Privacy Policy
+├── terms.html                 # Terms of Service
+├── data-deletion.html         # Data Deletion Instructions
+├── styles.css                 # Global styles and animations
+├── script.js                  # JavaScript interactions
+├── Franklink Banner 2.png     # Brand logo
+├── iMessage_phone_demo/       # Product demo images
+│   ├── phone_one/            # Activity discovery demo (11 images)
+│   └── phone_two/            # Follow-up resources demo (11 images)
+├── agreements/                # Legal markdown source files
+│   ├── PRIVACY_POLICY.md
+│   ├── TERMS_OF_SERVICE.md
+│   └── DATA_DELETION_INSTRUCTIONS.md
 ├── placeholder-images.html   # Generate placeholder images
+├── server.py                 # Python development server
+├── CNAME                     # Domain configuration
+├── DEPLOYMENT_GUIDE.md       # Deployment instructions
 └── README.md                 # This file
 ```
 
@@ -68,6 +84,23 @@ franklink_marketing_website/
 - The website is built with vanilla HTML, CSS, and JavaScript (no frameworks required)
 - All animations use CSS3 and JavaScript for maximum performance
 - The design is optimized for fast loading and smooth interactions
+- Legal pages use a consistent `.legal-page` class for uniform styling
+- Footer is centrally managed and appears on all pages for consistency
+
+## Legal Compliance
+
+This website includes comprehensive legal documentation:
+
+- **Privacy Policy**: Detailed privacy policy with Google OAuth compliance
+- **Terms of Service**: Complete terms covering service usage, disclaimers, and liability
+- **Data Deletion**: Clear instructions on how users can delete their data
+- All legal documents are accessible via the unified footer on every page
+
+The legal documentation is:
+- Professionally structured with clear sections
+- Compliant with major data protection regulations (GDPR, CCPA)
+- Includes Google API Services User Data Policy compliance
+- Ready for technical due diligence review
 
 ## Future Enhancements
 
