@@ -51,10 +51,12 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="legal-page">
-            <h1>Data Deletion Instructions for Franklink Users</h1>
-            <p><strong>Last Updated</strong>: November 7, 2025</p>
-            <hr>
-            <p><i>Content will be added here after validation.</i></p>
+            <div id="data-deletion-content">
+                <h1>Data Deletion Instructions for Franklink Users</h1>
+                <p><strong>Last Updated</strong>: November 7, 2025</p>
+                <hr>
+                <p><i>Loading content...</i></p>
+            </div>
         </div>
     </main>
 
@@ -77,5 +79,11 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Initialize legal page content loading
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMarkdownFile('agreements/DATA_DELETION_INSTRUCTIONS.md', 'data-deletion-content');
+        });
+    </script>
 </body>
 </html>

@@ -538,6 +538,159 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScrollWithOffset();
 });
 
+// ==================== MARKDOWN LOADER FOR LEGAL PAGES ====================
+
+/**
+ * Convert basic Markdown to HTML
+ * Supports: headings, bold, italic, links, lists, code blocks, inline code, tables, hr
+ * @param {string} markdown - Markdown text
+ * @returns {string} HTML text
+ */
+function convertMarkdownToHTML(markdown) {
+    if (!markdown) return '';
+
+    let html = markdown;
+
+    // Escape HTML special characters first
+    html = html.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;');
+
+    // Convert tables
+    html = html.replace(/^\|(.+?)\|$/gm, (match, p1) => {
+        const cells = p1.split('|').map(cell => cell.trim());
+        const isHeaderRow = cells.some(cell => cell.includes('---'));
+        if (isHeaderRow) return ''; // Skip separator rows
+        return '<tr>' + cells.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+    });
+
+    // Wrap consecutive table rows in table
+    html = html.replace(/(<tr>.*?<\/tr>\s*)+/g, (match) => {
+        return `<table>${match}</table>`;
+    });
+
+    // Convert links [text](url)
+    html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    // Convert bold **text**
+    html = html.replace(/\*\*([^\*]+)\*\*/g, '<strong>$1</strong>');
+
+    // Convert italic *text* (avoid interfering with **)
+    html = html.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+    // Convert code blocks ```code```
+    html = html.replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
+
+    // Convert inline code `code`
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Convert horizontal rules ---
+    html = html.replace(/^---+$/gm, '<hr>');
+
+    // Convert headings (must be done before lists)
+    html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');
+    html = html.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^# (.+)$/gm, '<h2>$1</h2>');
+
+    // Convert list items
+    html = html.replace(/^\s*[-\*] (.+)$/gm, '<li>$1</li>');
+
+    // Wrap consecutive list items in ul
+    html = html.replace(/(<li>.*?<\/li>\s*)+/g, (match) => {
+        return `<ul>${match}</ul>`;
+    });
+
+    // Convert paragraphs (lines not starting with tags)
+    // Split by newlines and process each line
+    const lines = html.split('\n');
+    let inParagraph = false;
+    let result = '';
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        // Skip empty lines
+        if (!line) {
+            if (inParagraph) {
+                result += '</p>\n';
+                inParagraph = false;
+            }
+            continue;
+        }
+
+        // If line starts with a block element, close paragraph if open
+        if (line.startsWith('<h') || line.startsWith('<ul') || line.startsWith('<table') ||
+            line.startsWith('<pre') || line.startsWith('<hr')) {
+            if (inParagraph) {
+                result += '</p>\n';
+                inParagraph = false;
+            }
+            result += line + '\n';
+        }
+        // If line doesn't start with a tag, it's a paragraph
+        else if (!line.startsWith('<')) {
+            if (!inParagraph) {
+                result += '<p>' + line;
+                inParagraph = true;
+            } else {
+                result += ' ' + line;
+            }
+        } else {
+            result += line + '\n';
+        }
+    }
+
+    // Close paragraph if still open
+    if (inParagraph) {
+        result += '</p>\n';
+    }
+
+    return result;
+}
+
+/**
+ * Load and render a Markdown file
+ * @param {string} filename - Path to the markdown file
+ * @param {string} containerId - ID of the element to insert content into
+ */
+async function loadMarkdownFile(filename, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    try {
+        const response = await fetch(filename);
+        if (!response.ok) {
+            throw new Error(`Failed to load ${filename}: ${response.status}`);
+        }
+
+        const markdown = await response.text();
+        const html = convertMarkdownToHTML(markdown);
+
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading markdown file:', error);
+        container.innerHTML = '<p style="color: red; padding: 2rem;">Error loading content. Please refresh the page.</p>';
+    }
+}
+
+/**
+ * Initialize legal page content loading
+ * Called on DOMContentLoaded
+ */
+function initializeLegalPages() {
+    // Check current page and load corresponding markdown
+    const path = window.location.pathname;
+    const filename = path.split('/').pop();
+
+    if (filename === 'privacy.html' || path.endsWith('/privacy.html')) {
+        loadMarkdownFile('../agreements/PRIVACY_POLICY.md', 'privacy-content');
+    } else if (filename === 'terms.html' || path.endsWith('/terms.html')) {
+        loadMarkdownFile('../agreements/TERMS_OF_SERVICE.md', 'terms-content');
+    } else if (filename === 'data-deletion.html' || path.endsWith('/data-deletion.html')) {
+        loadMarkdownFile('../agreements/DATA_DELETION_INSTRUCTIONS.md', 'data-deletion-content');
+    }
+}
+
 // ==================== HAMBURGER MENU FUNCTIONALITY ====================
 
 /**

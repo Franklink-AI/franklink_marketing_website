@@ -51,11 +51,13 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="legal-page">
-            <h1>Terms of Service for Franklink Career Agent</h1>
-            <p><strong>Last Updated</strong>: November 7, 2025</p>
-            <p><strong>Effective Date</strong>: November 7, 2025</p>
-            <hr>
-            <p><i>Content will be added here after validation.</i></p>
+            <div id="terms-content">
+                <h1>Terms of Service for Franklink Career Agent</h1>
+                <p><strong>Last Updated</strong>: November 7, 2025</p>
+                <p><strong>Effective Date</strong>: November 7, 2025</p>
+                <hr>
+                <p><i>Loading content...</i></p>
+            </div>
         </div>
     </main>
 
@@ -78,5 +80,11 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Initialize legal page content loading
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMarkdownFile('agreements/TERMS_OF_SERVICE.md', 'terms-content');
+        });
+    </script>
 </body>
 </html>
