@@ -1641,3 +1641,64 @@ img {
         font-size: 16px; /* Prevent iOS zoom */
     }
 }
+
+/* Legal Footer */
+.legal-footer {
+    background: #f8f9ff;
+    border-top: 1px solid #e6e9ff;
+    padding: 3rem 0 2rem;
+    margin-top: 4rem;
+}
+
+.footer-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.footer-logo-img {
+    height: 40px;
+    width: auto;
+    opacity: 0.8;
+}
+
+.footer-legal-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-legal-links a {
+    color: #5B6DFF;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: opacity 0.2s;
+}
+
+.footer-legal-links a:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+
+.footer-copyright {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* Footer Responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .footer-legal-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+}
