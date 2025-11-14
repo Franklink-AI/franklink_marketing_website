@@ -1,0 +1,316 @@
+@import url('https://fonts.cdnfonts.com/css/sf-mono');
+
+/* Legal Pages Style - Inspired by example_from_poke minimalist design */
+
+/* Base Styles - Minimalist monochrome */
+body.legal-page-body {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.8em;
+    line-height: 2;
+    margin: 2vw;
+    padding: 10vw;
+    background-color: #fff;
+    color: #000;
+}
+
+@media (max-width: 768px) {
+    body.legal-page-body {
+        padding: 5vw;
+        margin: 1vw;
+    }
+}
+
+@media (max-width: 480px) {
+    body.legal-page-body {
+        padding: 4vw;
+        margin: 1vw;
+        font-size: 0.75em;
+    }
+}
+
+/* Links - Underlined with hover bold */
+a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+@media (hover: hover) {
+    a:hover {
+        font-weight: bold;
+    }
+}
+
+/* Main Content Container */
+.legal-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Headers - Clean hierarchy */
+.legal-page h1 {
+    font-size: 2em;
+    margin: 0 0 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.legal-page h2 {
+    font-size: 1.5em;
+    margin: 2.5rem 0 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.legal-page h3 {
+    font-size: 1.2em;
+    margin: 2rem 0 0.75rem;
+    font-weight: 600;
+}
+
+.legal-page h4 {
+    font-size: 1em;
+    margin: 1.5rem 0 0.5rem;
+    font-weight: 600;
+}
+
+/* Paragraphs and Lists */
+.legal-page p {
+    margin: 0 0 1rem;
+    color: #333;
+}
+
+.legal-page ul,
+.legal-page ol {
+    margin: 0 0 1rem 1.5rem;
+    padding-left: 0;
+}
+
+.legal-page li {
+    margin-bottom: 0.5rem;
+    line-height: 1.8;
+}
+
+/* Horizontal Rule */
+.legal-page hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 2rem 0;
+}
+
+/* Tables - Minimal styling */
+.legal-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9em;
+}
+
+.legal-page th,
+.legal-page td {
+    border: 1px solid #ddd;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.legal-page th {
+    background-color: #f8f8f8;
+    font-weight: 600;
+}
+
+/* Strong and Emphasis */
+.legal-page strong {
+    font-weight: 600;
+    color: #000;
+}
+
+.legal-page em {
+    font-style: italic;
+}
+
+/* Navigation - Keep Franklink style but simplified */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+    z-index: 1000;
+}
+
+body.legal-page-body nav {
+    margin: 0;
+    padding: 0;
+    position: fixed;
+}
+
+/* Footer - Minimalist with separator */
+.legal-footer {
+    margin-top: 4vw;
+    padding-top: 2vw;
+    border-top: 0.1vw solid lightgray;
+    color: gray;
+    font-size: 0.9em;
+}
+
+body.legal-page-body .legal-footer {
+    margin: 4vw 0 0;
+    padding: 2vw 0 1vw;
+    border-top: 0.1vw solid lightgray;
+}
+
+.legal-footer a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+@media (hover: hover) {
+    .legal-footer a:hover {
+        font-weight: bold;
+    }
+}
+
+/* Loading State */
+.legal-page .loading {
+    font-style: italic;
+    color: #666;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    body.legal-page-body {
+        background-color: #000;
+        color: #fff;
+    }
+
+    body.legal-page-body nav {
+        background: #000;
+        border-bottom-color: #333;
+    }
+
+    .legal-page h1,
+    .legal-page h2,
+    .legal-page h3,
+    .legal-page h4 {
+        color: #fff;
+    }
+
+    .legal-page p {
+        color: #e0e0e0;
+    }
+
+    .legal-page th {
+        background-color: #1a1a1a;
+        color: #fff;
+        border-color: #444;
+    }
+
+    .legal-page td {
+        border-color: #444;
+    }
+
+    .legal-footer {
+        border-top-color: #666;
+        color: #666;
+    }
+}
+
+/* Smooth transitions for theme switching */
+@media (prefers-color-scheme: dark) {
+    body.legal-page-body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .legal-page hr {
+        transition: border-color 0.3s ease;
+    }
+
+    .legal-footer {
+        transition: border-color 0.3s ease;
+    }
+}
+
+/* Remove animations from legal pages for better readability */
+.legal-page * {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Forms (if any in legal pages) */
+.legal-page form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.legal-page input,
+.legal-page button {
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.2;
+    height: 1.5rem;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    background: white;
+}
+
+@media (prefers-color-scheme: dark) {
+    .legal-page input,
+    .legal-page button {
+        background: #333;
+        color: white;
+        border-color: #555;
+    }
+}
+
+.legal-page input {
+    flex: 1;
+    min-width: calc(33.33% - 0.33rem);
+    outline: none;
+}
+
+.legal-page button {
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-left: auto;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .legal-page h1 {
+        font-size: 1.75em;
+    }
+
+    .legal-page h2 {
+        font-size: 1.3em;
+    }
+
+    .legal-page input {
+        min-width: calc(50% - 0.25rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .legal-page h1 {
+        font-size: 1.5em;
+    }
+
+    .legal-page h2 {
+        font-size: 1.1em;
+    }
+
+    .legal-page input {
+        min-width: 100%;
+    }
+
+    .legal-page button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}

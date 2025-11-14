@@ -669,7 +669,13 @@ async function loadMarkdownFile(filename, containerId) {
         container.innerHTML = html;
     } catch (error) {
         console.error('Error loading markdown file:', error);
-        container.innerHTML = '<p style="color: red; padding: 2rem;">Error loading content. Please refresh the page.</p>';
+        const errorDetails = error.message || 'Unknown error';
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const debugInfo = isLocalhost ?
+            `File: ${filename}, Path: ${window.location.href}, Error: ${errorDetails}` :
+            `Error: ${errorDetails}`;
+
+        container.innerHTML = `<p style="color: red; padding: 2rem;">Error loading content. ${debugInfo}</p>`;
     }
 }
 
