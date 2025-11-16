@@ -178,59 +178,8 @@ body.legal-page-body .legal-footer {
     color: #666;
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    body.legal-page-body {
-        background-color: #000;
-        color: #fff;
-    }
-
-    body.legal-page-body nav {
-        background: #000;
-        border-bottom-color: #333;
-    }
-
-    .legal-page h1,
-    .legal-page h2,
-    .legal-page h3,
-    .legal-page h4 {
-        color: #fff;
-    }
-
-    .legal-page p {
-        color: #e0e0e0;
-    }
-
-    .legal-page th {
-        background-color: #1a1a1a;
-        color: #fff;
-        border-color: #444;
-    }
-
-    .legal-page td {
-        border-color: #444;
-    }
-
-    .legal-footer {
-        border-top-color: #666;
-        color: #666;
-    }
-}
-
-/* Smooth transitions for theme switching */
-@media (prefers-color-scheme: dark) {
-    body.legal-page-body {
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .legal-page hr {
-        transition: border-color 0.3s ease;
-    }
-
-    .legal-footer {
-        transition: border-color 0.3s ease;
-    }
-}
+/* Dark mode disabled to ensure typography remains visible when user toggles theme.
+   Reintroduce prefers-color-scheme queries here if a robust dark palette is ready. */
 
 /* Remove animations from legal pages for better readability */
 .legal-page * {
@@ -259,14 +208,6 @@ body.legal-page-body .legal-footer {
     background: white;
 }
 
-@media (prefers-color-scheme: dark) {
-    .legal-page input,
-    .legal-page button {
-        background: #333;
-        color: white;
-        border-color: #555;
-    }
-}
 
 .legal-page input {
     flex: 1;
