@@ -60,11 +60,26 @@ class OAuthCallback(BaseModel):
 
 @app.get("/health")
 async def health_check():
+    env_vars = {
+        "SUPABASE_URL": "PRESENT" if os.getenv("SUPABASE_URL") else "MISSING",
+        "SUPABASE_KEY": "PRESENT" if os.getenv("SUPABASE_KEY") else "MISSING",
+    }
+    
+    initialization_error = None
+    if supabase is None:
+        # Re-try initialization to capture the error
+        try:
+            create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
+        except Exception as e:
+            initialization_error = str(e)
+
     return {
         "status": "healthy",
         "version": "1.0.0",
         "environment": os.getenv("ENVIRONMENT", "development"),
-        "supabase_connected": supabase is not None
+        "supabase_connected": supabase is not None,
+        "env_vars_check": env_vars,
+        "initialization_error": initialization_error
     }
 
 @app.get("/oauth/google/callback")
@@ -173,7 +188,7 @@ async def oauth_google_callback(code: str = None, state: str = None, error: str 
 
     except Exception as e:
         logger.error(f"OAuth processing error: {str(e)}")
-        return JSONResponse(status_code=500, content={"error": "internal_error", "message": str(e)})
+        return JSONResponse(status_code=500, content={"error": "internal_error", "message": "An internal error occurred during authorization."})
 
 @app.post("/oauth/google/callback")
 async def oauth_google_callback_post(callback: OAuthCallback):
