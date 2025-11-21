@@ -1,0 +1,159 @@
+...
+
+# ===== STAGE 2: GOOGLE OAUTH =====
+
+async def request_gmail_oauth(state: OnboardingState) -> OnboardingState:
+    """
+    Initiate Google OAuth flow for Gmail + Calendar access.
+    Uses interrupt() to wait for OAuth completion.
+    """
+    logger.info("[ONBOARDING] Requesting Google OAuth")
+
+    current_message = state["current_message"]["content"].strip().lower()
+    user_profile = state["user_profile"]
+    personal_facts = user_profile.get("personal_facts", {})
+
+    # Check if already authorized
+    if personal_facts.get("google_oauth_token"):
+        logger.info("[ONBOARDING] Already authorized")
+        state["user_profile"]["onboarding_stage"] = "linkedin"
+        return state
+
+    # Check if OAuth feature is enabled
+    from app.config import settings
+    if not settings.gmail_oauth_enabled:
+        logger.info("[ONBOARDING] Gmail OAuth disabled via feature flag")
+        state["response"]["response_text"] = (
+            "Email connection is temporarily unavailable.\n\n"
+            "Do you have a LinkedIn profile? Share the URL or say 'skip'."
+        )
+        state["user_profile"]["onboarding_stage"] = "linkedin"
+        await _update_user_profile(state, {"onboarding_stage": "linkedin"})
+        return state
+
+    # Check if user agreed
+    if current_message not in ["yes", "y", "sure", "ok", "okay", "proceed", "ready"]:
+        state["response"]["response_text"] = (
+            "No problem! You can authorize later.\n\n"
+            "Do you have a LinkedIn profile? Share the URL or say 'skip'."
+        )
+        state["user_profile"]["onboarding_stage"] = "linkedin"
+        await _update_user_profile(state, {"onboarding_stage": "linkedin"})
+        return state
+
+    # Generate OAuth URL
+    try:
+        google_client = GoogleClient()
+
+        # Request Gmail (readonly + send) + Calendar scopes
+        # gmail.readonly: Read user's school emails for opportunities
+        # gmail.send: Send verification codes
+        # calendar.events: Add deadlines to calendar
+        scopes = (
+            GoogleClient.SCOPES_MINIMAL +
+            GoogleClient.SCOPES_GMAIL_READ +  # gmail.readonly
+            GoogleClient.SCOPES_GMAIL_SEND +
+            GoogleClient.SCOPES_CALENDAR
+        )
+
+        auth_url = await google_client.initiate_oauth_flow(
+            scopes=scopes,
+            user_id=user_profile["user_id"]
+        )
+
+        # Save OAuth state
+        state["gmail_oauth_url"] = auth_url
+        state["gmail_oauth_state"] = user_profile["user_id"]
+        state["gmail_oauth_completed"] = False
+
+        # Create pending action
+        state["pending_action"] = {
+            "action_type": "gmail_oauth",
+            "data": {
+                "auth_url": auth_url,
+                "user_id": user_profile["user_id"]
+            },
+            "expires_at": (datetime.utcnow() + timedelta(minutes=10)).isoformat(),
+            "attempts": 0
+        }
+
+        state["response"]["response_text"] = (
+            f"Great! Click this link to connect your school email:\n\n"
+            f"{auth_url}\n\n"
+            f"⚠️ IMPORTANT: Please log in using your school email address (.edu)\n\n"
+            f"After completing authorization, reply 'done' to continue."
+        )
+        state["waiting_for"] = "gmail_oauth"
+
+        # Note: No interrupt() needed - this is single-turn design
+        # User will click link → OAuth callback updates DB → User sends next message
+        # check_status will read updated stage from DB and route accordingly
+
+        return state
+
+    except Exception as e:
+        logger.error(f"[ONBOARDING] OAuth setup failed: {e}")
+        state["response"]["response_text"] = (
+            "I had trouble setting up authorization. "
+            "Let's skip for now. Do you have a LinkedIn profile?"
+        )
+        state["user_profile"]["onboarding_stage"] = "linkedin"
+
+    return state
+
+
+async def verify_gmail_oauth(state: OnboardingState) -> OnboardingState:
+    """
+    Verify OAuth completion after user authorization.
+    This is called when user responds after OAuth.
+    """
+    logger.info("[ONBOARDING] Verifying OAuth")
+
+    user_profile = state["user_profile"]
+    personal_facts = user_profile.get("personal_facts", {})
+
+    # Check if OAuth completed (set by OAuth callback handler)
+    if personal_facts.get("google_oauth_token"):
+        logger.info("[ONBOARDING] OAuth complete!")
+
+        # Extract email from OAuth token
+        email = personal_facts.get("google_oauth_email", "")
+
+        # Validate .edu email (double-check in case callback was bypassed)
+        if email and not email.lower().endswith('.edu'):
+            logger.warning(f"[ONBOARDING] Non-.edu email detected: {email}")
+            state["response"]["response_text"] = (
+                f"It looks like '{email}' isn't a .edu email address.\n\n"
+                f"Please try again using your official school email address, "
+                f"or reply 'skip' to continue without email connection."
+            )
+            state["waiting_for"] = "gmail_oauth"
+
+            # Clear OAuth to allow retry
+            personal_facts.pop("google_oauth_token", None)
+            personal_facts.pop("google_oauth_completed", None)
+            personal_facts.pop("google_oauth_email", None)
+            await _update_user_profile(state, {"personal_facts": personal_facts})
+
+            return state
+
+        state["gmail_oauth_completed"] = True
+        state["response"]["response_text"] = (
+            f"Great! You're all set! We've successfully and securely connected your account.\n\n"
+            f"Connected email: {email}\n\n"
+            f"Now, do you have a LinkedIn profile? Share the URL or say 'skip'."
+        )
+        state["user_profile"]["onboarding_stage"] = "linkedin"
+        state["waiting_for"] = "linkedin_url"
+
+        await _update_user_profile(state, {"onboarding_stage": "linkedin"})
+    else:
+        state["response"]["response_text"] = (
+            "I haven't received authorization yet. "
+            "Please complete the authorization or reply 'skip'."
+        )
+        state["waiting_for"] = "gmail_oauth"
+
+    return state
+
+...
