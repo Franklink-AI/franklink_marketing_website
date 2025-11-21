@@ -1,0 +1,71 @@
+column_name,data_type,is_nullable,column_default
+instance_id,uuid,YES,null
+id,uuid,NO,uuid_generate_v4()
+phone_number,text,NO,null
+id,uuid,NO,null
+name,text,YES,null
+aud,character varying,YES,null
+university,text,YES,null
+role,character varying,YES,null
+location,text,YES,null
+email,character varying,YES,null
+encrypted_password,character varying,YES,null
+major,text,YES,null
+email_confirmed_at,timestamp with time zone,YES,null
+year,integer,YES,null
+invited_at,timestamp with time zone,YES,null
+career_interests,ARRAY,YES,'{}'::text[]
+is_onboarded,boolean,YES,false
+confirmation_token,character varying,YES,null
+confirmation_sent_at,timestamp with time zone,YES,null
+metadata,jsonb,YES,'{}'::jsonb
+recovery_token,character varying,YES,null
+created_at,timestamp with time zone,YES,now()
+updated_at,timestamp with time zone,YES,now()
+recovery_sent_at,timestamp with time zone,YES,null
+email_change_token_new,character varying,YES,null
+personal_facts,jsonb,YES,'{}'::jsonb
+subscription_tier,text,YES,'free'::text
+email_change,character varying,YES,null
+email_change_sent_at,timestamp with time zone,YES,null
+subscription_status,text,YES,'active'::text
+last_sign_in_at,timestamp with time zone,YES,null
+stripe_customer_id,text,YES,null
+stripe_subscription_id,text,YES,null
+raw_app_meta_data,jsonb,YES,null
+raw_user_meta_data,jsonb,YES,null
+subscription_started_at,timestamp with time zone,YES,null
+subscription_ends_at,timestamp with time zone,YES,null
+is_super_admin,boolean,YES,null
+engagement_rate,double precision,YES,0.0
+created_at,timestamp with time zone,YES,null
+updated_at,timestamp with time zone,YES,null
+last_check_in,timestamp with time zone,YES,null
+linkedin_url,text,YES,null
+phone,text,YES,NULL::character varying
+linkedin_data,jsonb,YES,'{}'::jsonb
+phone_confirmed_at,timestamp with time zone,YES,null
+grade_level,text,YES,null
+phone_change,text,YES,''::character varying
+linkedin_scraped_at,timestamp with time zone,YES,null
+phone_change_token,character varying,YES,''::character varying
+linkedin_scrape_status,text,YES,'pending'::text
+phone_change_sent_at,timestamp with time zone,YES,null
+confirmed_at,timestamp with time zone,YES,null
+linkedin_scrape_error,jsonb,YES,null
+resume_text,text,YES,null
+email_change_token_current,character varying,YES,''::character varying
+resume_uploaded_at,timestamp with time zone,YES,null
+email_change_confirm_status,smallint,YES,0
+resume_source,text,YES,null
+banned_until,timestamp with time zone,YES,null
+profile_analysis_status,text,YES,'pending'::text
+reauthentication_token,character varying,YES,''::character varying
+reauthentication_sent_at,timestamp with time zone,YES,null
+profile_analyzed_at,timestamp with time zone,YES,null
+is_sso_user,boolean,NO,false
+profile_analysis_error,jsonb,YES,null
+deleted_at,timestamp with time zone,YES,null
+questionnaire_result,jsonb,YES,null
+email,text,YES,null
+is_anonymous,boolean,NO,false
