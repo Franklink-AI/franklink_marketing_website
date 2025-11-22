@@ -77,12 +77,12 @@ def render_success_page(email: str) -> HTMLResponse:
     from pathlib import Path
 
     # Load Franklink logo for background
-    logo_path = Path(__file__).parent.parent.parent / "Franklink Logo.png"
+    logo_path = Path(__file__).parent / "franklink_logo.png"
     try:
         with open(logo_path, 'rb') as f:
             logo_base64 = base64.b64encode(f.read()).decode('utf-8')
     except Exception as e:
-        logger.error(f"Failed to load logo: {e}")
+        logger.error(f"Failed to load logo from {logo_path}: {e}")
         logo_base64 = ""  # Fallback to no logo
 
     # iMessage redirect URL

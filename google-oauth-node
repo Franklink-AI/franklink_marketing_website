@@ -12,9 +12,10 @@ async def request_gmail_oauth(state: OnboardingState) -> OnboardingState:
     current_message = state["current_message"]["content"].strip().lower()
     user_profile = state["user_profile"]
     personal_facts = user_profile.get("personal_facts", {})
+    gmail_auth = user_profile.get("gmail_authentication_access", {})
 
-    # Check if already authorized
-    if personal_facts.get("google_oauth_token"):
+    # Check if already authorized (check new gmail_authentication_access column first)
+    if gmail_auth.get("token") or personal_facts.get("google_oauth_token"):
         logger.info("[ONBOARDING] Already authorized")
         state["user_profile"]["onboarding_stage"] = "linkedin"
         return state
@@ -111,13 +112,14 @@ async def verify_gmail_oauth(state: OnboardingState) -> OnboardingState:
 
     user_profile = state["user_profile"]
     personal_facts = user_profile.get("personal_facts", {})
+    gmail_auth = user_profile.get("gmail_authentication_access", {})
 
-    # Check if OAuth completed (set by OAuth callback handler)
-    if personal_facts.get("google_oauth_token"):
+    # Check if OAuth completed (check new gmail_authentication_access column first)
+    if gmail_auth.get("token") or personal_facts.get("google_oauth_token"):
         logger.info("[ONBOARDING] OAuth complete!")
 
-        # Extract email from OAuth token
-        email = personal_facts.get("google_oauth_email", "")
+        # Extract email from OAuth token (check new column first, then fallback to personal_facts)
+        email = gmail_auth.get("email") or personal_facts.get("google_oauth_email", "")
 
         # Validate .edu email (double-check in case callback was bypassed)
         if email and not email.lower().endswith('.edu'):
