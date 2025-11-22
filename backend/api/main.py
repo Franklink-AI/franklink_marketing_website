@@ -434,7 +434,7 @@ def render_success_page(email: str) -> HTMLResponse:
                 <span class="separator">•</span>
                 <a href="https://franklink.ai/privacy">Privacy</a>
                 <span class="separator">•</span>
-                <a href="https://franklink.ai/support">Support</a>
+                <a href="https://franklink.ai/terms.html">Terms of Service</a>
             </div>
         </footer>
 
