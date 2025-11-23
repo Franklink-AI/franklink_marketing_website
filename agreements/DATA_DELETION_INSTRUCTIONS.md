@@ -93,7 +93,7 @@ To delete data stored by Google:
 
 ### SendBlue (iMessage Delivery)
 - SendBlue may retain message metadata for their own compliance
-- See SendBlue Privacy Policy: [SendBlue Policy Link]
+- See SendBlue Privacy Policy: [\[SendBlue Policy Link\]](https://www.sendblue.com/privacy-policy)
 
 ### Microsoft Azure OpenAI
 - We send conversation context to Azure OpenAI for AI responses
@@ -323,7 +323,7 @@ Updates will be posted at: https://franklink.ai/data-deletion
 
 ---
 
-**Last Updated**: November 4, 2025
+**Last Updated**: November 7, 2025
 
 For questions about data deletion: privacy@franklink.ai
 

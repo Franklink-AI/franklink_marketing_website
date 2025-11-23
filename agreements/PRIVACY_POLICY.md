@@ -369,9 +369,8 @@ If you have questions, concerns, or requests regarding this Privacy Policy or ou
 
 **Email**: privacy@franklink.ai
 **Support**: Message "help" to Franklink via iMessage
-**Mail**: Franklink Inc., [Your Address]
-**Data Protection Officer**: [Name, if applicable]
-
+**Mail**: Franklink Inc., 131 Continental Dr Suite 305, Newark, Delaware, 19713
+**CTO**: Zhiyang Zhong
 ---
 
 ## 13. Transparency Report

@@ -252,7 +252,7 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW, FRANKLINK AND ITS OFFICERS, DIRECTORS, E
 - Damages from reliance on content or advice provided
 - Damages from third-party actions or content
 
-**Maximum Liability**: Our total liability for any claim shall not exceed the amount you paid to us in the past 12 months (currently $0 for free users).
+**Maximum Liability**: Our total liability for any claim shall not exceed the amount you paid to us in the past 12 months.
 
 ### 8.4 Third-Party Content
 
@@ -364,7 +364,7 @@ We may modify these Terms at any time by:
 
 ### 13.1 Governing Law
 
-These Terms are governed by the laws of the State of [Your State], United States, without regard to conflict of law principles.
+These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict of law principles.
 
 ### 13.2 Arbitration Agreement
 
@@ -399,7 +399,7 @@ You may opt out of arbitration within 30 days of first using the Service by emai
 
 ### 13.5 Jurisdiction
 
-If arbitration does not apply, you consent to exclusive jurisdiction in state or federal courts located in [Your County], [Your State].
+If arbitration does not apply, you consent to exclusive jurisdiction in state or federal courts located in Newark, Delaware.
 
 ---
 
@@ -491,7 +491,7 @@ BY USING FRANKLINK, YOU ACKNOWLEDGE THAT:
 
 ---
 
-**Effective Date**: November 4, 2025
+**Effective Date**: November 7, 2025
 
 For the latest version of these Terms, visit: https://franklink.ai/terms
 
