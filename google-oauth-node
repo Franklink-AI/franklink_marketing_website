@@ -79,9 +79,8 @@ async def request_gmail_oauth(state: OnboardingState) -> OnboardingState:
         }
 
         state["response"]["response_text"] = (
-            f"Great! Click this link to connect your school email:\n\n"
+            f"Great! Click this link to connect your email:\n\n"
             f"{auth_url}\n\n"
-            f"⚠️ IMPORTANT: Please log in using your school email address (.edu)\n\n"
             f"After completing authorization, reply 'done' to continue."
         )
         state["waiting_for"] = "gmail_oauth"
@@ -120,24 +119,6 @@ async def verify_gmail_oauth(state: OnboardingState) -> OnboardingState:
 
         # Extract email from OAuth token (check new column first, then fallback to personal_facts)
         email = gmail_auth.get("email") or personal_facts.get("google_oauth_email", "")
-
-        # Validate .edu email (double-check in case callback was bypassed)
-        if email and not email.lower().endswith('.edu'):
-            logger.warning(f"[ONBOARDING] Non-.edu email detected: {email}")
-            state["response"]["response_text"] = (
-                f"It looks like '{email}' isn't a .edu email address.\n\n"
-                f"Please try again using your official school email address, "
-                f"or reply 'skip' to continue without email connection."
-            )
-            state["waiting_for"] = "gmail_oauth"
-
-            # Clear OAuth to allow retry
-            personal_facts.pop("google_oauth_token", None)
-            personal_facts.pop("google_oauth_completed", None)
-            personal_facts.pop("google_oauth_email", None)
-            await _update_user_profile(state, {"personal_facts": personal_facts})
-
-            return state
 
         state["gmail_oauth_completed"] = True
         state["response"]["response_text"] = (

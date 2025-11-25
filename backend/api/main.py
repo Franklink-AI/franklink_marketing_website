@@ -706,17 +706,11 @@ async def oauth_google_callback(code: str = None, state: str = None, error: str 
         except Exception as e:
             logger.error(f"Failed to extract email from ID token: {e}")
 
-        # Validate .edu email requirement
+        # Validate email exists
         if not email:
             return render_error_page(
                 "Email Not Found",
                 "We couldn't find your email address. Please try again."
-            )
-
-        if not email.lower().endswith('.edu'):
-            return render_error_page(
-                "School Email Required",
-                f"'{email}' isn't a .edu email address. Please use your school email."
             )
 
         # ===== STEP 3: Store credentials in gmail_authentication_access =====
