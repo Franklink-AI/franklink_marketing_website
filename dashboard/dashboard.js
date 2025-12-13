@@ -1,5 +1,5 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import * as d3 from "https://esm.sh/d3@7";
 
 const $ = (selector) => {
   const element = document.querySelector(selector);
@@ -523,11 +523,20 @@ async function ensureGraph() {
 }
 
 async function showApp() {
+  console.log("showApp called");
   showOnly("app");
+  console.log("showOnly('app') done");
   setPage(state.page);
+  console.log("setPage done, page:", state.page);
   await refreshSessionPill();
-  if (state.page === "graph") await ensureGraph();
-  if (state.page === "notes") await ensureNotes();
+  console.log("refreshSessionPill done");
+  try {
+    if (state.page === "graph") await ensureGraph();
+    if (state.page === "notes") await ensureNotes();
+    console.log("App view fully loaded");
+  } catch (err) {
+    console.error("Error loading app view:", err);
+  }
 }
 
 async function showAuth() {
@@ -579,18 +588,25 @@ elements.logoutButton.addEventListener("click", async () => {
 
 elements.authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  console.log("Form submitted");
   setStatus(elements.authStatus, "Signing in…");
 
   try {
+    if (!state.supabase) {
+      throw new Error("Supabase not initialized. Check config.");
+    }
     const email = usernameToEmail(elements.usernameInput.value);
     const password = elements.passwordInput.value;
+    console.log("Attempting login with:", email);
     if (!email || !password) throw new Error("Username and password are required.");
 
     const { error } = await state.supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    console.log("Login successful, showing app...");
     setStatus(elements.authStatus, "Signed in.", "success");
     await showApp();
   } catch (err) {
+    console.error("Login error:", err);
     setStatus(elements.authStatus, err?.message || String(err), "error");
   }
 });
