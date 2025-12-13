@@ -151,7 +151,11 @@ async function loadProfile() {
   if (!userData?.user) return null;
 
   const usersTable = state.config?.tables?.users || "users";
-  const { data, error } = await state.supabase.from(usersTable).select("*").eq("id", userData.user.id).maybeSingle();
+  const { data, error } = await state.supabase
+    .from(usersTable)
+    .select("id, name, phone_number")
+    .eq("id", userData.user.id)
+    .maybeSingle();
   if (error) {
     throw new Error(`Failed to load users row from '${usersTable}': ${error.message}`);
   }
