@@ -261,65 +261,91 @@ function renderGraph(nodes, links) {
     centerNode.fy = height / 2;
   }
 
-  // Enhanced glow filter for a softer, more elegant effect
+  // Premium SVG definitions
   const defs = svg.append("defs");
 
-  const glow = defs.append("filter")
-    .attr("id", "glow")
-    .attr("x", "-50%")
-    .attr("y", "-50%")
-    .attr("width", "200%")
-    .attr("height", "200%");
-  glow.append("feGaussianBlur").attr("stdDeviation", "3").attr("result", "coloredBlur");
-  const glowMerge = glow.append("feMerge");
-  glowMerge.append("feMergeNode").attr("in", "coloredBlur");
-  glowMerge.append("feMergeNode").attr("in", "SourceGraphic");
-
-  // Gradient for center node
+  // Center node gradient (violet-purple)
   const centerGradient = defs.append("radialGradient")
     .attr("id", "centerGradient")
     .attr("cx", "30%")
     .attr("cy", "30%");
-  centerGradient.append("stop").attr("offset", "0%").attr("stop-color", "#60a5fa");
-  centerGradient.append("stop").attr("offset", "100%").attr("stop-color", "#2563eb");
+  centerGradient.append("stop").attr("offset", "0%").attr("stop-color", "#c4b5fd");
+  centerGradient.append("stop").attr("offset", "50%").attr("stop-color", "#8b5cf6");
+  centerGradient.append("stop").attr("offset", "100%").attr("stop-color", "#6d28d9");
 
-  // Gradient for connection nodes
+  // Connection node gradient (cyan-teal)
   const nodeGradient = defs.append("radialGradient")
     .attr("id", "nodeGradient")
     .attr("cx", "30%")
     .attr("cy", "30%");
-  nodeGradient.append("stop").attr("offset", "0%").attr("stop-color", "#93c5fd");
-  nodeGradient.append("stop").attr("offset", "100%").attr("stop-color", "#3b82f6");
+  nodeGradient.append("stop").attr("offset", "0%").attr("stop-color", "#a5f3fc");
+  nodeGradient.append("stop").attr("offset", "50%").attr("stop-color", "#22d3ee");
+  nodeGradient.append("stop").attr("offset", "100%").attr("stop-color", "#0891b2");
 
-  // Link layer with softer styling
-  const linkLayer = svg.append("g")
-    .attr("stroke", "rgba(59, 130, 246, 0.35)")
-    .attr("stroke-width", 2);
+  // Soft outer glow filter
+  const glow = defs.append("filter")
+    .attr("id", "glow")
+    .attr("x", "-80%")
+    .attr("y", "-80%")
+    .attr("width", "260%")
+    .attr("height", "260%");
+  glow.append("feGaussianBlur").attr("stdDeviation", "6").attr("result", "blur");
+  const glowMerge = glow.append("feMerge");
+  glowMerge.append("feMergeNode").attr("in", "blur");
+  glowMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
+  // Drop shadow filter for nodes
+  const dropShadow = defs.append("filter")
+    .attr("id", "dropShadow")
+    .attr("x", "-50%")
+    .attr("y", "-50%")
+    .attr("width", "200%")
+    .attr("height", "200%");
+  dropShadow.append("feDropShadow")
+    .attr("dx", "0")
+    .attr("dy", "4")
+    .attr("stdDeviation", "6")
+    .attr("flood-color", "rgba(0,0,0,0.15)");
+
+  // Gradient for links (violet to cyan)
+  const linkGradient = defs.append("linearGradient")
+    .attr("id", "linkGradient")
+    .attr("gradientUnits", "userSpaceOnUse");
+  linkGradient.append("stop").attr("offset", "0%").attr("stop-color", "rgba(139, 92, 246, 0.5)");
+  linkGradient.append("stop").attr("offset", "100%").attr("stop-color", "rgba(6, 182, 212, 0.25)");
+
+  // Link layer
+  const linkLayer = svg.append("g");
   const nodeLayer = svg.append("g");
 
-  // Smoother physics simulation
+  // Premium physics simulation - smooth and organic
   const simulation = d3
     .forceSimulation(nodes)
     .force(
       "link",
       d3.forceLink(links)
         .id((d) => d.id)
-        .distance(160)
-        .strength(0.3),
+        .distance(180)
+        .strength(0.2),
     )
-    .force("charge", d3.forceManyBody().strength(-350))
+    .force("charge", d3.forceManyBody().strength(-450))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collide", d3.forceCollide().radius((d) => d.radius + 25).strength(0.7))
-    .alphaDecay(0.02)
-    .velocityDecay(0.4);
+    .force("collide", d3.forceCollide().radius((d) => d.radius + 35).strength(0.8))
+    .alphaDecay(0.012)
+    .velocityDecay(0.32);
 
+  // Links with gradient
   const link = linkLayer
     .selectAll("line")
     .data(links)
     .enter()
     .append("line")
-    .attr("stroke-linecap", "round");
+    .attr("stroke", "url(#linkGradient)")
+    .attr("stroke-width", 2.5)
+    .attr("stroke-linecap", "round")
+    .attr("opacity", 0.8);
 
+  // Node groups
   const node = nodeLayer
     .selectAll("g")
     .data(nodes)
@@ -349,41 +375,93 @@ function renderGraph(nodes, links) {
         }),
     );
 
-  // Circle with gradient fill and shadow
+  // Decorative outer ring for center node
+  node.filter((d) => d.id === "me")
+    .append("circle")
+    .attr("r", (d) => d.radius + 10)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(139, 92, 246, 0.3)")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "6 4");
+
+  // Main circle with gradient and shadow
   node
     .append("circle")
+    .attr("class", "node-circle")
     .attr("r", (d) => d.radius)
     .attr("fill", (d) => d.id === "me" ? "url(#centerGradient)" : "url(#nodeGradient)")
-    .attr("filter", "url(#glow)")
-    .style("transition", "transform 0.2s ease");
+    .attr("filter", "url(#dropShadow)")
+    .attr("stroke", "rgba(255, 255, 255, 0.5)")
+    .attr("stroke-width", 2.5);
 
-  // Text label with better styling
+  // Inner highlight for 3D effect
+  node
+    .append("circle")
+    .attr("r", (d) => d.radius * 0.75)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(255, 255, 255, 0.35)")
+    .attr("stroke-width", 1.5)
+    .attr("transform", "translate(-3, -3)");
+
+  // Label text with premium styling
   node
     .append("text")
     .attr("text-anchor", "middle")
     .attr("dy", "0.35em")
     .attr("fill", "white")
-    .attr("font-size", (d) => (d.id === "me" ? 14 : 12))
-    .attr("font-weight", 600)
+    .attr("font-size", (d) => (d.id === "me" ? 16 : 13))
+    .attr("font-weight", 700)
     .attr("font-family", "Inter, system-ui, sans-serif")
-    .style("text-shadow", "0 1px 3px rgba(0,0,0,0.3)")
+    .attr("letter-spacing", "-0.02em")
+    .style("text-shadow", "0 2px 4px rgba(0,0,0,0.25)")
     .style("pointer-events", "none")
     .text((d) => d.shortLabel);
 
-  // Hover effects
+  // Enhanced hover effects with focus mode
   node
     .on("mouseenter", function(event, d) {
-      d3.select(this).select("circle")
+      // Scale up hovered node with glow
+      d3.select(this).select(".node-circle")
         .transition()
         .duration(200)
-        .attr("r", d.radius * 1.1);
+        .ease(d3.easeCubicOut)
+        .attr("r", d.radius * 1.12)
+        .attr("filter", "url(#glow)");
+
+      // Highlight connected links
+      link.transition().duration(200)
+        .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.15)
+        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 3.5 : 2);
+
+      // Dim unconnected nodes
+      node.transition().duration(200)
+        .attr("opacity", (n) => {
+          if (n.id === d.id) return 1;
+          const connected = links.some((l) =>
+            (l.source.id === d.id && l.target.id === n.id) ||
+            (l.target.id === d.id && l.source.id === n.id)
+          );
+          return connected ? 1 : 0.35;
+        });
+
       showTooltip(event, d);
     })
     .on("mouseleave", function(_event, d) {
-      d3.select(this).select("circle")
+      // Reset node
+      d3.select(this).select(".node-circle")
         .transition()
-        .duration(200)
-        .attr("r", d.radius);
+        .duration(250)
+        .attr("r", d.radius)
+        .attr("filter", "url(#dropShadow)");
+
+      // Reset all links
+      link.transition().duration(250)
+        .attr("opacity", 0.8)
+        .attr("stroke-width", 2.5);
+
+      // Reset all nodes
+      node.transition().duration(250).attr("opacity", 1);
+
       hideTooltip();
     });
 
@@ -412,6 +490,23 @@ function renderGraph(nodes, links) {
   });
 
   simulation.on("tick", () => {
+    // Update link gradient positions for each link
+    link.each(function(d) {
+      const linkEl = d3.select(this);
+      const gradId = `linkGrad-${d.source.id}-${d.target.id}`;
+      let grad = defs.select(`#${gradId}`);
+      if (grad.empty()) {
+        grad = defs.append("linearGradient")
+          .attr("id", gradId)
+          .attr("gradientUnits", "userSpaceOnUse");
+        grad.append("stop").attr("offset", "0%").attr("stop-color", "rgba(139, 92, 246, 0.5)");
+        grad.append("stop").attr("offset", "100%").attr("stop-color", "rgba(6, 182, 212, 0.25)");
+      }
+      grad.attr("x1", d.source.x).attr("y1", d.source.y)
+          .attr("x2", d.target.x).attr("y2", d.target.y);
+      linkEl.attr("stroke", `url(#${gradId})`);
+    });
+
     link
       .attr("x1", (d) => d.source.x)
       .attr("y1", (d) => d.source.y)
@@ -557,12 +652,12 @@ async function loadGraphData() {
   }
 
   const nodes = [
-    { id: "me", label: centerLabel, shortLabel: centerLabel, radius: 36 },
+    { id: "me", label: centerLabel, shortLabel: centerLabel, radius: 44 },
     ...ids.map((id) => ({
       id: String(id),
       label: nameMap.get(id) || "Unknown",
       shortLabel: nameMap.get(id) || "?",
-      radius: 28,
+      radius: 34,
     })),
   ];
 
