@@ -261,40 +261,40 @@ function renderGraph(nodes, links) {
     centerNode.fy = height / 2;
   }
 
-  // Premium SVG definitions
+  // Franklink-style SVG definitions (matching logo aesthetic)
   const defs = svg.append("defs");
 
-  // Center node gradient (violet-purple)
+  // Center node gradient (Franklink deep blue - matches logo center)
   const centerGradient = defs.append("radialGradient")
     .attr("id", "centerGradient")
     .attr("cx", "30%")
     .attr("cy", "30%");
-  centerGradient.append("stop").attr("offset", "0%").attr("stop-color", "#c4b5fd");
-  centerGradient.append("stop").attr("offset", "50%").attr("stop-color", "#8b5cf6");
-  centerGradient.append("stop").attr("offset", "100%").attr("stop-color", "#6d28d9");
+  centerGradient.append("stop").attr("offset", "0%").attr("stop-color", "#60a5fa");
+  centerGradient.append("stop").attr("offset", "35%").attr("stop-color", "#3b82f6");
+  centerGradient.append("stop").attr("offset", "100%").attr("stop-color", "#1d4ed8");
 
-  // Connection node gradient (cyan-teal)
+  // Connection node gradient (Franklink purple-blue - matches logo orbital dots)
   const nodeGradient = defs.append("radialGradient")
     .attr("id", "nodeGradient")
     .attr("cx", "30%")
     .attr("cy", "30%");
-  nodeGradient.append("stop").attr("offset", "0%").attr("stop-color", "#a5f3fc");
-  nodeGradient.append("stop").attr("offset", "50%").attr("stop-color", "#22d3ee");
-  nodeGradient.append("stop").attr("offset", "100%").attr("stop-color", "#0891b2");
+  nodeGradient.append("stop").attr("offset", "0%").attr("stop-color", "#a78bfa");
+  nodeGradient.append("stop").attr("offset", "35%").attr("stop-color", "#8b5cf6");
+  nodeGradient.append("stop").attr("offset", "100%").attr("stop-color", "#6d28d9");
 
-  // Soft outer glow filter
+  // Soft outer glow filter for hover
   const glow = defs.append("filter")
     .attr("id", "glow")
     .attr("x", "-80%")
     .attr("y", "-80%")
     .attr("width", "260%")
     .attr("height", "260%");
-  glow.append("feGaussianBlur").attr("stdDeviation", "6").attr("result", "blur");
+  glow.append("feGaussianBlur").attr("stdDeviation", "8").attr("result", "blur");
   const glowMerge = glow.append("feMerge");
   glowMerge.append("feMergeNode").attr("in", "blur");
   glowMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-  // Drop shadow filter for nodes
+  // Drop shadow filter for nodes (blue-tinted like logo)
   const dropShadow = defs.append("filter")
     .attr("id", "dropShadow")
     .attr("x", "-50%")
@@ -304,15 +304,15 @@ function renderGraph(nodes, links) {
   dropShadow.append("feDropShadow")
     .attr("dx", "0")
     .attr("dy", "4")
-    .attr("stdDeviation", "6")
-    .attr("flood-color", "rgba(0,0,0,0.15)");
+    .attr("stdDeviation", "8")
+    .attr("flood-color", "rgba(59, 130, 246, 0.3)");
 
-  // Gradient for links (violet to cyan)
+  // Gradient for links (Franklink blue to purple)
   const linkGradient = defs.append("linearGradient")
     .attr("id", "linkGradient")
     .attr("gradientUnits", "userSpaceOnUse");
-  linkGradient.append("stop").attr("offset", "0%").attr("stop-color", "rgba(139, 92, 246, 0.5)");
-  linkGradient.append("stop").attr("offset", "100%").attr("stop-color", "rgba(6, 182, 212, 0.25)");
+  linkGradient.append("stop").attr("offset", "0%").attr("stop-color", "rgba(59, 130, 246, 0.5)");
+  linkGradient.append("stop").attr("offset", "100%").attr("stop-color", "rgba(139, 92, 246, 0.3)");
 
   // Link layer
   const linkLayer = svg.append("g");
@@ -375,33 +375,40 @@ function renderGraph(nodes, links) {
         }),
     );
 
-  // Decorative outer ring for center node
+  // Decorative outer ring for center node (like logo orbital pattern)
   node.filter((d) => d.id === "me")
     .append("circle")
-    .attr("r", (d) => d.radius + 10)
+    .attr("r", (d) => d.radius + 8)
     .attr("fill", "none")
-    .attr("stroke", "rgba(139, 92, 246, 0.3)")
-    .attr("stroke-width", 2)
-    .attr("stroke-dasharray", "6 4");
+    .attr("stroke", "rgba(59, 130, 246, 0.25)")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "4 3");
 
-  // Main circle with gradient and shadow
+  // Main circle with gradient and shadow (Franklink logo style)
   node
     .append("circle")
     .attr("class", "node-circle")
     .attr("r", (d) => d.radius)
     .attr("fill", (d) => d.id === "me" ? "url(#centerGradient)" : "url(#nodeGradient)")
-    .attr("filter", "url(#dropShadow)")
-    .attr("stroke", "rgba(255, 255, 255, 0.5)")
-    .attr("stroke-width", 2.5);
+    .attr("filter", "url(#dropShadow)");
 
-  // Inner highlight for 3D effect
+  // Outer highlight ring (3D edge effect like logo dots)
   node
     .append("circle")
-    .attr("r", (d) => d.radius * 0.75)
+    .attr("r", (d) => d.radius)
     .attr("fill", "none")
-    .attr("stroke", "rgba(255, 255, 255, 0.35)")
-    .attr("stroke-width", 1.5)
-    .attr("transform", "translate(-3, -3)");
+    .attr("stroke", "rgba(255, 255, 255, 0.3)")
+    .attr("stroke-width", 1.5);
+
+  // Top-left shine highlight (3D effect matching logo dots)
+  node
+    .append("ellipse")
+    .attr("rx", (d) => d.radius * 0.45)
+    .attr("ry", (d) => d.radius * 0.25)
+    .attr("cx", (d) => -d.radius * 0.25)
+    .attr("cy", (d) => -d.radius * 0.35)
+    .attr("fill", "rgba(255, 255, 255, 0.35)")
+    .attr("transform", "rotate(-30)");
 
   // Label text with premium styling
   node
@@ -490,7 +497,7 @@ function renderGraph(nodes, links) {
   });
 
   simulation.on("tick", () => {
-    // Update link gradient positions for each link
+    // Update link gradient positions for each link (Franklink blue to purple)
     link.each(function(d) {
       const linkEl = d3.select(this);
       const gradId = `linkGrad-${d.source.id}-${d.target.id}`;
@@ -499,8 +506,8 @@ function renderGraph(nodes, links) {
         grad = defs.append("linearGradient")
           .attr("id", gradId)
           .attr("gradientUnits", "userSpaceOnUse");
-        grad.append("stop").attr("offset", "0%").attr("stop-color", "rgba(139, 92, 246, 0.5)");
-        grad.append("stop").attr("offset", "100%").attr("stop-color", "rgba(6, 182, 212, 0.25)");
+        grad.append("stop").attr("offset", "0%").attr("stop-color", "rgba(59, 130, 246, 0.5)");
+        grad.append("stop").attr("offset", "100%").attr("stop-color", "rgba(139, 92, 246, 0.35)");
       }
       grad.attr("x1", d.source.x).attr("y1", d.source.y)
           .attr("x2", d.target.x).attr("y2", d.target.y);
