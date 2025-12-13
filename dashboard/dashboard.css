@@ -1,16 +1,17 @@
 :root {
-  --bg: #070A12;
-  --panel: rgba(255, 255, 255, 0.06);
-  --panel-2: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.12);
-  --text: rgba(255, 255, 255, 0.92);
-  --muted: rgba(255, 255, 255, 0.62);
-  --muted-2: rgba(255, 255, 255, 0.42);
-  --brand: #8B5CF6;
-  --brand-2: #22D3EE;
-  --danger: #FB7185;
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
-  --radius: 18px;
+  --bg: #FAFBFC;
+  --panel: #FFFFFF;
+  --panel-2: #F9FAFB;
+  --border: #E5E7EB;
+  --text: #1A1A1A;
+  --muted: #6B7280;
+  --muted-2: #9CA3AF;
+  --brand: #0066FF;
+  --brand-2: #6B8EFF;
+  --danger: #EF4444;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --radius: 16px;
 }
 
 * {
@@ -26,11 +27,7 @@ body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   color: var(--text);
-  background:
-    radial-gradient(1200px 900px at 12% 10%, rgba(139, 92, 246, 0.25), transparent 60%),
-    radial-gradient(900px 700px at 85% 15%, rgba(34, 211, 238, 0.18), transparent 65%),
-    radial-gradient(1100px 900px at 60% 90%, rgba(139, 92, 246, 0.12), transparent 65%),
-    var(--bg);
+  background: var(--bg);
   overflow-x: hidden;
 }
 
@@ -43,9 +40,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(16px);
-  background: rgba(7, 10, 18, 0.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: white;
+  border-bottom: 1px solid #F0F0F0;
 }
 
 .topbar-inner {
@@ -55,33 +51,28 @@ body {
   padding: 14px 0;
 }
 
-.brand {
+.logo-container {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.brand-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  box-shadow: 0 14px 50px rgba(139, 92, 246, 0.35);
+.logo {
+  width: 45px;
+  height: 45px;
 }
 
-.brand-title {
-  display: grid;
-  line-height: 1.1;
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.brand-title strong {
+.logo-text {
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.brand-title span {
-  font-size: 12px;
-  color: var(--muted);
+  color: #0A1F44;
+  letter-spacing: -0.5px;
 }
 
 .topbar-actions {
@@ -97,7 +88,7 @@ body {
   padding: 9px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
+  background: #F3F4F6;
   color: var(--muted);
   font-size: 13px;
 }
@@ -105,7 +96,7 @@ body {
 .button {
   appearance: none;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.05);
+  background: white;
   color: var(--text);
   border-radius: 12px;
   padding: 10px 12px;
@@ -116,32 +107,37 @@ body {
 }
 
 .button:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: #F9FAFB;
+  border-color: #D1D5DB;
   transform: translateY(-1px);
 }
 
 .button.primary {
-  border-color: rgba(139, 92, 246, 0.55);
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(34, 211, 238, 0.85));
+  border-color: var(--brand);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: white;
 }
 
 .button.primary:hover {
-  border-color: rgba(34, 211, 238, 0.65);
+  border-color: var(--brand-2);
+  opacity: 0.9;
 }
 
 .button.danger {
-  border-color: rgba(251, 113, 133, 0.55);
-  background: rgba(251, 113, 133, 0.12);
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
 }
 
 .button.danger:hover {
-  border-color: rgba(251, 113, 133, 0.75);
-  background: rgba(251, 113, 133, 0.18);
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .main {
   padding: 22px 0 46px;
+  position: relative;
+  z-index: 1;
 }
 
 .app-shell {
@@ -154,7 +150,7 @@ body {
 .panel {
   border-radius: var(--radius);
   background: var(--panel);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
@@ -184,8 +180,8 @@ body {
   text-align: left;
   padding: 12px 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  background: #F9FAFB;
   color: var(--text);
   font-weight: 600;
   cursor: pointer;
@@ -194,13 +190,14 @@ body {
 
 .nav button:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: #F3F4F6;
+  border-color: #D1D5DB;
 }
 
 .nav button[aria-current="page"] {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(34, 211, 238, 0.12));
-  border-color: rgba(139, 92, 246, 0.35);
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.08), rgba(107, 142, 255, 0.05));
+  border-color: rgba(0, 102, 255, 0.25);
+  color: var(--brand);
 }
 
 .panel {
@@ -247,8 +244,8 @@ body {
   position: relative;
   width: 100%;
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: #F9FAFB;
+  border: 1px solid var(--border);
   overflow: hidden;
   min-height: 520px;
 }
@@ -263,17 +260,15 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(700px 420px at 50% 30%, rgba(139, 92, 246, 0.12), transparent 70%),
-    radial-gradient(700px 420px at 50% 80%, rgba(34, 211, 238, 0.10), transparent 70%);
+  background: radial-gradient(700px 420px at 50% 50%, rgba(0, 102, 255, 0.03), transparent 70%);
 }
 
 .graph-tooltip {
   position: absolute;
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.92);
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--text);
   padding: 9px 10px;
   border-radius: 12px;
   font-size: 12px;
@@ -281,6 +276,7 @@ body {
   transform: translate(-50%, calc(-100% - 10px));
   opacity: 0;
   transition: opacity 120ms ease;
+  box-shadow: var(--shadow-lg);
 }
 
 .graph-tooltip.visible {
@@ -293,8 +289,8 @@ body {
 
 .note {
   border-radius: 16px;
-  border: 1px dashed rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed #D1D5DB;
+  background: #F9FAFB;
   padding: 16px;
 }
 
@@ -314,8 +310,8 @@ body {
   width: min(480px, calc(100% - 48px));
   margin: 54px auto 0;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--panel);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow);
   padding: 20px;
 }
@@ -347,19 +343,20 @@ body {
 .field textarea {
   width: 100%;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--border);
+  background: #F9FAFB;
   color: var(--text);
   padding: 12px 12px;
   font-size: 14px;
   outline: none;
-  transition: border-color 140ms ease, background 140ms ease;
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
 }
 
 .field input:focus,
 .field textarea:focus {
-  border-color: rgba(34, 211, 238, 0.45);
-  background: rgba(0, 0, 0, 0.26);
+  border-color: var(--brand);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
 }
 
 .form-actions {
@@ -372,13 +369,14 @@ body {
 }
 
 .link {
-  color: rgba(34, 211, 238, 0.92);
+  color: var(--brand);
   font-weight: 600;
   text-decoration: none;
   font-size: 13px;
 }
 
 .link:hover {
+  color: #1E48D9;
   text-decoration: underline;
 }
 
@@ -389,15 +387,128 @@ body {
 }
 
 .status.error {
-  color: rgba(251, 113, 133, 0.95);
+  color: var(--danger);
 }
 
 .status.success {
-  color: rgba(34, 211, 238, 0.95);
+  color: #059669;
 }
 
 .hidden {
   display: none !important;
+}
+
+/* Decorative background with logo patterns */
+.bg-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bg-logo {
+  position: absolute;
+  opacity: 0.08;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url('./franklink-logo.png');
+}
+
+/* Large logos for corners */
+.bg-logo.large-1 {
+  width: 400px;
+  height: 400px;
+  top: -5%;
+  right: -5%;
+  opacity: 0.12;
+  transform: rotate(-15deg);
+}
+
+.bg-logo.large-2 {
+  width: 450px;
+  height: 450px;
+  bottom: -8%;
+  left: -8%;
+  opacity: 0.10;
+  transform: rotate(20deg);
+}
+
+.bg-logo.large-3 {
+  width: 380px;
+  height: 380px;
+  top: 50%;
+  right: -10%;
+  opacity: 0.06;
+  transform: translateY(-50%) rotate(-25deg);
+}
+
+/* Medium logos for mid-sections */
+.bg-logo.medium-1 {
+  width: 280px;
+  height: 280px;
+  top: 15%;
+  left: 20%;
+  opacity: 0.09;
+  transform: rotate(10deg);
+}
+
+.bg-logo.medium-2 {
+  width: 250px;
+  height: 250px;
+  bottom: 20%;
+  right: 25%;
+  opacity: 0.08;
+  transform: rotate(-12deg);
+}
+
+.bg-logo.medium-3 {
+  width: 260px;
+  height: 260px;
+  top: 45%;
+  left: 5%;
+  opacity: 0.07;
+  transform: rotate(18deg);
+}
+
+/* Small logos for scattered effect */
+.bg-logo.small-1 {
+  width: 150px;
+  height: 150px;
+  top: 25%;
+  right: 40%;
+  opacity: 0.10;
+}
+
+.bg-logo.small-2 {
+  width: 140px;
+  height: 140px;
+  top: 70%;
+  left: 35%;
+  opacity: 0.08;
+  transform: rotate(-8deg);
+}
+
+.bg-logo.small-3 {
+  width: 160px;
+  height: 160px;
+  bottom: 35%;
+  right: 15%;
+  opacity: 0.09;
+  transform: rotate(15deg);
+}
+
+.bg-logo.small-4 {
+  width: 130px;
+  height: 130px;
+  top: 55%;
+  right: 50%;
+  opacity: 0.06;
+  transform: rotate(-20deg);
 }
 
 @media (max-width: 920px) {
@@ -416,6 +527,49 @@ body {
 
   .graph-canvas {
     height: 420px;
+  }
+
+  /* Hide some background logos on tablet/mobile */
+  .bg-logo.large-3,
+  .bg-logo.medium-3,
+  .bg-logo.small-4 {
+    display: none;
+  }
+
+  /* Reduce large logo sizes */
+  .bg-logo.large-1,
+  .bg-logo.large-2 {
+    width: 280px;
+    height: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar-inner {
+    padding: 16px 0;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+  }
+
+  /* Hide more logos on small screens */
+  .bg-logo.medium-1,
+  .bg-logo.medium-2,
+  .bg-logo.small-2,
+  .bg-logo.small-3 {
+    display: none;
+  }
+
+  .bg-logo.large-1,
+  .bg-logo.large-2 {
+    width: 200px;
+    height: 200px;
   }
 }
 

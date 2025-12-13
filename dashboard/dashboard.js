@@ -256,12 +256,12 @@ function renderGraph(nodes, links) {
 
   const defs = svg.append("defs");
   const glow = defs.append("filter").attr("id", "glow");
-  glow.append("feGaussianBlur").attr("stdDeviation", "4").attr("result", "coloredBlur");
+  glow.append("feGaussianBlur").attr("stdDeviation", "2").attr("result", "coloredBlur");
   const merge = glow.append("feMerge");
   merge.append("feMergeNode").attr("in", "coloredBlur");
   merge.append("feMergeNode").attr("in", "SourceGraphic");
 
-  const linkLayer = svg.append("g").attr("stroke", "rgba(255,255,255,0.12)").attr("stroke-width", 1.2);
+  const linkLayer = svg.append("g").attr("stroke", "rgba(0,0,0,0.12)").attr("stroke-width", 1.2);
   const nodeLayer = svg.append("g");
 
   const simulation = d3
@@ -320,8 +320,8 @@ function renderGraph(nodes, links) {
     .attr("r", (d) => d.radius)
     .attr("fill", (d) =>
       d.id === "me"
-        ? "rgba(34,211,238,0.92)"
-        : "rgba(139,92,246,0.82)",
+        ? "rgba(0,102,255,0.92)"
+        : "rgba(107,142,255,0.82)",
     )
     .attr("filter", "url(#glow)");
 
@@ -451,22 +451,31 @@ async function loadGraphData() {
   const authUserId = userData?.user?.id;
   if (!authUserId) throw new Error("No authenticated user found.");
 
-  const centerLabel = state.profile?.phone_number || state.profile?.username || "You";
+  const centerLabel = state.profile?.phone_number || state.profile?.name || "You";
 
-  const { data: chats, error } = await state.supabase
+  // Fetch chats where user is user_a
+  const { data: chatsAsA, error: errorA } = await state.supabase
     .from(groupChatsTable)
     .select("*")
-    .or(`user_a_id.eq.${authUserId},user_b_id.eq.${authUserId}`)
-    .limit(500);
+    .eq("user_a_id", authUserId)
+    .limit(250);
 
-  if (error) {
-    throw new Error(`Failed to load '${groupChatsTable}': ${error.message}`);
-  }
+  // Fetch chats where user is user_b
+  const { data: chatsAsB, error: errorB } = await state.supabase
+    .from(groupChatsTable)
+    .select("*")
+    .eq("user_b_id", authUserId)
+    .limit(250);
+
+  if (errorA) console.warn("Error loading chats as user_a:", errorA);
+  if (errorB) console.warn("Error loading chats as user_b:", errorB);
+
+  // Combine results
+  const chats = [...(chatsAsA || []), ...(chatsAsB || [])];
 
   const connectionSet = new Map();
 
-  for (const row of chats || []) {
-    // Get the OTHER user in the connection (not the current user)
+  for (const row of chats) {
     const otherUserId = row.user_a_id === authUserId ? row.user_b_id : row.user_a_id;
     if (otherUserId && otherUserId !== authUserId) {
       connectionSet.set(otherUserId, true);
