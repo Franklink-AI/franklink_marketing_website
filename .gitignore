@@ -1,3 +1,8 @@
+# Environment files (keep credentials safe)
+.env
+backend/.env
+dashboard/config.js
+
 # OpenSpec files
 openspec/
 .claude/

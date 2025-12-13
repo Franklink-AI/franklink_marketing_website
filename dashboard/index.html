@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Franklink Dashboard</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./dashboard.css" />
+
+    <!-- Optional: create `dashboard/config.js` (gitignored) for Supabase credentials -->
+    <script src="./config.js" onerror="window.__FRANKLINK_DASHBOARD_CONFIG_MISSING__ = true;"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div class="brand-title">
+            <strong>Franklink</strong>
+            <span>Dashboard</span>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="pill" id="sessionPill" aria-live="polite">Not signed in</div>
+          <button class="button danger hidden" id="logoutButton" type="button">Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section id="configMissingView" class="container hidden" aria-live="polite">
+        <div class="form-card">
+          <h1>Dashboard setup required</h1>
+          <p>
+            Create <code>dashboard/config.js</code> (copy from <code>dashboard/config.example.js</code>)
+            and add your Supabase URL + anon key.
+          </p>
+          <p class="muted">
+            This file is ignored by git so credentials won’t be committed.
+          </p>
+        </div>
+      </section>
+
+      <section id="authView" class="container hidden">
+        <form class="form-card" id="authForm">
+          <h1>Sign in</h1>
+          <p>Use your iMessage number as your username.</p>
+
+          <div class="field">
+            <label for="usernameInput">Username (phone number) or email</label>
+            <input id="usernameInput" name="username" autocomplete="username" inputmode="tel" placeholder="+1 (302) 724-2007" required />
+          </div>
+
+          <div class="field">
+            <label for="passwordInput">Password</label>
+            <input id="passwordInput" name="password" type="password" autocomplete="current-password" required />
+          </div>
+
+          <div class="form-actions">
+            <button class="button primary" type="submit">Log in</button>
+            <a class="link" href="#" id="forgotPasswordLink">Forgot password?</a>
+          </div>
+
+          <div class="status" id="authStatus" role="status"></div>
+        </form>
+      </section>
+
+      <section id="recoveryView" class="container hidden">
+        <form class="form-card" id="recoveryForm">
+          <h1>Reset password</h1>
+          <p>We’ll email a reset link (or your account email if your username maps to one).</p>
+
+          <div class="field">
+            <label for="recoveryUsernameInput">Username (phone number) or email</label>
+            <input id="recoveryUsernameInput" name="username" autocomplete="username" inputmode="tel" placeholder="+1 (302) 724-2007" required />
+          </div>
+
+          <div class="form-actions">
+            <button class="button primary" type="submit">Send reset link</button>
+            <a class="link" href="#" id="backToLoginLink">Back to login</a>
+          </div>
+
+          <div class="status" id="recoveryStatus" role="status"></div>
+        </form>
+      </section>
+
+      <section id="updatePasswordView" class="container hidden">
+        <form class="form-card" id="updatePasswordForm">
+          <h1>Choose a new password</h1>
+          <p>Finish your password reset.</p>
+
+          <div class="field">
+            <label for="newPasswordInput">New password</label>
+            <input id="newPasswordInput" name="newPassword" type="password" autocomplete="new-password" required />
+          </div>
+
+          <div class="field">
+            <label for="confirmPasswordInput">Confirm new password</label>
+            <input id="confirmPasswordInput" name="confirmPassword" type="password" autocomplete="new-password" required />
+          </div>
+
+          <div class="form-actions">
+            <button class="button primary" type="submit">Update password</button>
+          </div>
+
+          <div class="status" id="updatePasswordStatus" role="status"></div>
+        </form>
+      </section>
+
+      <section id="appView" class="container hidden">
+        <div class="app-shell">
+          <aside class="sidebar">
+            <div class="nav-title">Pages</div>
+            <nav class="nav" aria-label="Dashboard pages">
+              <button type="button" id="navGraph" aria-current="page">Connection Graph</button>
+              <button type="button" id="navNotes">Career Notes</button>
+            </nav>
+          </aside>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h1 id="panelTitle">Connection Graph</h1>
+                <p id="panelSubtitle">
+                  Your network visualized as an interactive graph. Drag bubbles to explore.
+                </p>
+              </div>
+              <div class="panel-actions">
+                <button class="button" type="button" id="refreshButton">Refresh</button>
+              </div>
+            </div>
+
+            <div id="graphView">
+              <div class="graph-wrap" aria-label="Connection graph visualization">
+                <svg class="graph-canvas" id="graphSvg" role="img" aria-label="Connection graph"></svg>
+                <div class="graph-overlay" aria-hidden="true"></div>
+                <div class="graph-tooltip" id="graphTooltip"></div>
+              </div>
+              <div class="status" id="graphStatus" role="status"></div>
+            </div>
+
+            <div id="notesView" class="hidden">
+              <div class="note">
+                <h2>Career Notes</h2>
+                <p class="muted">
+                  A simple notebook synced to Supabase. Write anything: follow-ups, reminders, prep notes, reflections.
+                </p>
+              </div>
+              <div class="field" style="margin-top: 14px;">
+                <label for="notesTextarea">Notebook</label>
+                <textarea id="notesTextarea" rows="12" placeholder="Start writing…"></textarea>
+              </div>
+              <div class="panel-actions" style="justify-content: flex-start;">
+                <button class="button primary" type="button" id="saveNotesButton">Save</button>
+              </div>
+              <div class="status" id="notesStatus" role="status"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./dashboard.js"></script>
+  </body>
+</html>
