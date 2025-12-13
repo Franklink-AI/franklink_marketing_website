@@ -375,65 +375,108 @@ function renderGraph(nodes, links) {
         }),
     );
 
-  // Decorative outer ring for center node (like logo orbital pattern)
-  node.filter((d) => d.id === "me")
-    .append("circle")
-    .attr("r", (d) => d.radius + 8)
-    .attr("fill", "none")
-    .attr("stroke", "rgba(59, 130, 246, 0.25)")
-    .attr("stroke-width", 1.5)
-    .attr("stroke-dasharray", "4 3");
+  // Create clip paths for circular logo masks
+  nodes.forEach((d, i) => {
+    defs.append("clipPath")
+      .attr("id", `clip-${i}`)
+      .append("circle")
+      .attr("r", d.radius);
+  });
 
-  // Main circle with gradient and shadow (Franklink logo style)
+  // Soft glow behind logo nodes
+  node
+    .append("circle")
+    .attr("class", "node-glow")
+    .attr("r", (d) => d.radius + 4)
+    .attr("fill", (d) => d.id === "me" ? "rgba(59, 130, 246, 0.15)" : "rgba(139, 92, 246, 0.12)")
+    .attr("filter", "url(#dropShadow)");
+
+  // White background circle for logo visibility
+  node
+    .append("circle")
+    .attr("class", "node-bg")
+    .attr("r", (d) => d.radius)
+    .attr("fill", "white");
+
+  // Franklink logo as the node (clipped to circle)
+  node
+    .append("image")
+    .attr("class", "node-logo")
+    .attr("href", "./franklink-logo.png")
+    .attr("x", (d) => -d.radius)
+    .attr("y", (d) => -d.radius)
+    .attr("width", (d) => d.radius * 2)
+    .attr("height", (d) => d.radius * 2)
+    .attr("clip-path", (d, i) => `url(#clip-${i})`)
+    .attr("preserveAspectRatio", "xMidYMid slice");
+
+  // Color overlay for differentiation (center = blue tint, connections = purple tint)
   node
     .append("circle")
     .attr("class", "node-circle")
     .attr("r", (d) => d.radius)
-    .attr("fill", (d) => d.id === "me" ? "url(#centerGradient)" : "url(#nodeGradient)")
-    .attr("filter", "url(#dropShadow)");
+    .attr("fill", (d) => d.id === "me" ? "rgba(59, 130, 246, 0.25)" : "rgba(139, 92, 246, 0.2)");
 
-  // Outer highlight ring (3D edge effect like logo dots)
+  // Outer ring border
   node
     .append("circle")
     .attr("r", (d) => d.radius)
     .attr("fill", "none")
-    .attr("stroke", "rgba(255, 255, 255, 0.3)")
-    .attr("stroke-width", 1.5);
+    .attr("stroke", (d) => d.id === "me" ? "rgba(59, 130, 246, 0.5)" : "rgba(139, 92, 246, 0.4)")
+    .attr("stroke-width", 2.5);
 
-  // Top-left shine highlight (3D effect matching logo dots)
+  // Decorative outer ring for center node
+  node.filter((d) => d.id === "me")
+    .append("circle")
+    .attr("r", (d) => d.radius + 10)
+    .attr("fill", "none")
+    .attr("stroke", "rgba(59, 130, 246, 0.3)")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "5 4");
+
+  // Name badge background (pill shape below the logo)
   node
-    .append("ellipse")
-    .attr("rx", (d) => d.radius * 0.45)
-    .attr("ry", (d) => d.radius * 0.25)
-    .attr("cx", (d) => -d.radius * 0.25)
-    .attr("cy", (d) => -d.radius * 0.35)
-    .attr("fill", "rgba(255, 255, 255, 0.35)")
-    .attr("transform", "rotate(-30)");
+    .append("rect")
+    .attr("class", "name-badge-bg")
+    .attr("x", (d) => -Math.max(d.shortLabel.length * 4.5, 24))
+    .attr("y", (d) => d.radius + 6)
+    .attr("width", (d) => Math.max(d.shortLabel.length * 9, 48))
+    .attr("height", 22)
+    .attr("rx", 11)
+    .attr("ry", 11)
+    .attr("fill", (d) => d.id === "me" ? "rgba(59, 130, 246, 0.95)" : "rgba(139, 92, 246, 0.9)")
+    .attr("filter", "url(#dropShadow)");
 
-  // Label text with premium styling
+  // Label text on the badge
   node
     .append("text")
+    .attr("class", "name-label")
     .attr("text-anchor", "middle")
-    .attr("dy", "0.35em")
+    .attr("y", (d) => d.radius + 21)
     .attr("fill", "white")
-    .attr("font-size", (d) => (d.id === "me" ? 16 : 13))
-    .attr("font-weight", 700)
+    .attr("font-size", 12)
+    .attr("font-weight", 600)
     .attr("font-family", "Inter, system-ui, sans-serif")
-    .attr("letter-spacing", "-0.02em")
-    .style("text-shadow", "0 2px 4px rgba(0,0,0,0.25)")
+    .attr("letter-spacing", "-0.01em")
     .style("pointer-events", "none")
     .text((d) => d.shortLabel);
 
   // Enhanced hover effects with focus mode
   node
     .on("mouseenter", function(event, d) {
-      // Scale up hovered node with glow
-      d3.select(this).select(".node-circle")
+      // Scale up entire node group
+      d3.select(this)
         .transition()
         .duration(200)
         .ease(d3.easeCubicOut)
-        .attr("r", d.radius * 1.12)
-        .attr("filter", "url(#glow)");
+        .attr("transform", `translate(${d.x},${d.y}) scale(1.08)`);
+
+      // Enhance glow
+      d3.select(this).select(".node-glow")
+        .transition()
+        .duration(200)
+        .attr("r", d.radius + 8)
+        .attr("fill", d.id === "me" ? "rgba(59, 130, 246, 0.3)" : "rgba(139, 92, 246, 0.25)");
 
       // Highlight connected links
       link.transition().duration(200)
@@ -454,12 +497,18 @@ function renderGraph(nodes, links) {
       showTooltip(event, d);
     })
     .on("mouseleave", function(_event, d) {
-      // Reset node
-      d3.select(this).select(".node-circle")
+      // Reset node scale
+      d3.select(this)
         .transition()
         .duration(250)
-        .attr("r", d.radius)
-        .attr("filter", "url(#dropShadow)");
+        .attr("transform", `translate(${d.x},${d.y}) scale(1)`);
+
+      // Reset glow
+      d3.select(this).select(".node-glow")
+        .transition()
+        .duration(250)
+        .attr("r", d.radius + 4)
+        .attr("fill", d.id === "me" ? "rgba(59, 130, 246, 0.15)" : "rgba(139, 92, 246, 0.12)");
 
       // Reset all links
       link.transition().duration(250)
