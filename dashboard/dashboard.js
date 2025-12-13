@@ -261,29 +261,57 @@ function renderGraph(nodes, links) {
     centerNode.fy = height / 2;
   }
 
+  // Enhanced glow filter for a softer, more elegant effect
   const defs = svg.append("defs");
-  const glow = defs.append("filter").attr("id", "glow");
-  glow.append("feGaussianBlur").attr("stdDeviation", "2").attr("result", "coloredBlur");
-  const merge = glow.append("feMerge");
-  merge.append("feMergeNode").attr("in", "coloredBlur");
-  merge.append("feMergeNode").attr("in", "SourceGraphic");
 
-  const linkLayer = svg.append("g").attr("stroke", "rgba(0,0,0,0.25)").attr("stroke-width", 1.5);
+  const glow = defs.append("filter")
+    .attr("id", "glow")
+    .attr("x", "-50%")
+    .attr("y", "-50%")
+    .attr("width", "200%")
+    .attr("height", "200%");
+  glow.append("feGaussianBlur").attr("stdDeviation", "3").attr("result", "coloredBlur");
+  const glowMerge = glow.append("feMerge");
+  glowMerge.append("feMergeNode").attr("in", "coloredBlur");
+  glowMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
+  // Gradient for center node
+  const centerGradient = defs.append("radialGradient")
+    .attr("id", "centerGradient")
+    .attr("cx", "30%")
+    .attr("cy", "30%");
+  centerGradient.append("stop").attr("offset", "0%").attr("stop-color", "#60a5fa");
+  centerGradient.append("stop").attr("offset", "100%").attr("stop-color", "#2563eb");
+
+  // Gradient for connection nodes
+  const nodeGradient = defs.append("radialGradient")
+    .attr("id", "nodeGradient")
+    .attr("cx", "30%")
+    .attr("cy", "30%");
+  nodeGradient.append("stop").attr("offset", "0%").attr("stop-color", "#93c5fd");
+  nodeGradient.append("stop").attr("offset", "100%").attr("stop-color", "#3b82f6");
+
+  // Link layer with softer styling
+  const linkLayer = svg.append("g")
+    .attr("stroke", "rgba(59, 130, 246, 0.35)")
+    .attr("stroke-width", 2);
   const nodeLayer = svg.append("g");
 
+  // Smoother physics simulation
   const simulation = d3
     .forceSimulation(nodes)
     .force(
       "link",
-      d3
-        .forceLink(links)
+      d3.forceLink(links)
         .id((d) => d.id)
-        .distance((d) => (d.source.id === "me" || d.target.id === "me" ? 120 : 90))
-        .strength(0.9),
+        .distance(160)
+        .strength(0.3),
     )
-    .force("charge", d3.forceManyBody().strength(-420))
+    .force("charge", d3.forceManyBody().strength(-350))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collide", d3.forceCollide().radius((d) => d.radius + 10).strength(0.9));
+    .force("collide", d3.forceCollide().radius((d) => d.radius + 25).strength(0.7))
+    .alphaDecay(0.02)
+    .velocityDecay(0.4);
 
   const link = linkLayer
     .selectAll("line")
@@ -297,14 +325,13 @@ function renderGraph(nodes, links) {
     .data(nodes)
     .enter()
     .append("g")
-    .style("cursor", "grab")
+    .style("cursor", (d) => d.id === "me" ? "default" : "grab")
     .call(
-      d3
-        .drag()
+      d3.drag()
         .on("start", (event, d) => {
           if (d.id === "me") return;
-          node.style("cursor", "grabbing");
-          if (!event.active) simulation.alphaTarget(0.22).restart();
+          d3.select(event.sourceEvent.target.parentNode).style("cursor", "grabbing");
+          if (!event.active) simulation.alphaTarget(0.15).restart();
           d.fx = d.x;
           d.fy = d.y;
         })
@@ -315,36 +342,55 @@ function renderGraph(nodes, links) {
         })
         .on("end", (event, d) => {
           if (d.id === "me") return;
-          node.style("cursor", "grab");
+          d3.select(event.sourceEvent.target.parentNode).style("cursor", "grab");
           if (!event.active) simulation.alphaTarget(0);
           d.fx = null;
           d.fy = null;
         }),
     );
 
+  // Circle with gradient fill and shadow
   node
     .append("circle")
     .attr("r", (d) => d.radius)
-    .attr("fill", (d) =>
-      d.id === "me"
-        ? "rgba(0,102,255,0.92)"
-        : "rgba(107,142,255,0.82)",
-    )
-    .attr("filter", "url(#glow)");
+    .attr("fill", (d) => d.id === "me" ? "url(#centerGradient)" : "url(#nodeGradient)")
+    .attr("filter", "url(#glow)")
+    .style("transition", "transform 0.2s ease");
 
+  // Text label with better styling
   node
     .append("text")
     .attr("text-anchor", "middle")
     .attr("dy", "0.35em")
-    .attr("fill", "rgba(255,255,255,0.92)")
-    .attr("font-size", (d) => (d.id === "me" ? 12 : 11))
-    .attr("font-weight", 700)
+    .attr("fill", "white")
+    .attr("font-size", (d) => (d.id === "me" ? 14 : 12))
+    .attr("font-weight", 600)
+    .attr("font-family", "Inter, system-ui, sans-serif")
+    .style("text-shadow", "0 1px 3px rgba(0,0,0,0.3)")
+    .style("pointer-events", "none")
     .text((d) => d.shortLabel);
+
+  // Hover effects
+  node
+    .on("mouseenter", function(event, d) {
+      d3.select(this).select("circle")
+        .transition()
+        .duration(200)
+        .attr("r", d.radius * 1.1);
+      showTooltip(event, d);
+    })
+    .on("mouseleave", function(_event, d) {
+      d3.select(this).select("circle")
+        .transition()
+        .duration(200)
+        .attr("r", d.radius);
+      hideTooltip();
+    });
 
   function positionTooltip(nativeEvent) {
     const rect = wrap.getBoundingClientRect();
-    const x = nativeEvent.clientX - rect.left;
-    const y = nativeEvent.clientY - rect.top;
+    const x = nativeEvent.clientX - rect.left + 15;
+    const y = nativeEvent.clientY - rect.top - 10;
     tooltip.style.left = `${x}px`;
     tooltip.style.top = `${y}px`;
   }
@@ -360,10 +406,10 @@ function renderGraph(nodes, links) {
   }
 
   svg.on("mousemove", (event) => {
-    positionTooltip(event);
+    if (tooltip.classList.contains("visible")) {
+      positionTooltip(event);
+    }
   });
-
-  node.on("mouseenter", (event, d) => showTooltip(event, d)).on("mouseleave", hideTooltip);
 
   simulation.on("tick", () => {
     link
@@ -384,7 +430,7 @@ function renderGraph(nodes, links) {
       centerNode.fy = newHeight / 2;
     }
     simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
-    simulation.alpha(0.35).restart();
+    simulation.alpha(0.3).restart();
   };
 
   window.addEventListener("resize", onResize);
@@ -453,21 +499,23 @@ function normalizeParticipant(participant) {
 
 async function loadGraphData() {
   const groupChatsTable = state.config?.tables?.groupChats || "group_chats";
+  const usersTable = state.config?.tables?.users || "users";
 
   const { data: userData } = await state.supabase.auth.getUser();
   const authUserId = userData?.user?.id;
   if (!authUserId) throw new Error("No authenticated user found.");
 
-  const centerLabel = state.profile?.phone_number || state.profile?.name || "You";
+  // Prioritize name over phone number for center label
+  const centerLabel = state.profile?.name || state.profile?.phone_number || "You";
 
-  // Fetch chats where user is user_a (only select needed columns)
+  // Fetch chats where user is user_a
   const { data: chatsAsA, error: errorA } = await state.supabase
     .from(groupChatsTable)
     .select("user_a_id, user_b_id")
     .eq("user_a_id", authUserId)
     .limit(250);
 
-  // Fetch chats where user is user_b (only select needed columns)
+  // Fetch chats where user is user_b
   const { data: chatsAsB, error: errorB } = await state.supabase
     .from(groupChatsTable)
     .select("user_a_id, user_b_id")
@@ -477,36 +525,62 @@ async function loadGraphData() {
   if (errorA) console.warn("Error loading chats as user_a:", errorA);
   if (errorB) console.warn("Error loading chats as user_b:", errorB);
 
-  // Combine results
+  // Combine results and extract unique connection IDs
   const chats = [...(chatsAsA || []), ...(chatsAsB || [])];
-
-  const connectionSet = new Map();
+  const connectionIds = new Set();
 
   for (const row of chats) {
-    const otherUserId = row.user_a_id === authUserId ? row.user_b_id : row.user_a_id;
-    if (otherUserId && otherUserId !== authUserId) {
-      connectionSet.set(otherUserId, true);
+    const otherId = row.user_a_id === authUserId ? row.user_b_id : row.user_a_id;
+    if (otherId && otherId !== authUserId) {
+      connectionIds.add(otherId);
     }
   }
 
-  const connections = [...connectionSet.keys()].slice(0, 120);
+  const ids = [...connectionIds].slice(0, 120);
+
+  // Fetch names for all connection IDs
+  let connectionUsers = [];
+  if (ids.length > 0) {
+    const { data, error } = await state.supabase
+      .from(usersTable)
+      .select("id, name, phone_number")
+      .in("id", ids);
+    if (error) console.warn("Error loading user names:", error);
+    connectionUsers = data || [];
+  }
+
+  // Create a map of id -> display name
+  const nameMap = new Map();
+  for (const user of connectionUsers) {
+    const displayName = user.name || formatPhoneDisplay(user.phone_number) || "Unknown";
+    nameMap.set(user.id, displayName);
+  }
 
   const nodes = [
-    { id: "me", label: centerLabel, shortLabel: formatShortLabel(centerLabel), radius: 26 },
-    ...connections.map((id) => ({
+    { id: "me", label: centerLabel, shortLabel: centerLabel, radius: 36 },
+    ...ids.map((id) => ({
       id: String(id),
-      label: String(id),
-      shortLabel: formatShortLabel(id),
-      radius: 18,
+      label: nameMap.get(id) || "Unknown",
+      shortLabel: nameMap.get(id) || "?",
+      radius: 28,
     })),
   ];
 
-  const links = connections.map((id) => ({
+  const links = ids.map((id) => ({
     source: "me",
     target: String(id),
   }));
 
-  return { nodes, links, count: connections.length };
+  return { nodes, links, count: ids.length };
+}
+
+function formatPhoneDisplay(phone) {
+  if (!phone) return null;
+  const digits = phone.replace(/[^\d]/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  return phone;
 }
 
 async function ensureGraph() {
