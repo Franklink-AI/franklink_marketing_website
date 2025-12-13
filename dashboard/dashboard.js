@@ -507,10 +507,13 @@ async function loadGraphData() {
 
 async function ensureGraph() {
   setStatus(elements.graphStatus, "Loading connections…");
+  console.log("ensureGraph: starting");
 
   try {
     await loadProfile();
+    console.log("ensureGraph: profile loaded", state.profile);
   } catch (err) {
+    console.error("ensureGraph: profile error", err);
     setStatus(elements.graphStatus, err?.message || String(err), "error");
     renderGraph(
       [{ id: "me", label: "You", shortLabel: "You", radius: 26 }],
@@ -521,9 +524,12 @@ async function ensureGraph() {
 
   try {
     const { nodes, links, count } = await loadGraphData();
+    console.log("ensureGraph: data loaded", { nodeCount: nodes.length, linkCount: links.length });
     renderGraph(nodes, links);
     setStatus(elements.graphStatus, count ? `${count} connections loaded.` : "No connections found yet.");
+    console.log("ensureGraph: complete");
   } catch (err) {
+    console.error("ensureGraph: data error", err);
     setStatus(elements.graphStatus, err?.message || String(err), "error");
     renderGraph(
       [{ id: "me", label: "You", shortLabel: "You", radius: 26 }],
