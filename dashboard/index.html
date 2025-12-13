@@ -13,8 +13,21 @@
     />
     <link rel="stylesheet" href="./dashboard.css" />
 
-    <!-- Optional: create `dashboard/config.js` (gitignored) for Supabase credentials -->
-    <script src="./config.js" onerror="window.__FRANKLINK_DASHBOARD_CONFIG_MISSING__ = true;"></script>
+    <!-- Supabase configuration -->
+    <script>
+      window.FRANKLINK_DASHBOARD_CONFIG = {
+        supabaseUrl: "https://mvjefpgkozyftebhnjbp.supabase.co",
+        supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12amVmcGdrb3p5ZnRlYmhuamJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNzMzNDgsImV4cCI6MjA3Njc0OTM0OH0.ccxSFlb__1BL23rZsmbDqhZDvG4mNYaQFh3LP2voB3Q",
+        tables: {
+          users: "users",
+          groupChats: "group_chats",
+          careerNotes: "career_notes",
+        },
+        auth: {
+          phoneUsernameEmailDomain: "users.franklink.ai",
+        },
+      };
+    </script>
   </head>
   <body>
     <header class="topbar">
