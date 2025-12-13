@@ -130,15 +130,18 @@ function requireConfig() {
   return true;
 }
 
-async function refreshSessionPill() {
-  const { data } = await state.supabase.auth.getSession();
-  const session = data.session;
+async function refreshSessionPill(sessionOverride) {
+  let session = sessionOverride;
+  if (!session) {
+    const { data } = await state.supabase.auth.getSession();
+    session = data.session;
+  }
   if (!session) {
     elements.sessionPill.textContent = "Not signed in";
     elements.logoutButton.classList.add("hidden");
     return;
   }
-  elements.sessionPill.textContent = `Signed in`;
+  elements.sessionPill.textContent = "Signed in";
   elements.logoutButton.classList.remove("hidden");
 }
 
@@ -261,7 +264,7 @@ function renderGraph(nodes, links) {
   merge.append("feMergeNode").attr("in", "coloredBlur");
   merge.append("feMergeNode").attr("in", "SourceGraphic");
 
-  const linkLayer = svg.append("g").attr("stroke", "rgba(0,0,0,0.12)").attr("stroke-width", 1.2);
+  const linkLayer = svg.append("g").attr("stroke", "rgba(0,0,0,0.25)").attr("stroke-width", 1.5);
   const nodeLayer = svg.append("g");
 
   const simulation = d3
@@ -676,7 +679,7 @@ elements.saveNotesButton.addEventListener("click", async () => {
 
 if (requireConfig()) {
   state.supabase.auth.onAuthStateChange(async (_event, session) => {
-    await refreshSessionPill();
+    await refreshSessionPill(session);
     if (isRecoveryUrl()) return;
     if (!session) showOnly("auth");
   });
