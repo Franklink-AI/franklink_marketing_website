@@ -460,17 +460,17 @@ async function loadGraphData() {
 
   const centerLabel = state.profile?.phone_number || state.profile?.name || "You";
 
-  // Fetch chats where user is user_a
+  // Fetch chats where user is user_a (only select needed columns)
   const { data: chatsAsA, error: errorA } = await state.supabase
     .from(groupChatsTable)
-    .select("*")
+    .select("user_a_id, user_b_id")
     .eq("user_a_id", authUserId)
     .limit(250);
 
-  // Fetch chats where user is user_b
+  // Fetch chats where user is user_b (only select needed columns)
   const { data: chatsAsB, error: errorB } = await state.supabase
     .from(groupChatsTable)
-    .select("*")
+    .select("user_a_id, user_b_id")
     .eq("user_b_id", authUserId)
     .limit(250);
 
