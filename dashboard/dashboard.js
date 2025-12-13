@@ -1,5 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as d3 from "https://esm.sh/d3@7";
+// Using global supabase and d3 loaded via UMD scripts in index.html
+const { createClient } = supabase;
 
 const $ = (selector) => {
   const element = document.querySelector(selector);

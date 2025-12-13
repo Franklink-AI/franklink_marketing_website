@@ -13,6 +13,10 @@
     />
     <link rel="stylesheet" href="./dashboard.css" />
 
+    <!-- Load dependencies (UMD) -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://unpkg.com/d3@7/dist/d3.min.js"></script>
+
     <!-- Supabase configuration -->
     <script>
       window.FRANKLINK_DASHBOARD_CONFIG = {
@@ -179,6 +183,6 @@
       </section>
     </main>
 
-    <script type="module" src="./dashboard.js"></script>
+    <script src="./dashboard.js"></script>
   </body>
 </html>
