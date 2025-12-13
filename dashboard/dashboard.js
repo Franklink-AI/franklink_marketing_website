@@ -456,7 +456,7 @@ async function loadGraphData() {
   const { data: chats, error } = await state.supabase
     .from(groupChatsTable)
     .select("*")
-    .eq("user_id", authUserId)
+    .or(`user_a_id.eq.${authUserId},user_b_id.eq.${authUserId}`)
     .limit(500);
 
   if (error) {
@@ -466,12 +466,10 @@ async function loadGraphData() {
   const connectionSet = new Map();
 
   for (const row of chats || []) {
-    const participants = extractParticipants(row);
-    for (const p of participants) {
-      const normalized = normalizeParticipant(p);
-      if (!normalized) continue;
-      if (String(normalized) === authUserId) continue;
-      connectionSet.set(normalized, true);
+    // Get the OTHER user in the connection (not the current user)
+    const otherUserId = row.user_a_id === authUserId ? row.user_b_id : row.user_a_id;
+    if (otherUserId && otherUserId !== authUserId) {
+      connectionSet.set(otherUserId, true);
     }
   }
 
