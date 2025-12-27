@@ -1,0 +1,380 @@
+/* ==================== FEATURE PAGE REDESIGN ==================== */
+
+/* Page Specific Background */
+.page-feature {
+    background-color: #F5F5F7;
+    /* Apple-like light grey background */
+}
+
+/* Hero Adjustment */
+.feature-hero {
+    background: var(--white);
+    padding-bottom: var(--space-3xl);
+    border-bottom: 1px solid var(--slate-200);
+    scroll-snap-align: start;
+    /* Allow snapping to Hero */
+}
+
+/* Ensure other main sections snap too */
+.final-cta-section,
+.legal-footer {
+    scroll-snap-align: start;
+}
+
+/* Main Container */
+.feature-showcase-container {
+    display: flex;
+    position: relative;
+    max-width: 1440px;
+    margin: 0 auto;
+    /* This container holds both the sticky phone and the scrolling text */
+}
+
+/* Left Column: Sticky Phone */
+.sticky-phone-wrapper {
+    width: 50%;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #F5F5F7;
+    z-index: 10;
+    padding: var(--space-xl);
+    overflow: hidden;
+    /* Prevent phone from overflowing if screen is small */
+}
+
+/* Right Column: Scrollable Content */
+.scrollable-content-wrapper {
+    width: 50%;
+    /* To enable scroll snapping, this container needs to handle the scroll, 
+       but currently the whole page scrolls. 
+       For the split screen effect where the left is sticky, the parent container usually scrolls.
+       Let's apply snap to the parent if we want the whole page to snap, 
+       OR make the right side independently scrollable (which might be weird if left is sticky).
+       
+       Actually, for a standard sticky layout, the BODY/HTML scrolls. 
+       So we should apply scroll-snap-type to HTML/BODY or a main wrapper.
+    */
+}
+
+/* Let's apply snapping to the main container if it's the one scrolling, 
+   but usually it's the window. So we apply to html. */
+html {
+    scroll-snap-type: y mandatory;
+}
+
+/* Individual Feature Section */
+.feature-section {
+    height: 100vh;
+    /* Full viewport height for snap effect */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl);
+    scroll-snap-align: start;
+    /* Snap to top */
+    scroll-snap-stop: always;
+    /* Force stop at each section */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    /* Subtle separator */
+}
+
+.feature-text-content {
+    max-width: 480px;
+    opacity: 0.4;
+    /* Dimmed by default */
+    transform: translateY(20px);
+    transition: all 0.6s ease-out;
+}
+
+/* Active State for Text (Triggered by JS) */
+.feature-section.active .feature-text-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.feature-text-content h2 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--slate-900);
+    margin-bottom: var(--space-md);
+    line-height: 1.2;
+}
+
+.feature-text-content p {
+    font-size: 1.125rem;
+    color: var(--slate-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-lg);
+}
+
+.feature-tags {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: var(--white);
+    border: 1px solid var(--slate-200);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--slate-600);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ==================== IPHONE MOCKUP STYLES ==================== */
+
+.iphone-frame-container {
+    position: relative;
+    width: 380px;
+    /* Base width */
+    height: 780px;
+    /* Base height approx ratio */
+    max-height: 90vh;
+    aspect-ratio: 380/780;
+    border-radius: 50px;
+    /* Match iPhone corners */
+    box-shadow:
+        0 0 0 10px #3a3a3a,
+        /* Outer Frame Dark */
+        0 0 0 12px #5a5a5a,
+        /* Outer Frame Light edge */
+        0 20px 50px -10px rgba(0, 0, 0, 0.3);
+    /* Drop Shadow */
+    background: #000;
+    overflow: hidden;
+    transform: scale(0.9);
+    /* Slight scale down to fit comfortably */
+    transition: transform 0.5s ease;
+}
+
+.iphone-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    pointer-events: none;
+    /* Let clicks pass through to interactive elements if any */
+    display: none;
+    /* Hiding the image for now as we are building CSS UI, or use as bg */
+}
+
+/* We are building a CSS UI on top of a black background, 
+   but if we use the image provided, we need to align everything perfectly. 
+   Let's build a pure CSS UI for maximum control as per plan Option A, 
+   but use the image as a reference or background if it's just a frame. 
+   
+   Actually, the user provided a 'phone.png'. If it's a full phone image, 
+   we might need to overlay the screen. Let's assume we build the screen UI.
+*/
+
+.iphone-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    border-radius: 46px;
+    /* Inner screen radius */
+    overflow: hidden;
+}
+
+/* Header */
+.screen-header {
+    height: 110px;
+    background: rgba(245, 245, 247, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+    position: relative;
+    z-index: 10;
+}
+
+.header-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #000;
+    font-weight: 500;
+}
+
+.header-arrow {
+    font-size: 10px;
+    color: #8E8E93;
+    margin-left: 2px;
+}
+
+/* Chat Area */
+.chat-scroll-area {
+    flex: 1;
+    background: #FFFFFF;
+    padding: 20px 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scroll-behavior: smooth;
+}
+
+/* Message Bubbles */
+.message-bubble {
+    max-width: 75%;
+    padding: 10px 16px;
+    border-radius: 18px;
+    font-size: 16px;
+    line-height: 1.4;
+    position: relative;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: messageEnter 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes messageEnter {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-bubble.user {
+    align-self: flex-end;
+    background-color: #007AFF;
+    /* iMessage Blue */
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble.bot {
+    align-self: flex-start;
+    background-color: #E9E9EB;
+    /* iMessage Grey */
+    color: black;
+    border-bottom-left-radius: 4px;
+}
+
+/* Input Area */
+.input-area {
+    height: 60px;
+    background: #F5F5F7;
+    /* Light grey bar */
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 10;
+}
+
+.input-field-wrapper {
+    flex: 1;
+    height: 36px;
+    background: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 18px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+#phone-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #000;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.send-btn {
+    width: 32px;
+    height: 32px;
+    background: #007AFF;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.send-btn:active {
+    transform: scale(0.9);
+}
+
+.send-btn svg {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    /* Visual adjustment */
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 900px) {
+    .feature-showcase-container {
+        flex-direction: column;
+    }
+
+    .sticky-phone-wrapper {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: var(--space-2xl) 0;
+        background: #F5F5F7;
+    }
+
+    .iphone-frame-container {
+        transform: scale(0.8);
+        margin: 0 auto;
+    }
+
+    .scrollable-content-wrapper {
+        width: 100%;
+    }
+
+    .feature-section {
+        height: auto;
+        min-height: 60vh;
+        padding: var(--space-xl) var(--space-md);
+        text-align: center;
+    }
+
+    .feature-text-content {
+        opacity: 1;
+        transform: none;
+    }
+
+    .feature-tags {
+        justify-content: center;
+    }
+}
