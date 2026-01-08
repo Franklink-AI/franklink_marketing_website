@@ -1,10 +1,10 @@
-@import url('https://fonts.cdnfonts.com/css/sf-mono');
+@import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap");
 
 /* Legal Pages Style - Inspired by example_from_poke minimalist design */
 
 /* Base Styles - Minimalist monochrome */
 body.legal-page-body {
-    font-family: 'SF Mono', monospace;
+    font-family: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: 0.8em;
     line-height: 2;
     margin: 2vw;
@@ -146,31 +146,7 @@ body.legal-page-body nav {
     position: fixed;
 }
 
-/* Footer - Minimalist with separator */
-.legal-footer {
-    margin-top: 4vw;
-    padding-top: 2vw;
-    border-top: 0.1vw solid lightgray;
-    color: gray;
-    font-size: 0.9em;
-}
-
-body.legal-page-body .legal-footer {
-    margin: 4vw 0 0;
-    padding: 2vw 0 1vw;
-    border-top: 0.1vw solid lightgray;
-}
-
-.legal-footer a {
-    color: inherit;
-    text-decoration: underline;
-}
-
-@media (hover: hover) {
-    .legal-footer a:hover {
-        font-weight: bold;
-    }
-}
+/* Footer inherits from styles.css for consistent layout. */
 
 /* Loading State */
 .legal-page .loading {

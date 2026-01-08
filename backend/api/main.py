@@ -95,7 +95,7 @@ def render_success_page(email: str) -> HTMLResponse:
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Authorization Successful - Franklink</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
         <style>
             * {{
                 margin: 0;
@@ -104,7 +104,7 @@ def render_success_page(email: str) -> HTMLResponse:
             }}
 
             body {{
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 background: #FAFBFC;
                 min-height: 100vh;
                 display: flex;
@@ -471,7 +471,7 @@ def render_error_page(title: str, message: str) -> HTMLResponse:
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body {{
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 display: flex;
                 justify-content: center;
                 align-items: center;

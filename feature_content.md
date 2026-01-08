@@ -1,109 +1,90 @@
 # Feature Page Content & Scripts
 
-## Section 1: Connect People
+## Section 1: Profile-First Onboarding
 **Marketing Copy:**
-*   **Title:** Network without the awkwardness.
-*   **Body:** Finding the right people is hard. Reaching out is harder. Franklink identifies the alumni and peers who can actually help you, then drafts the perfect opening message to get the conversation started.
+*   **Title:** Profile-First Onboarding, Dynamic Target Circles
+*   **Body:** Frank asks a few focused questions to map your background and goals. Update your direction anytime and the matching focus adjusts immediately.
 
-**Demo 1: Find People**
-*   **User:** "Who are some recent alums working in AI ethics? I want to ask about their day-to-day."
-*   **Bot:** "I found 3 alumni who match that description and were active in the Philosophy Club like you:
-    1.  **Sarah Chen '23** (Anthropic)
-    2.  **David Miller '22** (OpenAI)
-    3.  **Priya Gupta '24** (Hugging Face)
-    
-    Want to connect with one of them?"
+**Demo 1: Onboarding**
+*   **Bot:** "Frank: Welcome! What's your name?"
+*   **User:** "I'm Jordan Lee."
+*   **Bot:** "Frank: Nice to meet you, Jordan. Drop your LinkedIn link so I can map your background."
+*   **User:** "linkedin.com/in/jordanlee"
+*   **Bot:** "Frank: Great. Which career directions are you most interested in right now?"
+*   **User:** "AI product management and growth strategy."
+*   **Bot:** "Frank: Summary - Jordan Lee, AI PM + growth strategy. I'll focus your target circle on aligned alumni and peers."
 
-**Demo 2: Cold Email**
-*   **User:** "Yeah, Sarah looks great. Can you help me write a cold email to her?"
-*   **Bot:** "Drafting now. Here's a warm approach mentioning your shared club:
-
-    *Subject: Penn Philosophy Club / Question about AI Ethics*
-
-    *Hi Sarah,*
-    
-    *I'm a current junior at Penn and also part of the Philosophy Club. I've been following your work at Anthropic and would love to hear your perspective on transitioning from humanities to technical AI safety...*
-    
-    Ready to send?"
+**Demo 2: Profile Update**
+*   **User:** "After exploring for a while, I'm not that interested in quant anymore. I'm leaning toward AI PM."
+*   **Bot:** "Frank: Got it - your profile has been updated."
 
 ---
 
-## Section 2: Recommended Resources
+## Section 2: Same-Frequency Matches, Consent First
 **Marketing Copy:**
-*   **Title:** Opportunities that actually fit you.
-*   **Body:** Stop scrolling through endless newsletters. Franklink curates clubs, events, and workshops based on your specific interests and schedule, so you never miss what matters.
+*   **Title:** Same-Frequency Matches, Consent First
+*   **Body:** Franklink finds peers and alumni who match your track, then asks both sides before connecting. If someone wants to meet you, Frank checks with you first.
 
-**Demo 3: Clubs**
-*   **User:** "I feel like I need to meet more people. Are there any design clubs recruiting?"
-*   **Bot:** "Definitely. Based on your interest in product design, you might like **Penn Spark**. They have an info session tonight at 7 PM in Huntsman.
-    
-    There's also **Design for America** recruiting next week. Want the details?"
+**Demo 3: Ask for Consent**
+*   **User:** "Can you find same-track AI PM upperclassmen or alumni?"
+*   **Bot:** "Frank: I found 3 high-match AI PM alumni:
+    1. Nina Park '22 (Meta)
+    2. Omar Reed '23 (Ramp)
+    3. Lena Wu '24 (Atlassian)
 
-**Demo 4: Events**
-*   **User:** "What's happening this weekend? Something low stress."
-*   **Bot:** "There's a **Pottery Workshop** at the Craft Center on Saturday at 2 PM—spots are filling up fast.
-    
-    Or, if you want to get off campus, the **Philly Art Museum** has a student discount day. Shall I add the pottery workshop to your calendar?"
+    Want me to check if they're open to connecting?"
+*   **User:** "Yes, ask for consent first."
+*   **Bot:** "Frank: Done. I'll open a three-way chat once both sides say yes."
+
+**Demo 4: Inbound Request**
+*   **Bot:** "Frank: Heads-up - Riley Chen, a USC alum in product at Notion, wants to connect. Want me to introduce you?"
+*   **User:** "Yes, please connect us."
 
 ---
 
-## Section 3: Calendar & Time Management
+## Section 3: Warm Intros and News Hooks
 **Marketing Copy:**
-*   **Title:** A calendar that manages itself.
-*   **Body:** Franklink doesn't just remind you of deadlines; it helps you plan for them. From blocking out study time to ensuring you never miss an interview, your schedule is handled.
+*   **Title:** Warm Intros and News Hooks
+*   **Body:** Once both sides agree, Frank opens a three-way chat with a warm intro. If the thread cools, he drops a relevant news hook to restart the conversation.
 
-**Demo 5: Add to Calendar**
-*   **User:** "I have a midterm for CIS 160 next Thursday at 10 AM."
-*   **Bot:** "Got it. I've added the midterm to your calendar.
-    
-    I also blocked out two 2-hour study sessions for you on Monday and Tuesday evening. Does that work, or should I move them?"
+**Demo 5: Group Chat Intro**
+*   **Bot:** "Frank: Both of you are in - welcome to the group chat. Maya is a Duke junior exploring AI PM; Daniel is a Penn alum on product at Stripe."
+*   **User:** "Maya: Hi Daniel, thanks for making time to chat!"
+*   **Bot:** "Daniel: Hi Maya, happy to connect. Let's dive in."
 
-**Demo 6: Reminders**
-*   **User:** "Remind me to submit my resume for the career fair tomorrow morning."
-*   **Bot:** "Will do. I'll nudge you at 9 AM tomorrow.
-    
-    By the way, do you want me to review your resume quickly before you submit it?"
+**Demo 6: News Hook After a Pause**
+*   **Bot:** "--- 7 days later ---"
+*   **Bot:** "Frank: News hook - the new model release is already shifting internship recruiting timelines. Curious how you both see it."
+*   **User:** "Maya: If screening gets automated, I'd expect more take-home style evals early."
+*   **Bot:** "Daniel: Agree, and hiring bars might move faster with smaller pipelines."
+*   **User:** "..."
 
 ---
 
-## Section 4: Career Planning
+## Section 4: Mac Console for Relationship Ops
 **Marketing Copy:**
-*   **Title:** A strategy built for the long game.
-*   **Body:** Whether you need a roadmap for the next semester or a record of your achievements for an interview, Franklink keeps track of your entire journey.
+*   **Title:** Mac Console for Relationship Ops
+*   **Body:** Manage your network and knowledge base on Mac outside iMessage so Franklink understands your full context. Changes sync back to improve matches and intros.
 
-**Demo 7: Detailed Plan**
-*   **User:** "I want to get into Product Management, but I have no experience. What should I do this summer?"
-*   **Bot:** "It's not too late. Here is a 3-step plan for this summer:
-    1.  **Build a side project:** We can brainstorm ideas this weekend.
-    2.  **Get a certificate:** The Google PM certificate is a good start.
-    3.  **Network:** Connect with 5 PM alums (I can find them for you).
-    
-    Which one do you want to start with?"
+**Demo 7: Sync Notes**
+*   **User:** "I updated some relationship notes and tags in the Mac console. Can you see them?"
+*   **Bot:** "Frank: Absolutely. I've synced your network and knowledge base outside iMessage and will use it to improve matching and intros."
 
-**Demo 8: Long-term Memory**
-*   **User:** "I'm updating my resume. What did I actually accomplish last semester?"
-*   **Bot:** "You did a lot! Here's a recap:
-    *   Led the marketing team for the Hackathon (raised $5k).
-    *   Built that React app for your final project.
-    *   Volunteered at the local shelter every Saturday.
-    
-    I can bullet-point these for your resume if you like."
+**Demo 8: Update Library**
+*   **User:** "I just wrapped the Aurora project, updated my resume, and added my notes to the library."
+*   **Bot:** "Frank: Got it. Your knowledge base is updated. That's huge. Future links will be more precise."
 
 ---
 
-## Section 5: Emotional Support
+## Section 5: Career Answers and Real Support
 **Marketing Copy:**
-*   **Title:** Support when things get tough.
-*   **Body:** The career journey isn't a straight line. Franklink is there for the rejections, the stress, and the moments you just need to vent, offering perspective and encouragement.
+*   **Title:** Career Answers and Real Support
+*   **Body:** Ask real technical questions and get industry-grade answers. When the pressure hits, Frank steadies you and helps you move forward.
 
-**Demo 9: Offer Rejection**
-*   **User:** "I didn't get the internship at Google. I feel like a failure."
-*   **Bot:** "I'm really sorry to hear that. It sucks, and it's okay to be upset.
-    
-    Remember: this one 'no' doesn't erase your skills or your worth. You still have 3 other active applications, and your portfolio is strong. Take tonight off, and we can look at next steps tomorrow."
+**Demo 9: M&A Technical Question**
+*   **User:** "In an all-stock acquisition, how do I show accretion/dilution when the target has negative net income? What actually drives the result?"
+*   **Bot:** "Frank: Accretion/dilution is driven by relative P/E, net synergies, and one-time costs. Build pro forma EPS with the exchange ratio, adjust target earnings for purchase accounting, subtract integration costs, then layer synergies with a ramp and sensitize."
 
-**Demo 10: Venting**
-*   **User:** "I am so overwhelmed. Everyone else seems to have it figured out."
-*   **Bot:** "I promise you, they don't. They're just posting the highlights.
-    
-    You're doing the work, and that's what matters. Take a deep breath. Is there one small thing we can get off your plate right now to make tonight easier?"
+**Demo 10: Emotional Support**
+*   **User:** "I'm behind. Everyone else is moving faster and I feel like I'm not built for this."
+*   **Bot:** "Frank: That feeling is real, and you're not alone. Rest tonight - I'll draft a minimal action plan for tomorrow."

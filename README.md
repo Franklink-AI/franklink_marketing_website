@@ -2,8 +2,12 @@
 
 A modern, animated marketing website for Franklink - an AI Career Agent in iMessage that helps college students with career events and follow-ups.
 
+Main entry point: `index.html` (feature showcase homepage).
+Legacy two-demo landing page: `old-index-with-two-demo.html`.
+
 ## Features
 
+- **Feature Showcase Homepage**: Scroll-synced iMessage demo with dynamic typing inside a sticky phone frame
 - **Animated iMessage Demo**: Messages slide in with smooth animations on page load/refresh
 - **Interactive Phone Flip**: Hover over the phone to see "3 Days After" text, followed by a 3D flip animation showing the follow-up demo
 - **Responsive Design**: Fully responsive layout that works on desktop, tablet, and mobile devices
@@ -11,12 +15,14 @@ A modern, animated marketing website for Franklink - an AI Career Agent in iMess
 - **Modern UI**: Clean, professional design with gradient effects and smooth transitions
 - **Legal Compliance**: Complete privacy policy, terms of service, and data deletion instructions
 - **Unified Footer**: Consistent footer on all pages with legal links and copyright
+- **Legacy Two-Demo Page**: Previous homepage preserved at `old-index-with-two-demo.html`
 
 ## Project Structure
 
 ```
 franklink_marketing_website/
-├── index.html                 # Main marketing page
+├── index.html                 # Main marketing page (feature showcase homepage)
+├── old-index-with-two-demo.html # Legacy two-demo landing page
 ├── about.html                 # About page
 ├── team.html                  # Team page
 ├── faq.html                   # FAQ page
@@ -26,10 +32,10 @@ franklink_marketing_website/
 ├── data-deletion.html         # Data Deletion Instructions
 ├── styles.css                 # Global styles and animations
 ├── script.js                  # JavaScript interactions
-├── Franklink Banner 2.png     # Brand logo
-├── iMessage_phone_demo/       # Product demo images
-│   ├── phone_one/            # Activity discovery demo (11 images)
-│   └── phone_two/            # Follow-up resources demo (11 images)
+├── /assets/images/branding/franklink-banner-2.png     # Brand logo
+├── assets/images/demos/imessage/       # Product demo images
+│   ├── phone-one/                      # Activity discovery demo (11 images)
+│   └── phone-two/                      # Follow-up resources demo (11 images)
 ├── agreements/                # Legal markdown source files
 │   ├── PRIVACY_POLICY.md
 │   ├── TERMS_OF_SERVICE.md
@@ -45,6 +51,7 @@ franklink_marketing_website/
 
 1. **Open the Website**
    - Simply open `index.html` in a modern web browser (Chrome, Firefox, Safari, Edge)
+   - For the legacy two-demo page, open `old-index-with-two-demo.html`
 
 2. **Image Setup**
    - The website uses your existing PNG files for the Franklink logo
@@ -53,7 +60,8 @@ franklink_marketing_website/
      - Or open `placeholder-images.html` to generate and save placeholder images
 
 3. **Customization**
-   - Edit `index.html` to update content, event details, or messaging
+   - Edit `index.html` to update feature messaging and homepage content
+   - Edit `old-index-with-two-demo.html` to update legacy demo content
    - Modify `styles.css` to adjust colors, spacing, or animations
    - Update `script.js` to change animation timing or add new interactions
 

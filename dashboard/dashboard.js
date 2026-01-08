@@ -402,7 +402,7 @@ function renderGraph(nodes, links) {
   node
     .append("image")
     .attr("class", "node-logo")
-    .attr("href", "./franklink-logo.png")
+    .attr("href", "/dashboard/franklink-logo.png")
     .attr("x", (d) => -d.radius)
     .attr("y", (d) => -d.radius)
     .attr("width", (d) => d.radius * 2)
@@ -456,7 +456,7 @@ function renderGraph(nodes, links) {
     .attr("fill", "white")
     .attr("font-size", 12)
     .attr("font-weight", 600)
-    .attr("font-family", "Inter, system-ui, sans-serif")
+    .attr("font-family", "Figtree, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif")
     .attr("letter-spacing", "-0.01em")
     .style("pointer-events", "none")
     .text((d) => d.shortLabel);

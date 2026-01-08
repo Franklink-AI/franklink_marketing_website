@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     handlePhoneInteraction();
     initScrollAnimations();
     handleNavigation();
+    setupXPopover();
     setupPhoneToggle();
     setupHamburgerMenu();
     initHeroTextAnimation();  // Hero → Text Transition Animation on mobile
@@ -244,6 +245,70 @@ function handleNavigation() {
                         behavior: 'smooth'
                     });
                 }
+            }
+        });
+    });
+}
+
+function setupXPopover() {
+    const xLinks = document.querySelectorAll('.footer-social-link[aria-label="X"]');
+    if (xLinks.length === 0) return;
+
+    const message = 'X is under construction. Please check back soon.';
+    const hideTimers = new WeakMap();
+
+    const ensurePopover = (link) => {
+        let popover = link.querySelector('.x-popover');
+        if (popover) return popover;
+        popover = document.createElement('span');
+        popover.className = 'x-popover';
+        popover.setAttribute('role', 'tooltip');
+        popover.textContent = message;
+        link.appendChild(popover);
+        return popover;
+    };
+
+    const clearHideTimer = (link) => {
+        const timerId = hideTimers.get(link);
+        if (!timerId) return;
+        clearTimeout(timerId);
+        hideTimers.delete(link);
+    };
+
+    const showPopover = (link) => {
+        ensurePopover(link);
+        clearHideTimer(link);
+        link.classList.add('x-popover-open');
+    };
+
+    const hidePopover = (link) => {
+        clearHideTimer(link);
+        link.classList.remove('x-popover-open');
+    };
+
+    const scheduleHide = (link) => {
+        clearHideTimer(link);
+        const timerId = setTimeout(() => {
+            hidePopover(link);
+        }, 3000);
+        hideTimers.set(link, timerId);
+    };
+
+    xLinks.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            showPopover(link);
+        });
+
+        link.addEventListener('mouseleave', () => {
+            scheduleHide(link);
+        });
+
+        link.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            showPopover(link);
+            if (!link.matches(':hover')) {
+                scheduleHide(link);
             }
         });
     });
@@ -512,6 +577,9 @@ function initNewSectionAnimations() {
 function initSmoothScrollWithOffset() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            if (e.defaultPrevented) {
+                return;
+            }
             e.preventDefault();
             const targetId = this.getAttribute('href');
 
@@ -707,12 +775,12 @@ function setupHamburgerMenu() {
     const hamburgerBtn = document.getElementById('hamburger-menu');
     const navDrawer = document.getElementById('nav-drawer');
     const navOverlay = document.getElementById('nav-overlay');
-    const navLinks = navDrawer.querySelectorAll('a');
 
     if (!hamburgerBtn || !navDrawer || !navOverlay) {
-        console.warn('Hamburger menu elements not found');
         return;
     }
+
+    const navLinks = navDrawer.querySelectorAll('a');
 
     /**
      * Toggle drawer open/close state

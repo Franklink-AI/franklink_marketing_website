@@ -27,11 +27,14 @@
 ## Files to Deploy
 
 Essential files:
-- `index.html` - Main webpage
-- `styles.css` - Styling
-- `script.js` - Interactions
-- `Franklink Banner 2.png` - Logo
-- `iMessage_phone_demo/` - All demo images (both phone_one and phone_two folders)
+- `index.html` - Main webpage (feature showcase homepage)
+- `old-index-with-two-demo.html` - Legacy two-demo landing page
+- `styles.css` - Global styling
+- `feature_styles.css` - Feature showcase styling
+- `script.js` - Shared interactions
+- `feature_script.js` - Feature showcase interactions
+- `/assets/images/branding/franklink-banner-2.png` - Logo
+- `assets/images/demos/imessage/` - All demo images (phone-one and phone-two folders, iPhone frame)
 
 ## DNS Configuration
 

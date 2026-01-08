@@ -1,212 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Franklink - AI Career Agent & Companion</title>
+    <title>Features - Franklink | AI Career Companion</title>
+    <meta name="description"
+        content="Discover Franklink's features - the AI career companion that lives inside iMessage to guide college students from first-day nerves to alumni-level confidence.">
     <link rel="stylesheet" href="styles.css">
-
-    <!-- Site Icon / Favicon -->
-    <link rel="icon" type="image/x-icon" href="tab_logo.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-
-    <!-- Site Name Meta Tags -->
-    <meta name="application-name" content="Franklink">
-    <meta name="apple-mobile-web-app-title" content="Franklink">
-    <meta property="og:site_name" content="Franklink">
-    <meta property="og:title" content="Franklink - AI Career Agent & Companion">
-    <meta property="og:description" content="Talk to Frank. An AI Career Agent on iMessage helping college students explore directions and opportunities.">
-    <meta property="og:url" content="https://franklink.ai/">
-    <meta property="og:image" content="https://franklink.ai/icon-512.png">
-
-    <!-- WebSite Structured Data: For Google Site Name -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "url": "https://franklink.ai/",
-      "name": "Franklink",
-      "alternateName": "Franklink AI Career Agent"
-    }
-    </script>
-
-    <!-- Organization Structured Data: For Knowledge Graph / Brand Card -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Franklink",
-      "url": "https://franklink.ai/",
-      "logo": "https://franklink.ai/icon-512.png"
-    }
-    </script>
+    <link rel="stylesheet" href="feature_styles.css">
+    <link rel="icon" type="image/x-icon" href="/assets/images/icons/tab-logo.ico">
 </head>
-<body>
+
+<body class="page-feature">
     <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <img src="Franklink Banner 2.png" alt="Franklink" class="logo-img">
+                <img src="/assets/images/branding/franklink-banner-2.png" alt="Franklink" class="logo-img">
             </a>
-            <!-- Horizontal Navigation Links (visible on desktop) -->
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="feature.html">Feature</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="team.html">Team</a></li>
-                <li><a href="faq.html">FAQ</a></li>
-                <li><a href="contact.html">Contact</a></li>
             </ul>
-            <!-- Hamburger Menu Button -->
-            <button class="hamburger-menu" id="hamburger-menu" aria-label="Toggle navigation menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <!-- Navigation Drawer (mobile only) -->
-            <div class="nav-drawer" id="nav-drawer">
-                <ul class="nav-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="feature.html">Feature</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="team.html">Team</a></li>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <!-- Navigation Overlay (for closing drawer) -->
-            <div class="nav-overlay" id="nav-overlay"></div>
+            <a class="nav-cta" href="imessage-redirect.html">Meet Frank Now</a>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <div class="content-wrapper">
-            <!-- Left Side - iPhone Demo -->
-            <div class="demo-section">
-                <!-- Hover Overlay for "Three Days After" -->
-                <div class="hover-overlay" id="hover-overlay">
-                    <div class="hover-text">Three Days After</div>
-                </div>
-
-                <!-- Phone 1 Container (Visible by default) -->
-                <div class="phone-container phone-one" id="phone-one">
-                    <!-- Phone Background Only -->
-                    <img src="iMessage_phone_demo/phone_one/phone.png" alt="iPhone" class="phone-image">
-
-                    <!-- Franklink Profile (logo + text combined) -->
-                    <img src="iMessage_phone_demo/phone_one/franklink_profile.png" alt="Franklink AI" class="franklink-profile">
-
-                    <!-- Messages Container - Using pre-rendered PNG images -->
-                    <div class="messages-container">
-                        <!-- Message 1: User asking for events -->
-                        <img src="iMessage_phone_demo/phone_one/message_one.png" alt="User message" class="content-image slide-in-right" style="animation-delay: 0.5s" data-delay="0.5s">
-
-                        <!-- Message 2: Agent response -->
-                        <img src="iMessage_phone_demo/phone_one/message_two.png" alt="Agent message" class="content-image slide-in-left" style="animation-delay: 1s" data-delay="1s">
-
-                        <!-- Event Card 1: AI Entrepreneurship Workshop -->
-                        <img src="iMessage_phone_demo/phone_one/event_card_one.png" alt="AI Entrepreneurship Workshop" class="content-image slide-in-left" style="animation-delay: 1.5s" data-delay="1.5s">
-
-                        <!-- Event Card 2: Jane Street Information Session -->
-                        <img src="iMessage_phone_demo/phone_one/event_card_two.png" alt="Jane Street Information Session" class="content-image slide-in-right" style="animation-delay: 2s" data-delay="2s">
-
-                        <!-- Message 3: Agent message with like -->
-                        <img src="iMessage_phone_demo/phone_one/message_three.png" alt="Agent message with like" class="content-image slide-in-left" style="animation-delay: 2.5s" data-delay="2.5s">
+    <main>
+        <!-- SECTION 1: HERO (Preserved) -->
+        <section id="hero" class="about-hero feature-hero">
+            <div class="hero-video-bg" aria-hidden="true">
+                <video id="hero-background-video" class="hero-video" autoplay muted loop playsinline
+                    preload="metadata" poster="/assets/images/branding/franklink-webpage-main.png"
+                    src="/assets/videos/handshaking-1.mp4">
+                </video>
+                <div class="hero-video-overlay"></div>
+            </div>
+            <div class="about-hero-container">
+                <div class="about-hero-content">
+                    <h1>The AI bot that connects you with peers and professionals<br />— and make it everlasting.</h1>
+                    <p class="about-hero-subheading">Franklink lives inside iMessage to assist you in networking<br />— it connects people truly tailored to you.</p>
+                    <div class="about-hero-cta">
+                        <a href="imessage-redirect.html" class="btn-primary">Get early access</a>
+                        <a href="#feature-scroll-container" class="btn-secondary">See how it works</a>
                     </div>
-
                 </div>
+            </div>
+        </section>
 
-                <!-- Phone 2 Container (Hidden by default) -->
-                <div class="phone-container-two phone-two" id="phone-two" style="display: none;">
-                    <!-- Phone Background -->
-                    <img src="iMessage_phone_demo/phone_two/phone.png" alt="iPhone" class="phone-image">
+        <!-- INTERACTIVE FEATURE SHOWCASE -->
+        <div class="feature-showcase-container" id="feature-scroll-container">
 
-                    <!-- Franklink Profile (logo + text combined) -->
-                    <img src="iMessage_phone_demo/phone_two/franklink_profile.png" alt="Franklink AI" class="franklink-profile">
+            <!-- Sticky Phone Container (Left) -->
+            <div class="sticky-phone-wrapper">
+                <div class="iphone-frame-container">
+                    <!-- The Phone Image Frame -->
+                    <img src="/assets/images/demos/imessage/iphone-16-frame.png" alt="iPhone 16 Frame" class="iphone-bg">
 
-                    <!-- Messages Container for Phone 2 - Using pre-rendered PNG images -->
-                    <div class="messages-container">
-                        <!-- Message 4: Agent question -->
-                        <img src="iMessage_phone_demo/phone_two/message_four.png" alt="Agent message" class="content-image slide-in-left" style="animation-delay: 0.5s" data-delay="0.5s">
+                    <!-- Dynamic Island / Top Bar Area (Visual only, part of image usually, but we can add overlay if needed) -->
 
-                        <!-- Message 5: User response -->
-                        <img src="iMessage_phone_demo/phone_two/message_five.png" alt="User message" class="content-image slide-in-right" style="animation-delay: 1s" data-delay="1s">
+                    <!-- Screen Content Area -->
+                    <div class="iphone-screen">
+                        <!-- Header (Contact Name) -->
+                        <div class="screen-header">
+                            <div class="header-avatar">
+                                <img src="/assets/homepage/frank-head.jpg" alt="Franklink">
+                            </div>
+                            <div class="header-info">
+                                <span class="header-name">Frank</span>
+                                <span class="header-arrow">></span>
+                            </div>
+                        </div>
 
-                        <!-- Message 6: Agent response -->
-                        <img src="iMessage_phone_demo/phone_two/message_six.png" alt="Agent message" class="content-image slide-in-left" style="animation-delay: 1.5s" data-delay="1.5s">
+                        <!-- Chat Area -->
+                        <div class="chat-scroll-area" id="chat-area">
+                            <!-- Messages will be injected here by JS -->
+                        </div>
 
-                        <!-- Resource Card 1: Books and Videos -->
-                        <img src="iMessage_phone_demo/phone_two/card_one.png" alt="Books and Videos for Intro" class="content-image slide-in-left" style="animation-delay: 2s" data-delay="2s">
-
-                        <!-- Resource Card 2: School Resources -->
-                        <img src="iMessage_phone_demo/phone_two/card_two.png" alt="Resources at Your School" class="content-image slide-in-right" style="animation-delay: 2.5s" data-delay="2.5s">
-
-                        <!-- Resource Card 3: Firms -->
-                        <img src="iMessage_phone_demo/phone_two/card_three.png" alt="What firms are out there?" class="content-image slide-in-left" style="animation-delay: 3s" data-delay="3s">
+                        <!-- Input Area -->
+                        <div class="input-area">
+                            <button class="attach-btn" type="button" aria-label="Add attachment">+</button>
+                            <div class="input-field-wrapper">
+                                <textarea id="phone-input" rows="1" placeholder="iMessage" readonly></textarea>
+                                <div class="input-cursor"></div>
+                                <button class="send-btn" id="send-btn" type="button" aria-label="Send message">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="white" stroke-width="3"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side - Text Content -->
-            <div class="text-section">
-                <h1 class="main-title">Your Personalized</h1>
-                <h2 class="subtitle">AI Career Agent & Companion</h2>
+            <!-- Scrollable Text Sections (Right) -->
+            <div class="scrollable-content-wrapper">
 
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <div class="stat-number">1M+</div>
-                        <div class="stat-label">Career Resources</div>
+                <!-- Section 1: Connect People -->
+                <section class="feature-section" data-index="0">
+                    <div class="feature-text-content">
+                        <h2>Profile-First Onboarding, Dynamic Target Circles</h2>
+                        <p>Frank asks a few focused questions to map your background and goals. Update your direction
+                            anytime and the matching focus adjusts immediately.</p>
+                        <div class="feature-tags">
+                            <span class="tag">Onboarding</span>
+                            <span class="tag">Profile Graph</span>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number">Free</div>
-                        <div class="stat-label">To Use</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">AI</div>
-                        <div class="stat-label">Powered</div>
-                    </div>
-                </div>
+                </section>
 
-                <a href="imessage-redirect.html" target="_blank" class="cta-button" role="button">Talk to Frank Now</a>
+                <!-- Section 2: Recommended Resources -->
+                <section class="feature-section" data-index="1">
+                    <div class="feature-text-content">
+                        <h2>Same-Frequency Matches, Consent First</h2>
+                        <p>Franklink finds peers and alumni who match your track, then asks both sides before
+                            connecting. If someone wants to meet you, Frank checks with you first.</p>
+                        <div class="feature-tags">
+                            <span class="tag">Consent Matching</span>
+                            <span class="tag">Inbound Requests</span>
+                        </div>
+                    </div>
+                </section>
 
-                <p class="description">
-                    We are an AI Career Agent based on iMessage,<br>
-                    which walks with college students as they explore directions,<br>
-                    opportunities, and personal growth.
-                </p>
+                <!-- Section 3: Calendar & Time Management -->
+                <section class="feature-section" data-index="2">
+                    <div class="feature-text-content">
+                        <h2>Warm Intros and News Hooks</h2>
+                        <p>Once both sides agree, Frank opens a three-way chat with a warm intro. If the thread cools,
+                            he drops a relevant news hook to restart the conversation.</p>
+                        <div class="feature-tags">
+                            <span class="tag">Warm Intro</span>
+                            <span class="tag">News Hook</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 4: Career Planning -->
+                <section class="feature-section" data-index="3">
+                    <div class="feature-text-content">
+                        <h2>Mac Console for Relationship Ops</h2>
+                        <p>Manage your network and knowledge base on Mac outside iMessage so Franklink understands your
+                            full context. Changes sync back to improve matches and intros.</p>
+                        <div class="feature-tags">
+                            <span class="tag">Mac Console</span>
+                            <span class="tag">Knowledge Base</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: Emotional Support -->
+                <section class="feature-section" data-index="4">
+                    <div class="feature-text-content">
+                        <h2>Career Answers and Real Support</h2>
+                        <p>Ask real technical questions and get industry-grade answers. When the pressure hits, Frank
+                            steadies you and helps you move forward.</p>
+                        <div class="feature-tags">
+                            <span class="tag">Expert Answers</span>
+                            <span class="tag">Emotional Support</span>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </div>
 
-        <!-- Quote Section -->
-        <section class="quote-section">
-            <blockquote class="main-quote">
-                <p>It's not just about finding jobs —<br>
-                it's also about <span class="highlight">offering advice when you feel anxious, lost, or stuck.</span><br>
-                Let us accompany you through every moment of confusion and help you find the direction that fits you best.</p>
-            </blockquote>
+        <section class="security-privacy-section" id="security-privacy">
+            <div class="security-privacy-container">
+                <div class="section-header">
+                    <h2>Trust you can feel</h2>
+                    <p class="section-subtitle">We lock your story down, keep it off the training table, and let you erase it anytime.</p>
+                </div>
+                <div class="security-privacy-grid">
+                    <article class="feature-card security-card fade-in-element" data-direction="left">
+                        <div class="security-card-icon" aria-hidden="true">
+                            <div class="security-card-icon-mark security-card-icon-mark--lock"></div>
+                        </div>
+                        <h3>Locked end to end</h3>
+                        <p>Your career story is encrypted end-to-end, so your social network details stay sealed even as Franklink does the legwork. We keep what you share tightly locked, explain the guardrails in our <a class="security-card-link" href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and let you erase everything on your terms via <a class="security-card-link" href="data-deletion.html" target="_blank" rel="noopener noreferrer">Data Deletion</a>.</p>
+                    </article>
+                    <article class="feature-card security-card fade-in-element" data-direction="right">
+                        <div class="security-card-icon" aria-hidden="true">
+                            <div class="security-card-icon-mark security-card-icon-mark--no-training"></div>
+                        </div>
+                        <h3>AI with a backbone</h3>
+                        <p>We never train models on your data, period. Your chats stay yours, and your history never becomes someone else's training set. That promise is codified in our <a class="security-card-link" href="terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 11: FINAL CTA (Preserved) -->
+        <section id="final-cta" class="final-cta-section">
+            <div class="final-cta-container">
+                <h2>Ready to meet the AI that knows what you need—before you ask?</h2>
+                <p class="cta-subheading">Join the first wave of students shaping how Franklink learns, supports, and
+                    guides.</p>
+                <div class="final-cta-buttons">
+                    <a href="imessage-redirect.html" class="btn-primary">Get early access</a>
+                    <a href="contact.html" class="btn-secondary">Talk to us</a>
+                </div>
+            </div>
         </section>
     </main>
 
     <footer class="legal-footer">
         <div class="footer-container">
-            <div class="footer-logo">
-                <a href="index.html">
-                    <img src="Franklink Banner 2.png" alt="Franklink" class="footer-logo-img">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">
+                    <img src="/assets/images/branding/franklink-banner-2.png" alt="Franklink" class="footer-logo-img">
                 </a>
+                <div class="footer-social">
+                    <a class="footer-social-link" href="#" aria-label="X">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M18.244 2H21l-6.84 7.82L22 22h-6.2l-4.85-6.16L5.22 22H2.46l7.32-8.37L2 2h6.34l4.38 5.58L18.244 2zm-1.09 18h1.53L7.62 4H6.05l11.11 16z"></path>
+                        </svg>
+                    </a>
+                    <a class="footer-social-link" href="https://www.linkedin.com/company/franklink/" aria-label="LinkedIn">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M0 1.146C0 .513.526 0 1.175 0h21.65C23.474 0 24 .513 24 1.146v21.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 24 0 23.487 0 22.854V1.146zm7.368 20.452V9.024H3.92v12.574h3.447zm-1.724-14.3c1.1 0 1.785-.73 1.785-1.647-.02-.936-.686-1.647-1.765-1.647-1.08 0-1.785.711-1.785 1.647 0 .917.686 1.647 1.744 1.647h.02zm4.704 14.3h3.447v-7.017c0-.375.028-.75.14-1.018.304-.75 1-1.526 2.168-1.526 1.53 0 2.143 1.151 2.143 2.84v6.721h3.447v-7.11c0-3.813-2.033-5.588-4.744-5.588-2.194 0-3.157 1.205-3.7 2.053v.041h-.021a5.37 5.37 0 0 1 .021-.041V9.024h-3.447c.045 1.014 0 12.574 0 12.574z"></path>
+                        </svg>
+                    </a>
+                    <a class="footer-social-link" href="https://discord.com/channels/1427743369613934780/1427743372436836375" aria-label="Discord">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"></path>
+                        </svg>
+                    </a>
+                    <a class="footer-social-link" href="https://www.instagram.com/franklink_ai/" aria-label="Instagram">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.5a5 5 0 1 1 0 10a5 5 0 0 1 0-10zm0 1.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7zm5.25-.88a1.13 1.13 0 1 1 0 2.26a1.13 1.13 0 0 1 0-2.26z"></path>
+                        </svg>
+                    </a>
+                </div>
             </div>
-            <div class="footer-legal-links">
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="terms.html">Terms of Service</a>
-                <a href="data-deletion.html">Data Deletion</a>
-            </div>
-            <div class="footer-copyright">
-                Copyright &copy; 2025 Franklink Inc.
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h4 class="footer-column-title">Terms and policies</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="data-deletion.html">Data Deletion</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-column-title">About us</h4>
+                    <ul class="footer-links">
+                        <li><a href="team.html">Team</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                        <li><a href="story.html">Story</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-column-title">Keep in touch</h4>
+                    <ul class="footer-links">
+                        <li><a href="contact.html">Contact us</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </footer>
 
     <script src="script.js"></script>
+    <script src="feature_script.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,15 @@
+﻿Franlink aims to build an AI agent that turns superficial networking into an actual relationship. This starts with a match of two students of the same University (or different ones) who share similar career interests. Frank proactively reaches out to user A about a potential connection with person B. If both A and B agree, Frank immediately creates a group chat of 3: A, B, and Frank. It offers a warm intro for both sides and throws a “hook” to begin the conversation and capture users’ attention. This hook can be a news share, a poll, or it may take other forms. Frank will stay completely silent when both users are talking with each other and keep track of the conversation. Suppose two users happen not to interact for an extensive period of time. In that case, Frank will jump in and initiate a conversation with some interesting and valuable resources, such as teaming up for a stock pitch or exciting news about a new AI model.
+
+
+Features needed to be implemented:
+
+
+1. Onboarding: collects user phone number, school, and career interest | COMPLETED
+2. Matching: matches people with similar career interests 
+3. Proactive Reachout (in one-on-one chat): once a good pair is found, proactively reaches out to both users and asks them if they wish to connect 
+4. Groupchat Creation: creates a group chat that includes A, B, and Frank. | COMPLETED
+5. Warm Intro: sends a warm intro for both sides based on their background and interests
+6. News Recommendation: sends the latest news that is important and strongly relevant to both users, throws Frank’s opinions for discussion, or asks users' opinions on the press
+7. Conversation Record: keeps track of conversations and stores them in the database.
+8. Relationship Maintenance (in group chat): initiates conversation through a hook when both sides stop talking for a while.
+9. Private Chat: users can share their recent career experiences with Frank, adjust the mode of Frank (from active to full stop), request a connection maintenance with contacts, etc.
