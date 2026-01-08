@@ -16,7 +16,6 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     scroll-snap-align: start;
     /* Allow snapping to Hero */
-    --hero-overlay-opacity: 0.82;
 }
 
 .hero-video-bg {
@@ -34,12 +33,6 @@
     object-position: center;
     animation: heroSlowZoom 26s ease-in-out infinite alternate;
     filter: saturate(0.9) contrast(1.05);
-}
-
-.hero-video-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(5, 8, 16, var(--hero-overlay-opacity));
 }
 
 .feature-hero .about-hero-container {
@@ -131,16 +124,26 @@
     }
 }
 
-.page-feature .navbar.nav-reveal-active {
-    opacity: var(--nav-reveal, 0);
-    transform: translateY(calc((1 - var(--nav-reveal, 0)) * -14px))
-        scale(calc(0.96 + (var(--nav-reveal, 0) * 0.04)));
-    pointer-events: none;
-    will-change: opacity, transform;
+.page-feature .navbar {
+    --nav-hero-scale: 1;
+    --nav-hero-shift: 0px;
+    --nav-hero-opacity: 1;
 }
 
-.page-feature .navbar.nav-reveal-active.nav-interactive {
+.page-feature .navbar.nav-hero-transform {
+    opacity: var(--nav-hero-opacity, 1);
     pointer-events: auto;
+}
+
+.page-feature .navbar.nav-hero-transform .nav-container {
+    transform: translateY(var(--nav-hero-shift, 0px)) scale(var(--nav-hero-scale, 1));
+    transform-origin: center;
+    will-change: transform, opacity;
+}
+
+.page-feature .navbar.nav-hero-transform .nav-container:hover,
+.page-feature .navbar.nav-hero-transform .nav-container:focus-within {
+    transform: translateY(var(--nav-hero-shift, 0px)) scale(var(--nav-hero-scale, 1));
 }
 
 /* Ensure other main sections snap too */

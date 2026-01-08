@@ -10,9 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let prefersReducedMotion = reducedMotionQuery.matches;
 
-    const OVERLAY_MAX = 0.82;
-    const OVERLAY_MIN = 0.2;
-    const NAV_INTERACTIVE_THRESHOLD = 0.85;
+    const NAV_SCALE_MAX = 3;
+    const NAV_SCALE_MIN = 1;
 
     function setupHeroVideoSequence() {
         if (!heroVideo) return;
@@ -62,23 +61,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function setupHeroOverlayScroll() {
+    function setupHeroNavScroll() {
         if (!heroSection || !nextSection) return;
 
         let heroStart = 0;
         let heroEnd = 0;
         let rafId = null;
+        let navTopGap = 0;
+        let navHeight = 0;
 
         const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-        const setOverlayOpacity = (value) => {
-            heroSection.style.setProperty('--hero-overlay-opacity', value.toFixed(3));
-        };
-
-        const setNavReveal = (value) => {
+        const setNavTransform = (progress) => {
             if (!navBar) return;
-            navBar.style.setProperty('--nav-reveal', value.toFixed(3));
-            navBar.classList.toggle('nav-interactive', value >= NAV_INTERACTIVE_THRESHOLD);
+            const scale = NAV_SCALE_MAX - (NAV_SCALE_MAX - NAV_SCALE_MIN) * progress;
+            const maxShift = Math.max(0, (window.innerHeight / 2) - navTopGap - (navHeight * NAV_SCALE_MAX / 2));
+            const shift = maxShift * (1 - progress);
+            navBar.style.setProperty('--nav-hero-scale', scale.toFixed(3));
+            navBar.style.setProperty('--nav-hero-shift', `${shift.toFixed(2)}px`);
         };
 
         const recalcBounds = () => {
@@ -86,20 +86,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const nextTop = nextSection.offsetTop;
             const minEnd = heroStart + heroSection.offsetHeight;
             heroEnd = Math.max(nextTop, minEnd);
+            if (navBar) {
+                const navStyles = window.getComputedStyle(navBar);
+                navTopGap = parseFloat(navStyles.top) || 0;
+                navHeight = navBar.offsetHeight || 0;
+            }
         };
 
-        const updateOverlay = () => {
+        const updateNav = () => {
             const scrollY = window.scrollY || window.pageYOffset;
             const progress = clamp((scrollY - heroStart) / (heroEnd - heroStart), 0, 1);
 
             if (prefersReducedMotion) {
-                setOverlayOpacity(OVERLAY_MAX);
-                setNavReveal(progress >= 1 ? 1 : 0);
+                setNavTransform(progress);
                 return;
             }
-            const opacity = OVERLAY_MAX - (OVERLAY_MAX - OVERLAY_MIN) * progress;
-            setOverlayOpacity(opacity);
-            setNavReveal(progress);
+            setNavTransform(progress);
         };
 
         const onScroll = () => {
@@ -107,26 +109,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rafId) return;
             rafId = window.requestAnimationFrame(() => {
                 rafId = null;
-                updateOverlay();
+                updateNav();
             });
         };
 
         if (navBar) {
-            navBar.classList.add('nav-reveal-active');
+            navBar.classList.add('nav-hero-transform');
         }
 
         recalcBounds();
-        updateOverlay();
+        updateNav();
 
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', () => {
             recalcBounds();
-            updateOverlay();
+            updateNav();
         });
 
         const handleReducedMotionChange = (event) => {
             prefersReducedMotion = event.matches;
-            updateOverlay();
+            updateNav();
         };
 
         if (typeof reducedMotionQuery.addEventListener === 'function') {
@@ -137,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setupHeroVideoSequence();
-    setupHeroOverlayScroll();
+    setupHeroNavScroll();
 
     // --- Configuration ---
     const TYPING_SPEED_MIN = 30;
