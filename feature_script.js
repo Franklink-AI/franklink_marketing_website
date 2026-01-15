@@ -6,12 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const heroSection = document.getElementById('hero');
     const heroVideo = document.getElementById('hero-background-video');
     const nextSection = document.getElementById('feature-scroll-container');
-    const navBar = document.querySelector('.navbar');
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let prefersReducedMotion = reducedMotionQuery.matches;
-
-    const NAV_SCALE_MAX = 3;
-    const NAV_SCALE_MIN = 1;
 
     function setupHeroVideoSequence() {
         if (!heroVideo) return;
@@ -61,85 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function setupHeroNavScroll() {
-        if (!heroSection || !nextSection) return;
-
-        let heroStart = 0;
-        let heroEnd = 0;
-        let rafId = null;
-        let navTopGap = 0;
-        let navHeight = 0;
-
-        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-        const setNavTransform = (progress) => {
-            if (!navBar) return;
-            const scale = NAV_SCALE_MAX - (NAV_SCALE_MAX - NAV_SCALE_MIN) * progress;
-            const maxShift = Math.max(0, (window.innerHeight / 2) - navTopGap - (navHeight * NAV_SCALE_MAX / 2));
-            const shift = maxShift * (1 - progress);
-            navBar.style.setProperty('--nav-hero-scale', scale.toFixed(3));
-            navBar.style.setProperty('--nav-hero-shift', `${shift.toFixed(2)}px`);
-        };
-
-        const recalcBounds = () => {
-            heroStart = heroSection.offsetTop;
-            const nextTop = nextSection.offsetTop;
-            const minEnd = heroStart + heroSection.offsetHeight;
-            heroEnd = Math.max(nextTop, minEnd);
-            if (navBar) {
-                const navStyles = window.getComputedStyle(navBar);
-                navTopGap = parseFloat(navStyles.top) || 0;
-                navHeight = navBar.offsetHeight || 0;
-            }
-        };
-
-        const updateNav = () => {
-            const scrollY = window.scrollY || window.pageYOffset;
-            const progress = clamp((scrollY - heroStart) / (heroEnd - heroStart), 0, 1);
-
-            if (prefersReducedMotion) {
-                setNavTransform(progress);
-                return;
-            }
-            setNavTransform(progress);
-        };
-
-        const onScroll = () => {
-            if (prefersReducedMotion) return;
-            if (rafId) return;
-            rafId = window.requestAnimationFrame(() => {
-                rafId = null;
-                updateNav();
-            });
-        };
-
-        if (navBar) {
-            navBar.classList.add('nav-hero-transform');
-        }
-
-        recalcBounds();
-        updateNav();
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', () => {
-            recalcBounds();
-            updateNav();
-        });
-
-        const handleReducedMotionChange = (event) => {
-            prefersReducedMotion = event.matches;
-            updateNav();
-        };
-
-        if (typeof reducedMotionQuery.addEventListener === 'function') {
-            reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
-        } else if (typeof reducedMotionQuery.addListener === 'function') {
-            reducedMotionQuery.addListener(handleReducedMotionChange);
-        }
-    }
-
     setupHeroVideoSequence();
-    setupHeroNavScroll();
 
     // --- Configuration ---
     const TYPING_SPEED_MIN = 30;

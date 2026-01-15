@@ -124,28 +124,6 @@
     }
 }
 
-.page-feature .navbar {
-    --nav-hero-scale: 1;
-    --nav-hero-shift: 0px;
-    --nav-hero-opacity: 1;
-}
-
-.page-feature .navbar.nav-hero-transform {
-    opacity: var(--nav-hero-opacity, 1);
-    pointer-events: auto;
-}
-
-.page-feature .navbar.nav-hero-transform .nav-container {
-    transform: translateY(var(--nav-hero-shift, 0px)) scale(var(--nav-hero-scale, 1));
-    transform-origin: center;
-    will-change: transform, opacity;
-}
-
-.page-feature .navbar.nav-hero-transform .nav-container:hover,
-.page-feature .navbar.nav-hero-transform .nav-container:focus-within {
-    transform: translateY(var(--nav-hero-shift, 0px)) scale(var(--nav-hero-scale, 1));
-}
-
 /* Ensure other main sections snap too */
 .final-cta-section,
 .legal-footer {
