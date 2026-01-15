@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Your Email - Franklink</title>
+    <link rel="icon" type="image/x-icon" href="/assets/images/icons/tab-logo.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1f2430;
+            --muted: #5a6270;
+            --accent: #5b6dff;
+            --accent-dark: #4657e2;
+            --surface: #ffffff;
+            --edge: #e5e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, rgba(91, 109, 255, 0.18), transparent 55%),
+                linear-gradient(135deg, #f6f7fb 0%, #e3e8f4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink);
+            padding: 24px;
+        }
+
+        .card {
+            width: min(520px, 100%);
+            background: var(--surface);
+            border-radius: 18px;
+            box-shadow: 0 26px 60px rgba(20, 28, 50, 0.15);
+            padding: 36px 32px 32px;
+            display: grid;
+            gap: 22px;
+            border: 1px solid rgba(229, 232, 240, 0.7);
+            animation: floatIn 0.5s ease-out;
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+        }
+
+        .brand h1 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .status {
+            display: grid;
+            gap: 10px;
+        }
+
+        .status h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .status p {
+            color: var(--muted);
+            font-size: 0.98rem;
+            line-height: 1.6;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(91, 109, 255, 0.08);
+            border-radius: 999px;
+            font-size: 0.9rem;
+            color: var(--accent-dark);
+            font-weight: 500;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(91, 109, 255, 0.2);
+            border-top-color: var(--accent);
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .actions {
+            display: grid;
+            gap: 12px;
+        }
+
+        .button {
+            border: none;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .button-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 14px 30px rgba(91, 109, 255, 0.25);
+        }
+
+        .button-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
+        .button-secondary {
+            background: transparent;
+            color: var(--accent-dark);
+            border: 1px solid var(--edge);
+        }
+
+        .footnote {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .error {
+            color: #b42318;
+            background: rgba(180, 35, 24, 0.08);
+            border: 1px solid rgba(180, 35, 24, 0.2);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 520px) {
+            .card {
+                padding: 28px 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" role="main">
+        <div class="brand">
+            <img src="/assets/images/branding/franklink-logo.png" alt="Franklink logo">
+            <h1>Franklink Login</h1>
+        </div>
+
+        <div class="status">
+            <div class="pill" id="status-pill">
+                <span class="spinner" aria-hidden="true"></span>
+                Preparing secure connection
+            </div>
+            <h2 id="status-title">Connecting your email account</h2>
+            <p id="status-copy">We are taking you to Franklink's secure connection page. This link expires quickly for your security.</p>
+            <div class="error" id="error-box" hidden></div>
+        </div>
+
+        <div class="actions">
+            <a class="button button-primary" id="continue-button" href="#" rel="nofollow">Continue to login</a>
+            <a class="button button-secondary" href="/index.html">Back to Franklink</a>
+        </div>
+
+        <p class="footnote" id="footnote">If you are not redirected automatically, use the Continue button.</p>
+    </div>
+
+    <script>
+        const REDIRECT_BASE_URL = "https://api.franklink.ai/oauth/composio/redirect";
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const continueButton = document.getElementById("continue-button");
+        const statusPill = document.getElementById("status-pill");
+        const statusTitle = document.getElementById("status-title");
+        const statusCopy = document.getElementById("status-copy");
+        const errorBox = document.getElementById("error-box");
+        const footnote = document.getElementById("footnote");
+
+        const setErrorState = (message) => {
+            statusPill.textContent = "Token missing";
+            statusPill.style.background = "rgba(180, 35, 24, 0.1)";
+            statusPill.style.color = "#b42318";
+            statusTitle.textContent = "We could not verify this login link";
+            statusCopy.textContent = "The link may be expired or incomplete. Please request a new login link from Franklink.";
+            errorBox.textContent = message;
+            errorBox.hidden = false;
+            continueButton.textContent = "Go to Franklink";
+            continueButton.href = "/index.html";
+            footnote.textContent = "Need help? Reach out to support@franklink.ai.";
+        };
+
+        if (!token) {
+            setErrorState("Missing login token.");
+        } else {
+            const redirectUrl = `${REDIRECT_BASE_URL}?token=${encodeURIComponent(token)}`;
+            continueButton.href = redirectUrl;
+            setTimeout(() => {
+                window.location.assign(redirectUrl);
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
