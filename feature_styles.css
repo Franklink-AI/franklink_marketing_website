@@ -492,29 +492,54 @@ html {
 
 /* ==================== MANIFESTO SECTION ==================== */
 .manifesto-section {
+    min-height: 100vh;
     padding: clamp(5rem, 10vh, 8rem) var(--space-xl);
-    background: var(--white);
+    background: linear-gradient(180deg, var(--slate-50) 0%, var(--white) 100%);
     border-top: 1px solid var(--slate-200);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .manifesto-container {
     max-width: 720px;
     margin: 0 auto;
     width: 100%;
+    position: relative;
+}
+
+/* Decorative opening quote */
+.manifesto-container::before {
+    content: '"';
+    position: absolute;
+    top: -2rem;
+    left: -2rem;
+    font-size: 8rem;
+    font-family: Georgia, serif;
+    color: var(--blue-100);
+    line-height: 1;
+    z-index: 0;
+    opacity: 0.5;
 }
 
 .manifesto-title {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
     font-weight: 700;
     text-align: center;
     margin-bottom: clamp(2.5rem, 5vh, 4rem);
     color: var(--slate-900);
+    position: relative;
+    z-index: 1;
 }
 
 .manifesto-letter {
-    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
-    line-height: 1.8;
+    font-size: clamp(1.1rem, 1.5vw, 1.25rem);
+    line-height: 1.9;
     color: var(--slate-700);
+    position: relative;
+    z-index: 1;
 }
 
 .manifesto-letter p {
@@ -525,11 +550,24 @@ html {
     margin-bottom: 0;
 }
 
+/* Drop cap on first paragraph */
+.manifesto-letter p:first-of-type::first-letter {
+    font-size: 3.5em;
+    float: left;
+    line-height: 0.8;
+    padding-right: 0.1em;
+    color: var(--blue-600);
+    font-weight: 700;
+}
+
 .manifesto-signature {
     font-weight: 600;
     font-style: italic;
     color: var(--slate-900);
-    margin-top: 2em;
+    margin-top: 2.5em !important;
+    padding-top: 1.5em;
+    border-top: 2px solid var(--blue-500);
+    display: inline-block;
 }
 
 /* ==================== SECURITY & PRIVACY SECTION (Legacy) ==================== */
