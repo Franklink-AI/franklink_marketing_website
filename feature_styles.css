@@ -725,6 +725,7 @@ html {
         padding: var(--space-2xl) 0;
         background: #F5F5F7;
         scroll-snap-align: start;
+        scroll-snap-stop: always;
     }
 
     .iphone-frame-container {
@@ -742,6 +743,7 @@ html {
         min-height: 60vh;
         padding: var(--space-xl) var(--space-md);
         text-align: center;
+        scroll-snap-align: none;
     }
 
     .feature-text-content {
