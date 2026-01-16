@@ -719,9 +719,12 @@ html {
     .sticky-phone-wrapper {
         width: 100%;
         height: auto;
+        min-height: 100svh;
+        min-height: 100dvh;
         position: relative;
         padding: var(--space-2xl) 0;
         background: #F5F5F7;
+        scroll-snap-align: start;
     }
 
     .iphone-frame-container {
