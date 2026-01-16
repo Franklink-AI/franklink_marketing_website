@@ -134,19 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 { type: 'user', text: "Riley: Agreed. Same crew for ICML?" },
                 { type: 'bot', text: "Jordan: Already in my calendar. Strangers to conference crew in 48 hours." }
             ]
-        ],
-        // Section 4: Career Answers and Support
-        [
-            // Demo 9: M&A Technical Question
-            [
-                { type: 'user', text: "In an all-stock acquisition, how do I show accretion/dilution when the target has negative net income? What actually drives the result?" },
-                { type: 'bot', text: "Frank: Accretion/dilution is driven by relative P/E, net synergies, and one-time costs. Build pro forma EPS with the exchange ratio, adjust target earnings for purchase accounting, subtract integration costs, then layer synergies with a ramp and sensitize." }
-            ],
-            // Demo 10: Emotional Support
-            [
-                { type: 'user', text: "I'm behind. Everyone else is moving faster and I feel like I'm not built for this." },
-                { type: 'bot', text: "Frank: That feeling is real, and you're not alone. Rest tonight - I'll draft a minimal action plan for tomorrow." }
-            ]
         ]
     ];
 

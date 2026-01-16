@@ -490,7 +490,49 @@ html {
     /* Visual adjustment */
 }
 
-/* ==================== SECURITY & PRIVACY SECTION ==================== */
+/* ==================== MANIFESTO SECTION ==================== */
+.manifesto-section {
+    padding: clamp(5rem, 10vh, 8rem) var(--space-xl);
+    background: var(--white);
+    border-top: 1px solid var(--slate-200);
+}
+
+.manifesto-container {
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.manifesto-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: clamp(2.5rem, 5vh, 4rem);
+    color: var(--slate-900);
+}
+
+.manifesto-letter {
+    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+    line-height: 1.8;
+    color: var(--slate-700);
+}
+
+.manifesto-letter p {
+    margin-bottom: 1.5em;
+}
+
+.manifesto-letter p:last-child {
+    margin-bottom: 0;
+}
+
+.manifesto-signature {
+    font-weight: 600;
+    font-style: italic;
+    color: var(--slate-900);
+    margin-top: 2em;
+}
+
+/* ==================== SECURITY & PRIVACY SECTION (Legacy) ==================== */
 .security-privacy-section {
     min-height: 100vh;
     padding: clamp(5rem, 10vh, 8rem) var(--space-xl);
