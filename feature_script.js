@@ -70,67 +70,69 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Data: Scenarios ---
     // Structure: 5 Sections -> Each has 2 Demos -> Each has a conversation array
     const SCENARIOS = [
-        // Section 0: Profile-First Onboarding
+        // Section 0: The first groupchat that becomes your startup
         [
-            // Demo 1: Onboarding
+            // Demo 1: Late night idea sparks
             [
-                { type: 'bot', text: "Frank: Welcome! What's your name?" },
-                { type: 'user', text: "I'm Jordan Lee." },
-                { type: 'bot', text: "Frank: Nice to meet you, Jordan. Drop your LinkedIn link so I can map your background." },
-                { type: 'user', text: "linkedin.com/in/jordanlee" },
-                { type: 'bot', text: "Frank: Great. Which career directions are you most interested in right now?" },
-                { type: 'user', text: "AI product management and growth strategy." },
-                { type: 'bot', text: "Frank: Summary - Jordan Lee, AI PM + growth strategy. I'll focus your target circle on aligned alumni and peers." }
+                { type: 'user', text: "Jordan: I can't sleep. What if we built an AI that matches cofounders by vibe, not just skills?" },
+                { type: 'bot', text: "Alex: Wait, that's actually good. I've been thinking about the same problem." },
+                { type: 'user', text: "Sam: I can build the matching algo. Who's doing product?" },
+                { type: 'bot', text: "Jordan: I'll take product. Alex, you in for design?" },
+                { type: 'user', text: "Alex: Let's do it. Pitch deck by Friday?" }
             ],
-            // Demo 2: Profile Update
+            // Demo 2: Making progress
             [
-                { type: 'user', text: "After exploring for a while, I'm not that interested in quant anymore. I'm leaning toward AI PM." },
-                { type: 'bot', text: "Frank: Got it - your profile has been updated." }
+                { type: 'bot', text: "Sam: MVP is live. 47 signups in 2 hours." },
+                { type: 'user', text: "Jordan: This groupchat really became a startup huh" },
+                { type: 'bot', text: "Alex: Told you 3am ideas hit different" }
             ]
         ],
-        // Section 1: Consent-First Matching
+        // Section 1: The first groupchat where interview questions actually get shared
         [
-            // Demo 3: Ask for Consent
+            // Demo 1: Sharing interview intel
             [
-                { type: 'user', text: "Can you find same-track AI PM upperclassmen or alumni?" },
-                { type: 'bot', text: "Frank: I found 3 high-match AI PM alumni:\n1. Nina Park '22 (Meta)\n2. Omar Reed '23 (Ramp)\n3. Lena Wu '24 (Atlassian)\n\nWant me to check if they're open to connecting?" },
-                { type: 'user', text: "Yes, ask for consent first." },
-                { type: 'bot', text: "Frank: Done. I'll open a three-way chat once both sides say yes." }
+                { type: 'user', text: "Maya: Just finished my Stripe PM interview. Happy to share questions if anyone needs them." },
+                { type: 'bot', text: "Chris: Yes please! I have mine next week." },
+                { type: 'user', text: "Maya: Round 1 was a product sense case on cross-border payments. Round 2 was metrics deep dive." },
+                { type: 'bot', text: "Chris: This is so helpful. I'll share my Google questions after tomorrow." }
             ],
-            // Demo 4: Inbound Request
+            // Demo 2: Paying it forward
             [
-                { type: 'bot', text: "Frank: Heads-up - Riley Chen, a USC alum in product at Notion, wants to connect. Want me to introduce you?" },
-                { type: 'user', text: "Yes, please connect us." }
+                { type: 'bot', text: "Chris: Got the offer! Sharing the full Google loop breakdown now." },
+                { type: 'user', text: "Taylor: This group is unreal. No gatekeeping, just people helping people." },
+                { type: 'bot', text: "Maya: That's the whole point. We all win together." }
             ]
         ],
-        // Section 2: Warm Intros and News Hooks
+        // Section 2: The first groupchat with the people grinding finals with you at 2 a.m
         [
-            // Demo 5: Group Chat Intro
+            // Demo 1: Late night study session
             [
-                { type: 'bot', text: "Frank: Both of you are in - welcome to the group chat. Maya is a Duke junior exploring AI PM; Daniel is a Penn alum on product at Stripe." },
-                { type: 'user', text: "Maya: Hi Daniel, thanks for making time to chat!" },
-                { type: 'bot', text: "Daniel: Hi Maya, happy to connect. Let's dive in." }
+                { type: 'user', text: "Jake: Anyone still awake? This orgo problem set is destroying me." },
+                { type: 'bot', text: "Priya: Same. I'm on problem 7. The mechanism makes no sense." },
+                { type: 'user', text: "Marcus: I just cracked it. It's an SN2, not SN1. The solvent is the clue." },
+                { type: 'bot', text: "Priya: WAIT that actually makes sense now. You're a lifesaver." }
             ],
-            // Demo 6: News Hook After a Pause
+            // Demo 2: Surviving together
             [
-                { type: 'bot', text: "--- 7 days later ---" },
-                { type: 'bot', text: "Frank: News hook - the new model release is already shifting internship recruiting timelines. Curious how you both see it." },
-                { type: 'user', text: "Maya: If screening gets automated, I'd expect more take-home style evals early." },
-                { type: 'bot', text: "Daniel: Agree, and hiring bars might move faster with smaller pipelines." },
-                { type: 'user', text: "..." }
+                { type: 'bot', text: "Jake: We all passed!!! Group study sessions saved my GPA." },
+                { type: 'user', text: "Marcus: Couldn't have done it without you all. Same time next semester?" },
+                { type: 'bot', text: "Priya: Obviously. This is our crew now." }
             ]
         ],
-        // Section 3: Mac Console
+        // Section 3: The first groupchat with strangers who turn into your AI conference crew
         [
-            // Demo 7: Sync Notes
+            // Demo 1: Pre-conference matching
             [
-                { type: 'user', text: "I updated some relationship notes and tags in the Mac console. Can you see them?" },
-                { type: 'bot', text: "Frank: Absolutely. I've synced your network and knowledge base outside iMessage and will use it to improve matching and intros." }
+                { type: 'bot', text: "Frank: Found 3 attendees at NeurIPS who share your interests in multimodal AI:\n\n• Riley - PhD at Stanford\n• Jordan - ML Engineer at Anthropic\n• Casey - Founder, stealth startup" },
+                { type: 'user', text: "Amazing, let's make a group!" },
+                { type: 'bot', text: "Riley: Hey! Down to grab coffee before the keynote tomorrow?" },
+                { type: 'user', text: "Jordan: I'm in. The poster session after looks good too." }
             ],
-            // Demo 8: Update Library
+            // Demo 2: Conference crew formed
             [
-                { type: 'user', text: "I just wrapped the Aurora project, updated my resume, and added my notes to the library." },
-                { type: 'bot', text: "Frank: Got it. Your knowledge base is updated. That's huge. Future links will be more precise." }
+                { type: 'bot', text: "Casey: That hallway convo about diffusion models was better than most talks." },
+                { type: 'user', text: "Riley: Agreed. Same crew for ICML?" },
+                { type: 'bot', text: "Jordan: Already in my calendar. Strangers to conference crew in 48 hours." }
             ]
         ],
         // Section 4: Career Answers and Support
@@ -198,17 +200,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (signal.aborted) return;
 
             if (msg.type === 'user') {
-                // User types...
-                await typeText(msg.text, signal);
+                // User message appears instantly (no typing animation)
+                await wait(REPLY_PAUSE);
                 if (signal.aborted) return;
-
-                // Pause before sending
-                await wait(MESSAGE_PAUSE);
-                if (signal.aborted) return;
-
-                // Send (clear input, add bubble)
-                inputField.value = "";
-                resizeInputField();
                 addMessage(msg.text, 'user');
             } else {
                 // Bot replies...
