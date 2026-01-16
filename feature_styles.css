@@ -740,10 +740,12 @@ html {
 
     .feature-section {
         height: auto;
-        min-height: 60vh;
+        min-height: 100svh;
+        min-height: 100dvh;
         padding: var(--space-xl) var(--space-md);
         text-align: center;
-        scroll-snap-align: none;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
     }
 
     .feature-text-content {
