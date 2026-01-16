@@ -765,6 +765,11 @@ html {
 
 @media (max-width: 768px) {
     .feature-hero {
-        min-height: auto;
+        min-height: 100svh;
+        min-height: 100dvh;
+    }
+
+    .hero-video {
+        object-position: center center;
     }
 }
