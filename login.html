@@ -122,8 +122,24 @@
     <script>
         // Redirect to Composio backend with all OAuth parameters preserved
         (function() {
-            const params = window.location.search;
-            window.location.href = 'https://backend.composio.dev/api/v3/toolkits/auth/callback' + params;
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+
+            if (redirectUrl) {
+                // Remove the redirect param and pass remaining params to the target URL
+                urlParams.delete('redirect');
+                const remainingParams = urlParams.toString();
+                const separator = redirectUrl.includes('?') ? '&' : '?';
+                const finalUrl = remainingParams
+                    ? redirectUrl + separator + remainingParams
+                    : redirectUrl;
+                window.location.href = finalUrl;
+            } else {
+                // Show error if no redirect URL provided
+                document.querySelector('.login-message').textContent = 'Invalid redirect URL';
+                document.querySelector('.login-submessage').textContent = 'Please try again or contact support.';
+                document.querySelector('.spinner').style.display = 'none';
+            }
         })();
     </script>
 </body>
