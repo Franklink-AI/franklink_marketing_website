@@ -1042,6 +1042,11 @@ a {
         display: flex;
     }
 
+    .nav-link-right {
+        display: inline-flex;
+        white-space: nowrap;
+    }
+
     .nav-container {
         max-width: calc(100% - (var(--space-md) * 2));
         padding: 0 var(--space-md);
