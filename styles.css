@@ -296,6 +296,49 @@ a {
     transform: translateY(-1px);
 }
 
+.nav-story-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--nav-pill-height) * 0.68);
+    padding: 0 var(--space-md);
+    color: var(--nav-link-color);
+    font-weight: 500;
+    font-size: var(--nav-text-size);
+    white-space: nowrap;
+    position: relative;
+    transition: color var(--transition-fast);
+}
+
+.nav-story-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: var(--nav-link-underline);
+    transition: width var(--transition-base);
+}
+
+.nav-story-link:hover {
+    color: var(--nav-link-hover);
+}
+
+.nav-story-link:hover::after {
+    width: 100%;
+}
+
+.nav-story-link.active {
+    color: var(--nav-link-hover);
+    font-weight: 600;
+}
+
+.nav-story-link.active::after {
+    width: 100%;
+}
+
 @keyframes navSheen {
     0% {
         transform: translateX(-140%) skewX(-12deg);
