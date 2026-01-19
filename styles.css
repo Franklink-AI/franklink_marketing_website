@@ -134,7 +134,7 @@ a {
 }
 
 .nav-container {
-    width: 560px;
+    width: 680px;
     max-width: calc(100% - (var(--space-xl) * 2));
     height: var(--nav-pill-height);
     margin: 0 auto;
