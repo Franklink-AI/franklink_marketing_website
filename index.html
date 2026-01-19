@@ -138,6 +138,140 @@
             </div>
         </div>
 
+        <!-- CONTEXT WEB VISUALIZATION SECTION -->
+        <section class="context-web-section" id="context-web" aria-label="How Frank connects your data to meaningful introductions">
+            <div class="context-web-container">
+                <!-- Section Header -->
+                <div class="context-web-header">
+                    <h2 class="context-web-title">Context In. Connections Out.</h2>
+                    <p class="context-web-subtitle">Frank understands your full story and introduces you to exactly who you need to meet.</p>
+                </div>
+
+                <!-- Main Visualization Canvas -->
+                <div class="context-web-canvas" aria-hidden="true">
+                    <!-- Left Side: Data Source Nodes -->
+                    <div class="data-sources-column">
+                        <div class="source-node" data-source="gmail" data-delay="0">
+                            <div class="source-icon-wrapper">
+                                <svg class="source-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                            </div>
+                            <span class="source-label">Email</span>
+                        </div>
+
+                        <div class="source-node" data-source="calendar" data-delay="1">
+                            <div class="source-icon-wrapper">
+                                <svg class="source-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                                </svg>
+                            </div>
+                            <span class="source-label">Calendar</span>
+                        </div>
+
+                        <div class="source-node" data-source="linkedin" data-delay="2">
+                            <div class="source-icon-wrapper">
+                                <svg class="source-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.27c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zm13.5 12.27h-3v-5.6c0-3.37-4-3.11-4 0v5.6h-3v-11h3v1.77c1.4-2.59 7-2.78 7 2.48v6.75z"/>
+                                </svg>
+                            </div>
+                            <span class="source-label">LinkedIn</span>
+                        </div>
+
+                        <div class="source-node" data-source="zoom" data-delay="3">
+                            <div class="source-icon-wrapper">
+                                <svg class="source-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                                </svg>
+                            </div>
+                            <span class="source-label">Zoom</span>
+                        </div>
+
+                        <div class="source-node" data-source="location" data-delay="4">
+                            <div class="source-icon-wrapper">
+                                <svg class="source-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                            </div>
+                            <span class="source-label">Location</span>
+                        </div>
+
+                        <div class="source-node" data-source="social" data-delay="5">
+                            <div class="source-icon-wrapper">
+                                <svg class="source-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                                </svg>
+                            </div>
+                            <span class="source-label">Social</span>
+                        </div>
+                    </div>
+
+                    <!-- Center: Frank Node -->
+                    <div class="frank-node-container">
+                        <!-- Particle container for flowing dots -->
+                        <div class="particle-container" aria-hidden="true"></div>
+
+                        <!-- Central Frank Node -->
+                        <div class="frank-node">
+                            <div class="frank-node-inner">
+                                <div class="frank-node-ring frank-ring-1"></div>
+                                <div class="frank-node-ring frank-ring-2"></div>
+                                <div class="frank-node-ring frank-ring-3"></div>
+                                <div class="frank-core">
+                                    <img src="/assets/homepage/frank-head.jpg" alt="Frank" class="frank-avatar">
+                                    <span class="frank-label">Frank</span>
+                                </div>
+                            </div>
+                            <div class="frank-pulse"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: User Profile Nodes (Connections Out) -->
+                    <div class="profile-nodes-column">
+                        <div class="profile-node" data-profile="1" data-delay="0">
+                            <div class="profile-avatar-wrapper">
+                                <div class="profile-avatar profile-avatar-1"></div>
+                            </div>
+                            <span class="profile-label">Co-founder Match</span>
+                        </div>
+
+                        <div class="profile-node" data-profile="2" data-delay="1">
+                            <div class="profile-avatar-wrapper">
+                                <div class="profile-avatar profile-avatar-2"></div>
+                            </div>
+                            <span class="profile-label">Industry Mentor</span>
+                        </div>
+
+                        <div class="profile-node" data-profile="3" data-delay="2">
+                            <div class="profile-avatar-wrapper">
+                                <div class="profile-avatar profile-avatar-3"></div>
+                            </div>
+                            <span class="profile-label">Study Partner</span>
+                        </div>
+
+                        <div class="profile-node" data-profile="4" data-delay="3">
+                            <div class="profile-avatar-wrapper">
+                                <div class="profile-avatar profile-avatar-4"></div>
+                            </div>
+                            <span class="profile-label">Conference Crew</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="context-web-progress" aria-hidden="true">
+                    <div class="progress-track">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span class="progress-label">Your Context</span>
+                        <span class="progress-label">Understanding</span>
+                        <span class="progress-label">Connections</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="manifesto-section" id="manifesto">
             <div class="manifesto-container">
                 <h2 class="manifesto-title">The First AI Native Professional Network</h2>

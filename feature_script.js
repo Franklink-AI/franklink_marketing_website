@@ -270,11 +270,474 @@ document.addEventListener('DOMContentLoaded', () => {
     sections.forEach(section => observer.observe(section));
 
     // Start initial loop
-    // Ensure we start with the first section active if it's visible, 
-    // but the observer will likely catch it. 
+    // Ensure we start with the first section active if it's visible,
+    // but the observer will likely catch it.
     // However, to be safe on load:
     if (sections.length > 0) {
         sections[0].classList.add('active');
         startSectionLoop(0);
     }
 });
+
+/**
+ * Context Web Visualization - Scroll-Based Animation Controller
+ */
+(function() {
+    'use strict';
+
+    // Configuration
+    const CONFIG = {
+        PARTICLE_COUNT: 15,
+        PARTICLE_DURATION_MIN: 1200,
+        PARTICLE_DURATION_MAX: 2000,
+        SCROLL_PHASES: {
+            SOURCES_START: 0,
+            SOURCES_END: 0.35,
+            PROCESSING_START: 0.35,
+            PROCESSING_END: 0.65,
+            CONNECTIONS_START: 0.65,
+            CONNECTIONS_END: 1.0
+        }
+    };
+
+    // State
+    let section = null;
+    let isInView = false;
+    let scrollProgress = 0;
+    let animationFrameId = null;
+    let particlePool = [];
+    let prefersReducedMotion = false;
+
+    // DOM Elements Cache
+    let elements = {
+        header: null,
+        sourceNodes: [],
+        frankNode: null,
+        frankContainer: null,
+        profileNodes: [],
+        particleContainer: null,
+        progressFill: null
+    };
+
+    /**
+     * Initialize the Context Web visualization
+     */
+    function init() {
+        section = document.querySelector('.context-web-section');
+        if (!section) return;
+
+        // Check reduced motion preference
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        prefersReducedMotion = motionQuery.matches;
+        motionQuery.addEventListener('change', (e) => {
+            prefersReducedMotion = e.matches;
+        });
+
+        // Cache DOM elements
+        cacheElements();
+
+        // Set up Intersection Observer for section visibility
+        setupIntersectionObserver();
+
+        // Set up scroll listener for animation progression
+        setupScrollListener();
+
+        // Initialize particle pool
+        if (!prefersReducedMotion) {
+            initParticlePool();
+        }
+    }
+
+    /**
+     * Cache frequently accessed DOM elements
+     */
+    function cacheElements() {
+        elements.header = section.querySelector('.context-web-header');
+        elements.sourceNodes = Array.from(section.querySelectorAll('.source-node'));
+        elements.frankNode = section.querySelector('.frank-node');
+        elements.frankContainer = section.querySelector('.frank-node-container');
+        elements.profileNodes = Array.from(section.querySelectorAll('.profile-node'));
+        elements.particleContainer = section.querySelector('.particle-container');
+        elements.progressFill = section.querySelector('.progress-fill');
+    }
+
+    /**
+     * Set up Intersection Observer for section visibility
+     */
+    function setupIntersectionObserver() {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    isInView = entry.isIntersecting;
+
+                    if (isInView) {
+                        section.classList.add('in-view');
+                        updateScrollProgress();
+                        startAnimationLoop();
+                    } else {
+                        section.classList.remove('in-view', 'processing');
+                        stopAnimationLoop();
+                        resetAnimation();
+                    }
+                });
+            },
+            {
+                threshold: 0.15,
+                rootMargin: '-5% 0px'
+            }
+        );
+
+        observer.observe(section);
+    }
+
+    /**
+     * Set up scroll listener for animation progression
+     */
+    function setupScrollListener() {
+        let ticking = false;
+
+        window.addEventListener('scroll', () => {
+            if (!ticking && isInView) {
+                requestAnimationFrame(() => {
+                    updateScrollProgress();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    }
+
+    /**
+     * Calculate scroll progress within the section (0 to 1)
+     */
+    function updateScrollProgress() {
+        const rect = section.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        // Progress based on how far through the section we've scrolled
+        const sectionTop = rect.top;
+        const sectionHeight = rect.height;
+
+        // Start progress when section enters (top at bottom of viewport)
+        // End progress when section exits (bottom at top of viewport)
+        const scrollStart = viewportHeight * 0.8;
+        const scrollEnd = -sectionHeight * 0.3;
+        const totalDistance = scrollStart - scrollEnd;
+
+        scrollProgress = Math.max(0, Math.min(1,
+            (scrollStart - sectionTop) / totalDistance
+        ));
+
+        // Update animations based on scroll progress
+        updateAnimationPhases();
+    }
+
+    /**
+     * Update animation phases based on scroll progress
+     */
+    function updateAnimationPhases() {
+        const { SCROLL_PHASES } = CONFIG;
+
+        // Update progress bar
+        if (elements.progressFill) {
+            elements.progressFill.style.width = `${scrollProgress * 100}%`;
+        }
+
+        // Phase 1: Source nodes activation (0% - 35%)
+        if (scrollProgress >= SCROLL_PHASES.SOURCES_START &&
+            scrollProgress < SCROLL_PHASES.SOURCES_END) {
+
+            const phaseProgress = (scrollProgress - SCROLL_PHASES.SOURCES_START) /
+                                  (SCROLL_PHASES.SOURCES_END - SCROLL_PHASES.SOURCES_START);
+            activateSourceNodes(phaseProgress);
+            section.classList.remove('processing');
+            deactivateProfileNodes();
+        }
+
+        // Phase 2: Frank processing (35% - 65%)
+        else if (scrollProgress >= SCROLL_PHASES.PROCESSING_START &&
+                 scrollProgress < SCROLL_PHASES.PROCESSING_END) {
+
+            activateAllSources();
+            section.classList.add('processing');
+            deactivateProfileNodes();
+        }
+
+        // Phase 3: Connection output (65% - 100%)
+        else if (scrollProgress >= SCROLL_PHASES.CONNECTIONS_START) {
+            const phaseProgress = (scrollProgress - SCROLL_PHASES.CONNECTIONS_START) /
+                                  (SCROLL_PHASES.CONNECTIONS_END - SCROLL_PHASES.CONNECTIONS_START);
+            activateAllSources();
+            section.classList.add('processing');
+            activateProfileNodes(phaseProgress);
+        }
+
+        // Before animation starts
+        else {
+            deactivateAllNodes();
+            section.classList.remove('processing');
+        }
+    }
+
+    /**
+     * Activate source nodes progressively
+     */
+    function activateSourceNodes(progress) {
+        const totalNodes = elements.sourceNodes.length;
+        const activeCount = Math.ceil(progress * totalNodes);
+
+        elements.sourceNodes.forEach((node, index) => {
+            // Stagger visibility
+            const visibilityThreshold = index / totalNodes;
+            if (progress >= visibilityThreshold * 0.8) {
+                node.classList.add('visible');
+            }
+
+            if (index < activeCount) {
+                node.classList.add('active');
+            } else {
+                node.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * Activate all source nodes
+     */
+    function activateAllSources() {
+        elements.sourceNodes.forEach((node) => {
+            node.classList.add('visible', 'active');
+        });
+    }
+
+    /**
+     * Activate profile nodes progressively
+     */
+    function activateProfileNodes(progress) {
+        const totalNodes = elements.profileNodes.length;
+        const activeCount = Math.ceil(progress * totalNodes);
+
+        elements.profileNodes.forEach((node, index) => {
+            // Stagger visibility
+            const visibilityThreshold = index / totalNodes;
+            if (progress >= visibilityThreshold * 0.7) {
+                node.classList.add('visible');
+            }
+
+            if (index < activeCount) {
+                node.classList.add('active');
+            } else {
+                node.classList.remove('active');
+            }
+        });
+    }
+
+    /**
+     * Deactivate all profile nodes
+     */
+    function deactivateProfileNodes() {
+        elements.profileNodes.forEach((node) => {
+            node.classList.remove('active');
+        });
+    }
+
+    /**
+     * Deactivate all nodes
+     */
+    function deactivateAllNodes() {
+        elements.sourceNodes.forEach((node) => {
+            node.classList.remove('active');
+        });
+        elements.profileNodes.forEach((node) => {
+            node.classList.remove('active');
+        });
+    }
+
+    /**
+     * Reset animation to initial state
+     */
+    function resetAnimation() {
+        elements.sourceNodes.forEach((node) => {
+            node.classList.remove('visible', 'active');
+        });
+        elements.profileNodes.forEach((node) => {
+            node.classList.remove('visible', 'active');
+        });
+
+        if (elements.progressFill) {
+            elements.progressFill.style.width = '0%';
+        }
+
+        // Clear particles
+        if (elements.particleContainer) {
+            elements.particleContainer.innerHTML = '';
+        }
+
+        scrollProgress = 0;
+    }
+
+    /**
+     * Initialize particle pool for performance
+     */
+    function initParticlePool() {
+        particlePool = [];
+        for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particlePool.push(particle);
+        }
+    }
+
+    /**
+     * Get a particle from the pool
+     */
+    function getParticle() {
+        const particle = particlePool.find(p => !p.parentElement);
+        if (particle) return particle;
+
+        // Create new particle if pool exhausted
+        const newParticle = document.createElement('div');
+        newParticle.className = 'particle';
+        particlePool.push(newParticle);
+        return newParticle;
+    }
+
+    /**
+     * Spawn a particle flowing from source node to Frank
+     */
+    function spawnParticleFromSource(sourceNode) {
+        if (prefersReducedMotion || !elements.particleContainer || !elements.frankNode) return;
+
+        const particle = getParticle();
+
+        // Get positions
+        const sourceRect = sourceNode.getBoundingClientRect();
+        const containerRect = elements.particleContainer.getBoundingClientRect();
+        const frankRect = elements.frankNode.getBoundingClientRect();
+
+        // Calculate start and end positions relative to container
+        const startX = sourceRect.right - containerRect.left;
+        const startY = sourceRect.top + sourceRect.height / 2 - containerRect.top;
+        const endX = frankRect.left + frankRect.width / 2 - containerRect.left;
+        const endY = frankRect.top + frankRect.height / 2 - containerRect.top;
+
+        // Set CSS custom properties for animation
+        particle.style.setProperty('--start-x', `${startX}px`);
+        particle.style.setProperty('--start-y', `${startY}px`);
+        particle.style.setProperty('--end-x', `${endX}px`);
+        particle.style.setProperty('--end-y', `${endY}px`);
+
+        const duration = Math.random() *
+            (CONFIG.PARTICLE_DURATION_MAX - CONFIG.PARTICLE_DURATION_MIN) +
+            CONFIG.PARTICLE_DURATION_MIN;
+        particle.style.setProperty('--flow-duration', `${duration}ms`);
+
+        // Add to container and start animation
+        elements.particleContainer.appendChild(particle);
+        particle.classList.add('flowing');
+
+        // Remove after animation
+        setTimeout(() => {
+            particle.classList.remove('flowing');
+            if (particle.parentElement) {
+                particle.parentElement.removeChild(particle);
+            }
+        }, duration + 100);
+    }
+
+    /**
+     * Spawn a particle flowing from Frank to profile node
+     */
+    function spawnParticleToProfile(profileNode) {
+        if (prefersReducedMotion || !elements.particleContainer || !elements.frankNode) return;
+
+        const particle = getParticle();
+
+        // Get positions
+        const profileRect = profileNode.getBoundingClientRect();
+        const containerRect = elements.particleContainer.getBoundingClientRect();
+        const frankRect = elements.frankNode.getBoundingClientRect();
+
+        // Calculate start (Frank) and end (profile) positions
+        const startX = frankRect.left + frankRect.width / 2 - containerRect.left;
+        const startY = frankRect.top + frankRect.height / 2 - containerRect.top;
+        const endX = profileRect.left - containerRect.left;
+        const endY = profileRect.top + profileRect.height / 2 - containerRect.top;
+
+        // Set CSS custom properties for animation
+        particle.style.setProperty('--start-x', `${startX}px`);
+        particle.style.setProperty('--start-y', `${startY}px`);
+        particle.style.setProperty('--end-x', `${endX}px`);
+        particle.style.setProperty('--end-y', `${endY}px`);
+
+        // Different color for outbound particles
+        particle.style.background = '#10B981';
+        particle.style.boxShadow = '0 0 8px #10B981, 0 0 16px #059669';
+
+        const duration = Math.random() *
+            (CONFIG.PARTICLE_DURATION_MAX - CONFIG.PARTICLE_DURATION_MIN) +
+            CONFIG.PARTICLE_DURATION_MIN;
+        particle.style.setProperty('--flow-duration', `${duration}ms`);
+
+        // Add to container and start animation
+        elements.particleContainer.appendChild(particle);
+        particle.classList.add('flowing');
+
+        // Remove after animation and reset color
+        setTimeout(() => {
+            particle.classList.remove('flowing');
+            particle.style.background = '';
+            particle.style.boxShadow = '';
+            if (particle.parentElement) {
+                particle.parentElement.removeChild(particle);
+            }
+        }, duration + 100);
+    }
+
+    /**
+     * Start the animation loop
+     */
+    function startAnimationLoop() {
+        if (animationFrameId) return;
+
+        const loop = () => {
+            if (isInView && !prefersReducedMotion) {
+                // Spawn particles from active sources
+                elements.sourceNodes.forEach((node) => {
+                    if (node.classList.contains('active') && Math.random() < 0.03) {
+                        spawnParticleFromSource(node);
+                    }
+                });
+
+                // Spawn particles to active profiles (during connection phase)
+                if (section.classList.contains('processing')) {
+                    elements.profileNodes.forEach((node) => {
+                        if (node.classList.contains('active') && Math.random() < 0.025) {
+                            spawnParticleToProfile(node);
+                        }
+                    });
+                }
+            }
+            animationFrameId = requestAnimationFrame(loop);
+        };
+
+        animationFrameId = requestAnimationFrame(loop);
+    }
+
+    /**
+     * Stop the animation loop
+     */
+    function stopAnimationLoop() {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
