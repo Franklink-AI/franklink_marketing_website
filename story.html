@@ -6,44 +6,157 @@
     <title>Our Story - Franklink</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="feature_styles.css">
+    <link rel="stylesheet" href="story-styles.css">
     <link rel="icon" type="image/x-icon" href="/assets/images/icons/tab-logo.ico">
 </head>
 <body class="page-story">
     <!-- Navigation Header -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="logo">
-                <img src="/assets/images/branding/franklink-banner-2.png" alt="Franklink" class="logo-img">
-            </a>
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-            </ul>
-            <a class="nav-cta" href="sms:+15037410940&body=yo, who's here">Meet Frank Now</a>
-            <a href="story.html" class="nav-link-right active">Our Story</a>
-            <a href="#" class="nav-link-right">Watch the Film</a>
-        </div>
-    </nav>
+    <div class="nav-slot" data-nav-active="story"></div>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <section class="manifesto-section">
-            <div class="manifesto-container">
-                <h2 class="manifesto-title">The First AI Native Professional Network</h2>
-                <div class="manifesto-letter">
-                    <p>Every generation builds the network it needs.</p>
-                    <p>In the 1950s, your network was your Rolodex, a physical stack of cards you flipped through by hand. Who you knew depended on who you'd already met. Introductions happened over golf courses and dinner parties. The friction was enormous, and opportunity stayed locked inside small circles.</p>
-                    <p>Then came Facebook. For the first time, you could maintain relationships at scale. Your high school friends, college roommates, and distant cousins all lived in one feed. Social networking proved that digital connections could feel real. But Facebook was built for keeping up with people you already knew, not for finding the people you needed to meet.</p>
-                    <p>LinkedIn tried to solve that. Suddenly, you could search for anyone. A Stanford grad in Singapore could find a founder in São Paulo. The internet made everyone visible. But visibility isn't connection. A profile isn't context. And a connection request from a stranger is just noise. LinkedIn solved discovery. It never solved understanding.</p>
-                    <p>Now we're entering a new era. AI can finally do what no search engine ever could: understand who you actually are.</p>
-                    <p>Not just your job title, but your ambitions, your skills, what you're building, what keeps you up at night. Frank connects to your emails, your calendar, your documents, your conversations. It sees the full picture: the meeting you just had with a VC, the project deadline you're racing toward, the skill gap you're trying to close, the career pivot you're quietly considering. This isn't surveillance. It's context. The same context a great mentor or well-connected friend would have if they were paying attention to every detail of your life.</p>
-                    <p>With that context, Frank can do something no platform has done before: make introductions that actually make sense. It can read between the lines and know that the founder struggling with go-to-market would benefit from meeting the growth lead who just solved the same problem. It understands timing: when you're ready for advice, when you need a co-founder, when you're just looking to learn.</p>
-                    <p>This is the leap. From searchable to understandable. From profiles to context. From "who do you know?" to "who should you know?"</p>
-                    <p>Franklink is the professional network rebuilt from scratch for this moment. There's no feed to scroll. No posts to perform. No algorithm optimizing for engagement. Just an AI that knows your full story, your goals, your challenges, your trajectory, and introduces you to the exact people who can help you get where you're going.</p>
-                    <p>The best connections have always come from people who truly know you making introductions on your behalf. Frank is that person, at scale.</p>
-                    <p class="manifesto-signature">Welcome to the AI native professional network.</p>
+    <main class="main-content story-layout">
+        <!-- Timeline Navigation -->
+        <aside class="story-nav" aria-label="Story navigation">
+            <nav class="story-timeline">
+                <div class="timeline-track">
+                    <div class="timeline-progress"></div>
                 </div>
-            </div>
-        </section>
+                <a href="#manifesto" class="timeline-item active" data-section="manifesto">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Manifesto</span>
+                </a>
+                <a href="#positioning" class="timeline-item" data-section="positioning">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Positioning</span>
+                </a>
+                <a href="#frank" class="timeline-item" data-section="frank">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Who is Frank</span>
+                </a>
+                <a href="#team" class="timeline-item" data-section="team">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Our Team</span>
+                </a>
+                <a href="#history" class="timeline-item" data-section="history">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Our History</span>
+                </a>
+                <a href="#next" class="timeline-item" data-section="next">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">What's Next</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Story Content -->
+        <div class="story-content">
+            <!-- Section 1: Manifesto -->
+            <section id="manifesto" class="story-section">
+                <div class="story-section-inner">
+                    <h2 class="story-section-title">Manifesto</h2>
+                    <p class="story-lead">Every generation builds the network it needs.</p>
+                    <p>In the 1950s, your network was a Rolodex, a stack of cards you flipped through by hand. Who you knew depended on who you had already met. Introductions happened at golf courses, dinner tables, or a hallway you happened to walk through. The friction was huge, and opportunity stayed locked inside small circles.</p>
+                    <p>Then came Facebook. For the first time, people could maintain relationships at scale. High school friends, college roommates, distant cousins, all lived in one feed. Social networking proved that digital connections could feel real. But Facebook was built for keeping up with people you already knew, not for finding the people you needed to meet.</p>
+                    <p>LinkedIn tried to close that gap. Suddenly, you could search for anyone: a Stanford grad in Singapore, a founder in Sao Paulo, an engineer in Berlin. The internet made everyone visible - but visibility is not connection. <strong>Profile is not context</strong>. A connection request from a stranger is mostly noise. LinkedIn solved discovery. It never solved understanding.</p>
+                    <p>Now we are entering a new era. AI can finally do what search engines never could: <strong>understand who you actually are</strong>.</p>
+                    <p>Not just your title, but your ambitions, your skills, what you are building, and what keeps you up at night. Frank connects to your email, your calendar, your documents, your conversations. It sees the full picture: the VC meeting you just had, the deadline you are racing toward, the skill gap you want to close, the career pivot you are quietly considering. <strong>This is not surveillance. It is context.</strong> The same context a great mentor or well-connected friend would have if they were paying attention to every detail of your life.</p>
+                    <p>With that context, Frank can do what no platform has done before: <strong>make introductions that actually make sense</strong>.</p>
+                    <p>He can read between the lines: the founder stuck on go-to-market should meet the growth lead who just solved the same problem. He understands timing: when you are ready for advice, when you need a co-founder, when you are simply looking to learn. Introductions stop being spray-and-pray and become precision plus timing.</p>
+                    <p>This is the leap: from searchable to understandable, from profiles to context, from "Who do you know?" to "Who should you know?"</p>
+                    <p>Franklink is the professional network rebuilt for this moment. No feed to scroll. No posts to perform. No algorithm optimizing for engagement. Just an AI that knows your story, goals, challenges, and trajectory, and introduces you to the exact people who can help you move forward.</p>
+                    <p>The best connections have always come from people who truly know you making introductions on your behalf. Frank is that person - at scale.</p>
+                    <p class="story-signature">Welcome to the AI native professional network.</p>
+                </div>
+            </section>
+
+            <!-- Section 2: Positioning -->
+            <section id="positioning" class="story-section">
+                <div class="story-section-inner">
+                    <h2 class="story-section-title">One-line Positioning</h2>
+                    <blockquote class="story-quote">
+                        Franklink: AI that understands your context and introduces the right people at the right time.
+                    </blockquote>
+                </div>
+            </section>
+
+            <!-- Section 3: Who is Frank -->
+            <section id="frank" class="story-section">
+                <div class="story-section-inner">
+                    <h2 class="story-section-title">Who is Frank</h2>
+                    <p class="story-lead">Frank is not just another chatbot.</p>
+                    <p>He is your AI connector: he knows your goals, remembers your pace, sees the path you are on, and brings the right person to you when you need them.</p>
+                    <ul class="story-list">
+                        <li>He turns your schedule, communication, and project progress into a single through line: what you are doing, why, and what you need next.</li>
+                        <li>He shifts introductions from random networking to context-aware connections: you do not need to explain yourself from scratch, and people can understand you faster.</li>
+                        <li>He feels more like a friend than a platform: less noise, more "just right".</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 4: Our Team -->
+            <section id="team" class="story-section">
+                <div class="story-section-inner">
+                    <h2 class="story-section-title">Our Team</h2>
+                    <p class="story-lead">We are a group of people obsessed with connection.</p>
+                    <h3 class="story-subheading">Core members include:</h3>
+                    <ul class="story-list story-list--team">
+                        <li><strong>Eric Bi</strong> <span class="team-role">(Co-Founder &amp; CEO)</span> — keeps product direction and user value on the same line.</li>
+                        <li><strong>Jimmy Zhong</strong> <span class="team-role">(Co-Founder &amp; CTO)</span> — turns "AI + product" into a system that ships, iterates, and keeps getting better.</li>
+                        <li><strong>Daniel Wong</strong> <span class="team-role">(Co-Founder &amp; CFO)</span> — helps us move fast while staying clear and sustainable.</li>
+                        <li><strong>Beatrice Ye</strong> <span class="team-role">(CMO)</span> — tells the Franklink story to the people who actually need it.</li>
+                    </ul>
+                    <h3 class="story-subheading">We also have:</h3>
+                    <ul class="story-list">
+                        <li><strong>Tech team</strong>: building, updating, and maintaining the product almost 24/7, turning every piece of feedback into the next better experience.</li>
+                        <li><strong>Marketing team</strong>: continuously analyzing market pain points, not chasing hype, chasing real needs.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 5: Our History -->
+            <section id="history" class="story-section">
+                <div class="story-section-inner">
+                    <h2 class="story-section-title">Our History</h2>
+                    <p class="story-lead">Franklink's story is short, but real.</p>
+                    <div class="story-timeline-history">
+                        <div class="history-item">
+                            <span class="history-date">August</span>
+                            <p>We started building. No grand manifesto, just a simple idea: if AI can understand human context, introductions can be more efficient, more sincere, more human.</p>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-date">In between</span>
+                            <p>We questioned the product's positioning. We asked ourselves: is this what people actually need? Are we solving a real pain or just entertaining ourselves? Each doubt was real, and each time we came back to the same answer — <strong>we want to serve people and make social AI actually help</strong>.</p>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-date">November</span>
+                            <p>We brought a rough version to a hackathon. The response surprised us: people got it fast, tried it often, and said "I need this." That confirmed the direction; now we just need to build faster, steadier, and better.</p>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-date">January</span>
+                            <p>We launched our product. We genuinely look forward to your use and feedback. We are committed to the great practice of merging AI with social connection.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: What's Next -->
+            <section id="next" class="story-section">
+                <div class="story-section-inner">
+                    <h2 class="story-section-title">What's Next</h2>
+                    <p class="story-lead">If you believe meeting the right people should not be left to luck, come build certainty with Franklink.</p>
+                    <div class="story-cta-group">
+                        <div class="story-cta-item">
+                            <p>Want to experience Frank's introductions?</p>
+                            <a class="cta-button" href="sms:+15037410940&amp;body=yo,%20who's%20here">Meet Frank Now</a>
+                        </div>
+                        <div class="story-cta-item">
+                            <p>Want to join us / partner / share feedback?</p>
+                            <a class="story-email-link" href="mailto:info@franklink.ai">info@franklink.ai</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <footer class="legal-footer">
@@ -102,6 +215,7 @@
         </div>
     </footer>
 
+    <script src="nav.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

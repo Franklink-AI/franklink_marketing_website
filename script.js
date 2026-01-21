@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupPhoneToggle();
     setupHamburgerMenu();
     initHeroTextAnimation();  // Hero → Text Transition Animation on mobile
+    initStoryTimeline();      // Story page timeline navigation
 });
 
 // Initialize message animations on page load
@@ -825,4 +826,186 @@ function setupHamburgerMenu() {
             closeDrawer();
         }
     });
+}
+
+// ==================== STORY PAGE TIMELINE NAVIGATION ====================
+
+/**
+ * Initialize the story page timeline navigation
+ * Features:
+ * - Scroll spy: highlights current section in timeline
+ * - Progress bar: fills as user scrolls through content
+ * - Click navigation: smooth scroll to sections
+ * - Section reveal: fade-in animation on scroll
+ */
+function initStoryTimeline() {
+    // Only run on story page
+    const storyNav = document.querySelector('.story-nav');
+    if (!storyNav) return;
+
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const timelineProgress = document.querySelector('.timeline-progress');
+    const storySections = document.querySelectorAll('.story-section');
+
+    if (!timelineItems.length || !storySections.length) return;
+
+    // Configuration
+    const SCROLL_OFFSET = 120; // Offset for triggering section changes
+    let isScrolling = false;
+    let scrollTimeout = null;
+
+    /**
+     * Update timeline progress bar height
+     * @param {number} activeIndex - Index of currently active section
+     */
+    function updateProgress(activeIndex) {
+        if (!timelineProgress) return;
+
+        const totalItems = timelineItems.length;
+        if (totalItems <= 1) return;
+
+        // Calculate progress percentage based on active item position
+        const progressPercent = (activeIndex / (totalItems - 1)) * 100;
+        timelineProgress.style.height = `${progressPercent}%`;
+    }
+
+    /**
+     * Update active state of timeline items
+     * @param {number} activeIndex - Index of currently active section
+     */
+    function updateTimelineState(activeIndex) {
+        timelineItems.forEach((item, index) => {
+            item.classList.remove('active', 'passed');
+
+            if (index < activeIndex) {
+                item.classList.add('passed');
+            } else if (index === activeIndex) {
+                item.classList.add('active');
+            }
+        });
+
+        updateProgress(activeIndex);
+    }
+
+    /**
+     * Get the currently visible section based on scroll position
+     * @returns {number} Index of the active section
+     */
+    function getActiveSection() {
+        const scrollTop = window.scrollY;
+        let activeIndex = 0;
+
+        storySections.forEach((section, index) => {
+            const sectionTop = section.offsetTop - SCROLL_OFFSET;
+
+            if (scrollTop >= sectionTop) {
+                activeIndex = index;
+            }
+        });
+
+        // Check if at the bottom of the page
+        const pageBottom = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollTop >= pageBottom - 50) {
+            activeIndex = storySections.length - 1;
+        }
+
+        return activeIndex;
+    }
+
+    /**
+     * Handle scroll events with debouncing
+     */
+    function onScroll() {
+        if (isScrolling) return;
+
+        // Clear previous timeout
+        if (scrollTimeout) {
+            cancelAnimationFrame(scrollTimeout);
+        }
+
+        // Throttle with requestAnimationFrame
+        scrollTimeout = requestAnimationFrame(() => {
+            const activeIndex = getActiveSection();
+            updateTimelineState(activeIndex);
+        });
+    }
+
+    /**
+     * Smooth scroll to a section when timeline item is clicked
+     * @param {Event} e - Click event
+     */
+    function onTimelineClick(e) {
+        e.preventDefault();
+
+        const targetId = e.currentTarget.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+
+        if (!targetSection) return;
+
+        // Set scrolling flag to prevent scroll spy during animation
+        isScrolling = true;
+
+        // Calculate target position with offset
+        const targetPosition = targetSection.offsetTop - SCROLL_OFFSET + 20;
+
+        // Smooth scroll
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+
+        // Update active state immediately for better UX
+        const targetIndex = Array.from(storySections).findIndex(
+            section => section.id === targetId.substring(1)
+        );
+        if (targetIndex !== -1) {
+            updateTimelineState(targetIndex);
+        }
+
+        // Reset scrolling flag after animation
+        setTimeout(() => {
+            isScrolling = false;
+        }, 800);
+    }
+
+    /**
+     * Initialize section reveal animations using IntersectionObserver
+     */
+    function initSectionReveal() {
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '-50px 0px -50px 0px'
+        };
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        storySections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+    }
+
+    // Bind events
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    timelineItems.forEach(item => {
+        item.addEventListener('click', onTimelineClick);
+    });
+
+    // Initialize
+    initSectionReveal();
+
+    // Set initial state
+    const initialActive = getActiveSection();
+    updateTimelineState(initialActive);
+
+    // Make first section visible immediately
+    if (storySections[0]) {
+        storySections[0].classList.add('visible');
+    }
 }

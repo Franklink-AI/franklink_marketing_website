@@ -1,0 +1,622 @@
+/* ==================== STORY PAGE - TIMELINE NAVIGATION ==================== */
+/* Sticky sidebar timeline with scroll-based progress and dynamic highlighting */
+
+/* Override scroll-snap for story page */
+/* Must target html when .page-story is on body, since scroll-snap is set on html in feature_styles.css */
+html:has(.page-story) {
+    scroll-snap-type: none;
+}
+
+.page-story {
+    scroll-snap-type: none;
+}
+
+/* Main Layout */
+.story-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+    min-height: 100vh;
+}
+
+/* ==================== TIMELINE NAVIGATION SIDEBAR ==================== */
+.story-nav {
+    position: sticky;
+    top: var(--nav-offset, 80px);
+    height: fit-content;
+    max-height: calc(100vh - var(--nav-offset, 80px) - 40px);
+    padding: var(--space-3xl) var(--space-lg) var(--space-3xl) var(--space-xl);
+    z-index: 100;
+}
+
+.story-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Timeline Track - The vertical line */
+.timeline-track {
+    position: absolute;
+    left: 7px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: linear-gradient(
+        180deg,
+        var(--slate-200) 0%,
+        var(--slate-200) 100%
+    );
+    border-radius: 1px;
+    z-index: 0;
+}
+
+/* Progress fill - animated fill */
+.timeline-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(
+        180deg,
+        var(--blue-500) 0%,
+        var(--blue-400) 100%
+    );
+    border-radius: 1px;
+    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+/* ==================== TIMELINE ITEMS ==================== */
+.timeline-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    text-decoration: none;
+    z-index: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Timeline Node - The circles */
+.timeline-node {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid var(--slate-300);
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+/* Inner dot for inactive state */
+.timeline-node::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: var(--blue-500);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glow effect for active */
+.timeline-node::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    background: rgba(59, 130, 246, 0);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+}
+
+/* Timeline Label */
+.timeline-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--slate-500);
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    transform: translateX(0);
+}
+
+/* ==================== TIMELINE STATES ==================== */
+
+/* Hover State */
+.timeline-item:hover .timeline-node {
+    border-color: var(--blue-400);
+    transform: scale(1.1);
+}
+
+.timeline-item:hover .timeline-label {
+    color: var(--slate-700);
+}
+
+/* Active State */
+.timeline-item.active .timeline-node {
+    border-color: var(--blue-500);
+    background: var(--blue-500);
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.timeline-item.active .timeline-node::before {
+    width: 6px;
+    height: 6px;
+    background: var(--white);
+}
+
+.timeline-item.active .timeline-node::after {
+    background: rgba(59, 130, 246, 0.15);
+    width: 32px;
+    height: 32px;
+}
+
+.timeline-item.active .timeline-label {
+    color: var(--blue-600);
+    font-weight: 600;
+    transform: translateX(4px);
+}
+
+/* Passed State (sections above current) */
+.timeline-item.passed .timeline-node {
+    border-color: var(--blue-500);
+    background: var(--blue-500);
+}
+
+.timeline-item.passed .timeline-node::before {
+    width: 6px;
+    height: 6px;
+    background: var(--white);
+}
+
+.timeline-item.passed .timeline-label {
+    color: var(--slate-600);
+}
+
+/* ==================== STORY CONTENT AREA ==================== */
+.story-content {
+    padding: var(--space-2xl) var(--space-3xl) var(--space-3xl) var(--space-2xl);
+    max-width: 800px;
+}
+
+/* Individual Section */
+.story-section {
+    padding: var(--space-3xl) 0;
+    border-bottom: 1px solid var(--slate-100);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.story-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.story-section:last-child {
+    border-bottom: none;
+}
+
+.story-section-inner {
+    max-width: 680px;
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+
+/* Section Title */
+.story-section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    color: var(--slate-900);
+    margin-bottom: var(--space-xl);
+    letter-spacing: -0.02em;
+    position: relative;
+}
+
+/* Decorative accent line */
+.story-section-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 48px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--blue-500), var(--blue-400));
+    border-radius: 2px;
+}
+
+/* Lead paragraph */
+.story-lead {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: var(--slate-700);
+    font-weight: 500;
+    margin-bottom: var(--space-xl);
+}
+
+/* Regular paragraphs */
+.story-section p {
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: var(--slate-600);
+    margin-bottom: var(--space-lg);
+}
+
+.story-section p:last-child {
+    margin-bottom: 0;
+}
+
+.story-section strong {
+    color: var(--slate-800);
+    font-weight: 600;
+}
+
+/* Story signature */
+.story-signature {
+    font-size: 1.125rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--blue-600);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-lg);
+    border-top: 2px solid var(--blue-500);
+    display: inline-block;
+}
+
+/* ==================== QUOTE BLOCK ==================== */
+.story-quote {
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    line-height: 1.6;
+    color: var(--slate-800);
+    font-weight: 600;
+    padding: var(--space-xl) var(--space-2xl);
+    background: linear-gradient(135deg, var(--blue-50) 0%, var(--slate-50) 100%);
+    border-left: 4px solid var(--blue-500);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    margin: 0;
+    position: relative;
+}
+
+.story-quote::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    font-size: 4rem;
+    font-family: Georgia, serif;
+    color: var(--blue-200);
+    line-height: 1;
+}
+
+/* ==================== LIST STYLES ==================== */
+.story-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-lg) 0;
+}
+
+.story-list li {
+    position: relative;
+    padding-left: var(--space-xl);
+    margin-bottom: var(--space-md);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--slate-600);
+}
+
+.story-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-400));
+    border-radius: 50%;
+}
+
+.story-list li strong {
+    color: var(--slate-800);
+}
+
+/* Team list specific */
+.story-list--team li {
+    padding-left: 0;
+    margin-bottom: var(--space-lg);
+}
+
+.story-list--team li::before {
+    display: none;
+}
+
+.team-role {
+    color: var(--blue-600);
+    font-weight: 500;
+}
+
+/* Subheading */
+.story-subheading {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--slate-800);
+    margin: var(--space-xl) 0 var(--space-md);
+}
+
+/* ==================== HISTORY TIMELINE ==================== */
+.story-timeline-history {
+    position: relative;
+    padding-left: var(--space-xl);
+    margin-top: var(--space-xl);
+}
+
+.story-timeline-history::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--blue-400), var(--blue-200));
+    border-radius: 1px;
+}
+
+.history-item {
+    position: relative;
+    padding: var(--space-md) 0 var(--space-lg) var(--space-lg);
+}
+
+.history-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 12px;
+    width: 10px;
+    height: 10px;
+    background: var(--blue-500);
+    border-radius: 50%;
+    border: 2px solid var(--white);
+    box-shadow: 0 0 0 2px var(--blue-500);
+}
+
+.history-date {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--blue-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-sm);
+    padding: 4px 12px;
+    background: var(--blue-50);
+    border-radius: var(--radius-sm);
+}
+
+.history-item p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--slate-600);
+}
+
+/* ==================== CTA GROUP ==================== */
+.story-cta-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    margin-top: var(--space-2xl);
+}
+
+.story-cta-item {
+    padding: var(--space-xl);
+    background: var(--slate-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--slate-100);
+    transition: all 0.3s ease;
+}
+
+.story-cta-item:hover {
+    background: var(--white);
+    box-shadow: var(--shadow-md);
+    border-color: var(--blue-100);
+}
+
+.story-cta-item p {
+    font-size: 1rem;
+    color: var(--slate-700);
+    margin-bottom: var(--space-md);
+}
+
+.story-cta-item .cta-button {
+    margin-bottom: 0;
+}
+
+.story-email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--blue-600);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.story-email-link:hover {
+    color: var(--blue-500);
+    text-decoration: underline;
+}
+
+.story-email-link::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563EB' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* ==================== RESPONSIVE - TABLET ==================== */
+@media (max-width: 900px) {
+    .story-layout {
+        grid-template-columns: 1fr;
+        position: relative;
+    }
+
+    /* Bottom navigation bar on mobile */
+    .story-nav {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: auto;
+        max-height: none;
+        padding: var(--space-sm) var(--space-md);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-top: 1px solid var(--slate-200);
+        box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.1);
+        z-index: 999;
+    }
+
+    .story-timeline {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0;
+        padding: 0 var(--space-sm);
+    }
+
+    .timeline-track {
+        display: none;
+    }
+
+    .timeline-item {
+        flex-direction: column;
+        padding: var(--space-sm);
+        gap: 4px;
+        flex: 1;
+        align-items: center;
+    }
+
+    .timeline-node {
+        width: 12px;
+        height: 12px;
+    }
+
+    .timeline-label {
+        font-size: 0.6875rem;
+        text-align: center;
+        white-space: normal;
+        max-width: 60px;
+        line-height: 1.2;
+    }
+
+    .timeline-item.active .timeline-node {
+        transform: scale(1.2);
+    }
+
+    .timeline-item.active .timeline-label {
+        transform: none;
+    }
+
+    .story-content {
+        padding: var(--space-xl) var(--space-md) calc(var(--space-3xl) + 80px);
+        max-width: 100%;
+    }
+
+    .story-section {
+        padding: var(--space-2xl) 0;
+    }
+}
+
+/* ==================== RESPONSIVE - MOBILE ==================== */
+@media (max-width: 600px) {
+    .story-nav {
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    .story-timeline {
+        padding: 0;
+    }
+
+    .timeline-item {
+        padding: var(--space-xs);
+    }
+
+    .timeline-label {
+        font-size: 0.625rem;
+        max-width: 50px;
+    }
+
+    .timeline-node {
+        width: 10px;
+        height: 10px;
+    }
+
+    .story-content {
+        padding: var(--space-lg) var(--space-md) calc(var(--space-2xl) + 70px);
+    }
+
+    .story-section-title {
+        font-size: 1.5rem;
+    }
+
+    .story-lead {
+        font-size: 1.125rem;
+    }
+
+    .story-section p,
+    .story-list li {
+        font-size: 1rem;
+    }
+
+    .story-quote {
+        font-size: 1.125rem;
+        padding: var(--space-lg);
+    }
+
+    .story-cta-group {
+        gap: var(--space-md);
+    }
+
+    .story-cta-item {
+        padding: var(--space-lg);
+    }
+}
+
+/* ==================== REDUCED MOTION ==================== */
+@media (prefers-reduced-motion: reduce) {
+    .timeline-progress,
+    .timeline-node,
+    .timeline-label,
+    .timeline-item,
+    .story-section {
+        transition: none;
+    }
+
+    .story-section {
+        opacity: 1;
+        transform: none;
+    }
+}
