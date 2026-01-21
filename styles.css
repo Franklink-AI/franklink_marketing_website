@@ -217,7 +217,7 @@ a {
 .nav-links {
     list-style: none;
     display: flex;
-    gap: var(--space-xl);
+    gap: 20px;
 }
 
 .nav-container > .nav-links {
@@ -233,7 +233,7 @@ a {
     height: 100%;
 }
 
-.nav-container > .nav-links a {
+.nav-container > .nav-links a:not(.nav-cta) {
     color: var(--nav-link-color);
     font-weight: 500;
     font-size: var(--nav-text-size);
@@ -245,7 +245,7 @@ a {
     text-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
 }
 
-.nav-container > .nav-links a::after {
+.nav-container > .nav-links a:not(.nav-cta)::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -256,20 +256,20 @@ a {
     transition: width var(--transition-base);
 }
 
-.nav-container > .nav-links a:hover {
+.nav-container > .nav-links a:not(.nav-cta):hover {
     color: var(--nav-link-hover);
 }
 
-.nav-container > .nav-links a:hover::after {
+.nav-container > .nav-links a:not(.nav-cta):hover::after {
     width: 100%;
 }
 
-.nav-container > .nav-links a.active {
+.nav-container > .nav-links a:not(.nav-cta).active {
     color: var(--nav-link-hover);
     font-weight: 600;
 }
 
-.nav-container > .nav-links a.active::after {
+.nav-container > .nav-links a:not(.nav-cta).active::after {
     width: 100%;
 }
 
@@ -1040,6 +1040,11 @@ a {
 
     .nav-links {
         display: flex;
+        gap: 10px;
+    }
+
+    .nav-mobile-hide {
+        display: none;
     }
 
     .nav-link-right {
@@ -1048,6 +1053,7 @@ a {
     }
 
     .nav-container {
+        width: 380px;
         max-width: calc(100% - (var(--space-md) * 2));
         padding: 0 var(--space-md);
     }
