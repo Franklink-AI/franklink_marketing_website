@@ -338,21 +338,6 @@ html:has(.page-story) {
     color: var(--slate-800);
 }
 
-/* Team list specific */
-.story-list--team li {
-    padding-left: 0;
-    margin-bottom: var(--space-lg);
-}
-
-.story-list--team li::before {
-    display: none;
-}
-
-.team-role {
-    color: var(--blue-600);
-    font-weight: 500;
-}
-
 /* Subheading */
 .story-subheading {
     font-size: 1.125rem;
