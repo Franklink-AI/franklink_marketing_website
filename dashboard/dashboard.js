@@ -402,7 +402,7 @@ function renderGraph(nodes, links) {
   node
     .append("image")
     .attr("class", "node-logo")
-    .attr("href", "/dashboard/frank_new.jpg")
+    .attr("href", "/dashboard/frank_new.png")
     .attr("x", (d) => -d.radius)
     .attr("y", (d) => -d.radius)
     .attr("width", (d) => d.radius * 2)
