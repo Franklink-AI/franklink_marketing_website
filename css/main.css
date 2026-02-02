@@ -1030,17 +1030,13 @@ a {
         --nav-logo-height: calc(var(--nav-pill-height) * 0.66);
     }
 
-    .hamburger-menu {
-        display: none !important;
-    }
-
-    .nav-drawer {
-        display: none !important;
-    }
-
     .nav-links {
         display: flex;
-        gap: 10px;
+        gap: var(--space-sm);
+    }
+
+    .nav-links a {
+        white-space: nowrap;
     }
 
     .nav-mobile-hide,
@@ -1056,7 +1052,19 @@ a {
     .nav-container {
         width: 420px;
         max-width: calc(100% - (var(--space-md) * 2));
+        padding: 0 var(--space-lg);
+        font-size: 90%;
+        overflow: hidden;
+    }
+
+    .nav-container .logo-img {
+        height: calc(var(--nav-logo-height) * 0.9);
+    }
+
+    /* Mobile CTA button optimization */
+    .nav-cta {
         padding: 0 var(--space-md);
+        font-size: 0.8rem;
     }
 
     .main-content {
@@ -1077,6 +1085,7 @@ a {
     .logo-img {
         height: var(--nav-logo-height);
     }
+
 }
 
 /* Small to Medium Phones */
