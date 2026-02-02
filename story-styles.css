@@ -307,6 +307,32 @@ html:has(.page-story) {
     line-height: 1;
 }
 
+/* ==================== POSITIONING STATEMENT ==================== */
+.positioning-statement {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    padding: var(--space-xl) var(--space-2xl);
+    background: linear-gradient(135deg, var(--blue-50) 0%, var(--slate-50) 100%);
+    border-left: 4px solid var(--blue-500);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+.positioning-frank {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.positioning-text {
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    line-height: 1.6;
+    color: var(--slate-800);
+    font-weight: 600;
+    margin: 0;
+}
+
 /* ==================== LIST STYLES ==================== */
 .story-list {
     list-style: none;
@@ -579,6 +605,21 @@ html:has(.page-story) {
     .story-quote {
         font-size: 1.125rem;
         padding: var(--space-lg);
+    }
+
+    .positioning-statement {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-md);
+    }
+
+    .positioning-frank {
+        width: 80px;
+        height: 80px;
+    }
+
+    .positioning-text {
+        font-size: 1.125rem;
     }
 
     .story-cta-group {
