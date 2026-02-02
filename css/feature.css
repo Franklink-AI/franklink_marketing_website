@@ -779,10 +779,20 @@ html {
     }
 
     .iphone-frame-container {
-        width: min(320px, 80vw, 30vh);  
+        width: min(320px, 80vw, 30vh);
         max-height: none;
         margin: 0 auto;
         transform: none;
+    }
+
+    .iphone-frame-container::before {
+        box-shadow: none;
+    }
+
+    .sticky-phone-wrapper {
+        background: #F5F5F7;
+        opacity: 1;
+        padding: var(--space-sm) 0;
     }
 
     .message-bubble {
@@ -816,15 +826,17 @@ html {
         height: 100svh;
         scroll-snap-stop: always;
         align-items: flex-end;
+        padding: var(--space-md) var(--space-md);
     }
 
     .feature-text-content h2 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
 
     .feature-text-content p {
         font-size: 0.8rem;
     }
+
 }
 
 /* ==================== CONTEXT WEB VISUALIZATION ==================== */
