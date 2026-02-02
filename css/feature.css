@@ -712,6 +712,10 @@ html {
 
 /* ==================== RESPONSIVE ==================== */
 @media (max-width: 900px) {
+    html {
+        scroll-snap-type: y proximity;
+    }
+
     .feature-showcase-container {
         flex-direction: column;
     }
@@ -719,19 +723,11 @@ html {
     .sticky-phone-wrapper {
         width: 100%;
         height: auto;
-        min-height: 100svh;
-        min-height: 100dvh;
-        position: relative;
-        padding: var(--space-2xl) 0;
+        position: sticky;
+        top: var(--nav-bottom);
+        padding: var(--space-lg) 0;
         background: #F5F5F7;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-    }
-
-    .iphone-frame-container {
-        width: min(320px, 85vw);
-        margin: 0 auto;
-        transform: none;
+        z-index: 10;
     }
 
     .scrollable-content-wrapper {
@@ -740,18 +736,14 @@ html {
 
     .feature-section {
         height: auto;
-        min-height: 100svh;
-        min-height: 100dvh;
-        padding: var(--space-xl) var(--space-md);
+        min-height: auto;
+        padding: var(--space-2xl) var(--space-md);
         text-align: center;
         scroll-snap-align: start;
-        scroll-snap-stop: always;
+        scroll-snap-stop: normal;
     }
 
-    .feature-text-content {
-        opacity: 1;
-        transform: none;
-    }
+    /* .feature-text-content inherits desktop dimming effect */
 
     .feature-tags {
         justify-content: center;
@@ -778,6 +770,60 @@ html {
 
     .hero-video {
         object-position: center center;
+    }
+}
+
+@media (max-width: 600px) {
+    html {
+        scroll-snap-type: y mandatory;
+    }
+
+    .iphone-frame-container {
+        width: min(320px, 80vw, 30vh);  
+        max-height: none;
+        margin: 0 auto;
+        transform: none;
+    }
+
+    .message-bubble {
+        font-size: 12px;
+        padding: 6px 9px;
+    }
+
+    .screen-header {
+        height: 60px;
+    }
+
+    .input-area {
+        min-height: 42px;
+    }
+
+    #phone-input {
+        font-size: 12px;
+    }
+
+    .header-info {
+        display: none;
+    }
+
+    .header-avatar img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .feature-section {
+        height: 100vh;
+        height: 100svh;
+        scroll-snap-stop: always;
+        align-items: flex-end;
+    }
+
+    .feature-text-content h2 {
+        font-size: 1.8rem;
+    }
+
+    .feature-text-content p {
+        font-size: 0.8rem;
     }
 }
 

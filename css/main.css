@@ -1003,7 +1003,7 @@ a {
 /* ==================== RESPONSIVE DESIGN ==================== */
 
 /* Desktop Navigation */
-@media (min-width: 601px) {
+@media (width > 600px) {
     .hamburger-menu {
         display: none !important;
     }
@@ -1023,7 +1023,7 @@ a {
 }
 
 /* Mobile Navigation */
-@media (max-width: 600px) {
+@media (width <= 600px) {
     :root {
         --nav-top-gap: calc(var(--nav-text-size) * 1.1);
         --nav-offset: calc(var(--nav-bottom) + var(--space-sm));
@@ -1043,8 +1043,9 @@ a {
         gap: 10px;
     }
 
-    .nav-mobile-hide {
-        display: none;
+    .nav-mobile-hide,
+    .nav-container > .nav-links a.nav-mobile-hide {
+        display: none !important;
     }
 
     .nav-link-right {
@@ -1053,7 +1054,7 @@ a {
     }
 
     .nav-container {
-        width: 380px;
+        width: 420px;
         max-width: calc(100% - (var(--space-md) * 2));
         padding: 0 var(--space-md);
     }
@@ -1079,7 +1080,7 @@ a {
 }
 
 /* Small to Medium Phones */
-@media (max-width: 600px) and (min-width: 376px) {
+@media (375px < width <= 600px) {
     .phone-container,
     .phone-container-two {
         width: 88vw;
@@ -1123,7 +1124,7 @@ a {
 }
 
 /* Mobile Layout */
-@media (max-width: 600px) {
+@media (width <= 600px) {
     .content-wrapper {
         display: flex !important;
         flex-direction: column;
@@ -1153,7 +1154,7 @@ a {
 }
 
 /* Very Small Phones */
-@media (max-width: 375px) {
+@media (width <= 375px) {
     .phone-container,
     .phone-container-two {
         width: 90vw;
@@ -1168,7 +1169,7 @@ a {
 }
 
 /* Medium Screens (Tablet) */
-@media (min-width: 601px) and (max-width: 1024px) {
+@media (600px < width <= 1024px) {
     .content-wrapper {
         display: grid !important;
         grid-template-columns: 1fr 1fr;
@@ -1210,7 +1211,7 @@ a {
 }
 
 /* Large Screens */
-@media (min-width: 1025px) {
+@media (width > 1024px) {
     .content-wrapper {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1537,7 +1538,7 @@ a {
 }
 
 /* ==================== RESPONSIVE - OTHER SECTIONS ==================== */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1548,7 +1549,7 @@ a {
     }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .section-header h2 {
         font-size: 1.875rem;
     }
@@ -1586,7 +1587,7 @@ a {
     }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
     .section-header h2 {
         font-size: 1.5rem;
     }
@@ -2356,7 +2357,7 @@ a {
 
 /* ==================== ABOUT PAGE RESPONSIVE ==================== */
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
     .about-hero-container {
         grid-template-columns: 1fr;
         gap: var(--space-2xl);
@@ -2399,7 +2400,7 @@ a {
     }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .about-hero {
         padding: 100px var(--space-md) 60px;
         min-height: auto;
@@ -2464,7 +2465,7 @@ a {
     }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
     .about-hero h1 {
         font-size: 1.75rem;
     }
