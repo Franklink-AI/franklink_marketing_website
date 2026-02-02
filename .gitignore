@@ -5,6 +5,7 @@ dashboard/config.js
 
 # OpenSpec files
 openspec/
+docs/
 .claude/
 AGENTS.md
 CLAUDE.md
