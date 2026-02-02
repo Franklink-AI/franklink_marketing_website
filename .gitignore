@@ -8,15 +8,10 @@ openspec/
 .claude/
 AGENTS.md
 CLAUDE.md
-.spec-workflow/templates/design-template.md
-.spec-workflow/templates/product-template.md
-.spec-workflow/templates/requirements-template.md
-.spec-workflow/templates/structure-template.md
-.spec-workflow/templates/tasks-template.md
-.spec-workflow/templates/tech-template.md
-.spec-workflow/user-templates/README.md
-.DS_Store
-.DS_Store
+.spec-workflow/
 example_from_poke/styles.css
 example_from_poke/terms.html
-.codex/plan/disable-dark-mode.md
+.codex/
+
+# Apple
+.DS_Store
