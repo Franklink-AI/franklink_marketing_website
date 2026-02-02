@@ -878,9 +878,48 @@ html {
 }
 
 .source-node.active {
-    background: #EFF6FF;
-    border-color: #3B82F6;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+/* Staggered animation delays for source nodes */
+.source-node:nth-child(1) { transition-delay: 0s; }
+.source-node:nth-child(2) { transition-delay: 0.08s; }
+.source-node:nth-child(3) { transition-delay: 0.16s; }
+.source-node:nth-child(4) { transition-delay: 0.24s; }
+.source-node:nth-child(5) { transition-delay: 0.32s; }
+.source-node:nth-child(6) { transition-delay: 0.4s; }
+
+/* Hover: Border color per brand */
+.source-node[data-source="gmail"]:hover {
+    border-color: #EA4335;
+    box-shadow: 0 4px 16px rgba(234, 67, 53, 0.2);
+}
+
+.source-node[data-source="calendar"]:hover {
+    border-color: #4285F4;
+    box-shadow: 0 4px 16px rgba(66, 133, 244, 0.2);
+}
+
+.source-node[data-source="linkedin"]:hover {
+    border-color: #0A66C2;
+    box-shadow: 0 4px 16px rgba(10, 102, 194, 0.2);
+}
+
+.source-node[data-source="zoom"]:hover {
+    border-color: #0B5CFF;
+    box-shadow: 0 4px 16px rgba(11, 92, 255, 0.2);
+}
+
+.source-node[data-source="location"]:hover {
+    border-color: #4285F4;
+    box-shadow: 0 4px 16px rgba(66, 133, 244, 0.2);
+}
+
+.source-node[data-source="social"]:hover {
+    border-color: #34DA50;
+    box-shadow: 0 4px 16px rgba(52, 218, 80, 0.2);
 }
 
 .source-icon-wrapper {
@@ -889,24 +928,52 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #F1F5F9;
+    background: transparent;
     border-radius: 8px;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-.source-node.active .source-icon-wrapper {
-    background: #3B82F6;
-}
-
+/* Default: Brand colored icon */
 .source-icon {
     width: 20px;
     height: 20px;
-    fill: #64748B;
-    transition: fill 0.3s ease;
+    transition: filter 0.3s ease;
 }
 
-.source-node.active .source-icon {
-    fill: #FFFFFF;
+/* Hover: White icon */
+.source-node:hover .source-icon {
+    filter: brightness(0) invert(1);
+}
+
+/* Hover: Brand colored wrapper with glow */
+.source-node[data-source="gmail"]:hover .source-icon-wrapper {
+    background: #EA4335;
+    box-shadow: 0 0 8px #EA4335, 0 0 16px rgba(234, 67, 53, 0.4);
+}
+
+.source-node[data-source="calendar"]:hover .source-icon-wrapper {
+    background: #4285F4;
+    box-shadow: 0 0 8px #4285F4, 0 0 16px rgba(66, 133, 244, 0.4);
+}
+
+.source-node[data-source="linkedin"]:hover .source-icon-wrapper {
+    background: #0A66C2;
+    box-shadow: 0 0 8px #0A66C2, 0 0 16px rgba(10, 102, 194, 0.4);
+}
+
+.source-node[data-source="zoom"]:hover .source-icon-wrapper {
+    background: #0B5CFF;
+    box-shadow: 0 0 8px #0B5CFF, 0 0 16px rgba(11, 92, 255, 0.4);
+}
+
+.source-node[data-source="location"]:hover .source-icon-wrapper {
+    background: #4285F4;
+    box-shadow: 0 0 8px #4285F4, 0 0 16px rgba(66, 133, 244, 0.4);
+}
+
+.source-node[data-source="social"]:hover .source-icon-wrapper {
+    background: #34DA50;
+    box-shadow: 0 0 8px #34DA50, 0 0 16px rgba(52, 218, 80, 0.4);
 }
 
 .source-label {
@@ -1106,11 +1173,17 @@ html {
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateX(20px);
     transition: opacity 0.5s ease-out, transform 0.5s ease-out,
                 background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     position: relative;
 }
+
+/* Staggered animation delays for profile nodes */
+.profile-node:nth-child(1) { transition-delay: 0s; }
+.profile-node:nth-child(2) { transition-delay: 0.08s; }
+.profile-node:nth-child(3) { transition-delay: 0.16s; }
+.profile-node:nth-child(4) { transition-delay: 0.24s; }
 
 .profile-node.visible {
     opacity: 1;

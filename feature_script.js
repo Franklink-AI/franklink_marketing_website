@@ -307,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let animationFrameId = null;
     let particlePool = [];
     let prefersReducedMotion = false;
+    let revealedProfileIndices = new Set();
 
     // DOM Elements Cache
     let elements = {
@@ -465,11 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Phase 3: Connection output (65% - 100%)
         else if (scrollProgress >= SCROLL_PHASES.CONNECTIONS_START) {
-            const phaseProgress = (scrollProgress - SCROLL_PHASES.CONNECTIONS_START) /
-                                  (SCROLL_PHASES.CONNECTIONS_END - SCROLL_PHASES.CONNECTIONS_START);
             activateAllSources();
             section.classList.add('processing');
-            activateProfileNodes(phaseProgress);
+            activateAllProfiles();
         }
 
         // Before animation starts
@@ -511,24 +510,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Activate profile nodes progressively
+     * Activate all profile nodes at once (with CSS stagger delays)
      */
-    function activateProfileNodes(progress) {
-        const totalNodes = elements.profileNodes.length;
-        const activeCount = Math.ceil(progress * totalNodes);
-
-        elements.profileNodes.forEach((node, index) => {
-            // Stagger visibility
-            const visibilityThreshold = index / totalNodes;
-            if (progress >= visibilityThreshold * 0.7) {
-                node.classList.add('visible');
-            }
-
-            if (index < activeCount) {
-                node.classList.add('active');
-            } else {
-                node.classList.remove('active');
-            }
+    function activateAllProfiles() {
+        elements.profileNodes.forEach((node) => {
+            node.classList.add('visible', 'active');
         });
     }
 
