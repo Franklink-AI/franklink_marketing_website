@@ -774,8 +774,14 @@ html {
 }
 
 @media (max-width: 600px) {
+    /*
+     * Use 'proximity' instead of 'mandatory' on mobile to handle
+     * dynamic viewport height changes when the browser address bar
+     * hides/shows during scrolling. Mandatory snapping causes jarring
+     * jumps when the viewport resizes mid-scroll.
+     */
     html {
-        scroll-snap-type: y mandatory;
+        scroll-snap-type: y proximity;
     }
 
     .iphone-frame-container {
@@ -821,10 +827,16 @@ html {
         height: 35px;
     }
 
+    /*
+     * Use min-height with dvh (dynamic viewport height) so sections
+     * adapt when address bar hides/shows. Combined with proximity
+     * snapping, this prevents jarring snap corrections.
+     */
     .feature-section {
-        height: 100vh;
-        height: 100svh;
-        scroll-snap-stop: always;
+        height: auto;
+        min-height: 100svh; /* Fallback for older browsers */
+        min-height: 100dvh; /* Dynamic - adapts to address bar */
+        scroll-snap-stop: normal;
         align-items: flex-end;
         padding: var(--space-md) var(--space-md);
     }
