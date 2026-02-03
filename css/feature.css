@@ -1257,13 +1257,14 @@ html {
 
 .profile-avatar-wrapper {
     width: 120px;
-    height: 120px;
-    border-radius: 50%;
+    height: 160px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
 }
 
 .rolling-profile.active .profile-avatar-wrapper {
@@ -1272,10 +1273,10 @@ html {
 
 .profile-avatar {
     width: 120px;
-    height: 120px;
-    border-radius: 50%;
+    height: 160px;
+    border-radius: 0;
     object-fit: cover;
-    border: 3px solid #10B981;
+    border: 2px solid #0F172A;
 }
 
 .profile-label {
@@ -1416,7 +1417,7 @@ html {
     }
 
     .rolling-profile-container {
-        height: 220px;
+        height: 240px;
     }
 
     .source-node {
@@ -1439,12 +1440,12 @@ html {
 
     .profile-avatar-wrapper {
         width: 100px;
-        height: 100px;
+        height: 133px;
     }
 
     .profile-avatar {
         width: 100px;
-        height: 100px;
+        height: 133px;
     }
 
     .source-label {
@@ -1498,7 +1499,7 @@ html {
     }
 
     .rolling-profile-container {
-        height: 180px;
+        height: 200px;
     }
 
     .rolling-profile {
@@ -1508,12 +1509,12 @@ html {
 
     .profile-avatar-wrapper {
         width: 80px;
-        height: 80px;
+        height: 107px;
     }
 
     .profile-avatar {
         width: 80px;
-        height: 80px;
+        height: 107px;
     }
 
     .source-label {
