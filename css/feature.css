@@ -1208,44 +1208,46 @@ html {
 .profile-nodes-column {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
-/* Rolling Profile Container */
+/* Rolling Profile Container - Vertical Card */
 .rolling-profile-container {
     position: relative;
-    min-height: 60px;
+    width: 100%;
+    height: 280px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .rolling-profile {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.875rem;
-    padding: 0.75rem 1.25rem;
-    background: #FAFBFC;
-    border: 1px solid #F1F5F9;
-    border-radius: 100px;
+    gap: 1rem;
+    padding: 2rem 2.5rem;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 24px;
     position: absolute;
     opacity: 0;
     transform: translateY(20px);
     transition:
         opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
         transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    white-space: nowrap;
     cursor: default;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 }
 
 .rolling-profile.active {
     position: relative;
     opacity: 1;
     transform: translateY(0);
-    background: #FFFFFF;
     border-color: #10B981;
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.12);
 }
 
 .rolling-profile.exiting {
@@ -1254,8 +1256,8 @@ html {
 }
 
 .profile-avatar-wrapper {
-    width: 40px;
-    height: 40px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1265,23 +1267,26 @@ html {
 }
 
 .rolling-profile.active .profile-avatar-wrapper {
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 .profile-avatar {
-    width: 40px;
-    height: 40px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #10B981;
+    border: 3px solid #10B981;
 }
 
 .profile-label {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 500;
     color: #334155;
     letter-spacing: -0.015em;
+    text-align: center;
     transition: color 0.25s ease;
+    max-width: 180px;
+    line-height: 1.4;
 }
 
 .rolling-profile.active .profile-label {
@@ -1411,7 +1416,7 @@ html {
     }
 
     .rolling-profile-container {
-        justify-content: center;
+        height: 220px;
     }
 
     .source-node {
@@ -1429,22 +1434,25 @@ html {
     }
 
     .rolling-profile {
-        padding: 0.625rem 1rem;
+        padding: 1.5rem 2rem;
     }
 
     .profile-avatar-wrapper {
-        width: 36px;
-        height: 36px;
+        width: 100px;
+        height: 100px;
     }
 
     .profile-avatar {
-        width: 36px;
-        height: 36px;
+        width: 100px;
+        height: 100px;
     }
 
-    .source-label,
-    .profile-label {
+    .source-label {
         font-size: 0.8125rem;
+    }
+
+    .profile-label {
+        font-size: 0.9375rem;
     }
 
     .frank-node-inner {
@@ -1489,23 +1497,32 @@ html {
         height: 18px;
     }
 
+    .rolling-profile-container {
+        height: 180px;
+    }
+
     .rolling-profile {
-        padding: 0.5rem 0.875rem;
+        padding: 1.25rem 1.5rem;
+        gap: 0.75rem;
     }
 
     .profile-avatar-wrapper {
-        width: 32px;
-        height: 32px;
+        width: 80px;
+        height: 80px;
     }
 
     .profile-avatar {
-        width: 32px;
-        height: 32px;
+        width: 80px;
+        height: 80px;
     }
 
-    .source-label,
-    .profile-label {
+    .source-label {
         font-size: 0.75rem;
+    }
+
+    .profile-label {
+        font-size: 0.8125rem;
+        max-width: 140px;
     }
 
     .frank-node-inner {
