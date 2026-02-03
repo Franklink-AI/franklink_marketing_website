@@ -657,15 +657,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Calculate start and end positions relative to container
         const startX = sourceRect.right - containerRect.left;
-        const startY = sourceRect.top + sourceRect.height / 2 - containerRect.top;
+        const baseStartY = sourceRect.top + sourceRect.height / 2 - containerRect.top;
         const endX = frankRect.left + frankRect.width / 2 - containerRect.left;
         const endY = frankRect.top + frankRect.height / 2 - containerRect.top;
+
+        // Add vertical jitter to start position for organic feel
+        const startJitter = (Math.random() - 0.5) * 12;
+        const startY = baseStartY + startJitter;
+
+        // Add curve offset for organic curved paths
+        const curveOffset = (Math.random() - 0.5) * 35;
+        const curveY = (Math.random() - 0.5) * 20;
 
         // Set CSS custom properties for animation
         particle.style.setProperty('--start-x', `${startX}px`);
         particle.style.setProperty('--start-y', `${startY}px`);
         particle.style.setProperty('--end-x', `${endX}px`);
         particle.style.setProperty('--end-y', `${endY}px`);
+        particle.style.setProperty('--curve-offset', `${curveOffset}px`);
+        particle.style.setProperty('--curve-y', `${curveY}px`);
+
+        // Add size variation for visual interest
+        particle.classList.remove('particle--sm', 'particle--lg');
+        const sizeRoll = Math.random();
+        if (sizeRoll < 0.25) {
+            particle.classList.add('particle--sm');
+        } else if (sizeRoll > 0.85) {
+            particle.classList.add('particle--lg');
+        }
 
         const duration = Math.random() *
             (CONFIG.PARTICLE_DURATION_MAX - CONFIG.PARTICLE_DURATION_MIN) +
@@ -678,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove after animation
         setTimeout(() => {
-            particle.classList.remove('flowing');
+            particle.classList.remove('flowing', 'particle--sm', 'particle--lg');
             if (particle.parentElement) {
                 particle.parentElement.removeChild(particle);
             }
@@ -743,8 +762,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const loop = () => {
             if (isInView && !prefersReducedMotion) {
                 // Spawn particles from active sources
+                // Slightly higher rate (5%) for subtle but visible ion flow
                 elements.sourceNodes.forEach((node) => {
-                    if (node.classList.contains('active') && Math.random() < 0.03) {
+                    if (node.classList.contains('active') && Math.random() < 0.05) {
                         spawnParticleFromSource(node);
                     }
                 });

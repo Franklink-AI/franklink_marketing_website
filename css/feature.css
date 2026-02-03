@@ -1048,15 +1048,53 @@ html {
     overflow: hidden;
 }
 
+/* Ion particle - electric blue glow effect */
 .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
-    background: #3B82F6;
+    width: 5px;
+    height: 5px;
+    background: radial-gradient(circle, #60A5FA 0%, #3B82F6 60%, transparent 100%);
     border-radius: 50%;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+    box-shadow:
+        0 0 4px rgba(96, 165, 250, 0.9),
+        0 0 8px rgba(59, 130, 246, 0.6),
+        0 0 14px rgba(37, 99, 235, 0.3);
     opacity: 0;
     pointer-events: none;
+    filter: blur(0.3px);
+}
+
+/* Ion trail for motion effect */
+.particle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    border-radius: inherit;
+    opacity: 0.35;
+    transform: translate(-4px, 0);
+    filter: blur(2px);
+}
+
+/* Particle size variations */
+.particle--sm {
+    width: 3px;
+    height: 3px;
+    box-shadow:
+        0 0 3px rgba(96, 165, 250, 0.8),
+        0 0 6px rgba(59, 130, 246, 0.5);
+}
+
+.particle--lg {
+    width: 6px;
+    height: 6px;
+    box-shadow:
+        0 0 5px rgba(96, 165, 250, 0.9),
+        0 0 10px rgba(59, 130, 246, 0.6),
+        0 0 18px rgba(37, 99, 235, 0.35);
 }
 
 .particle.flowing {
@@ -1068,13 +1106,20 @@ html {
         opacity: 0;
         transform: translate(var(--start-x), var(--start-y)) scale(0);
     }
-    20% {
-        opacity: 0.8;
-        transform: translate(var(--start-x), var(--start-y)) scale(1);
+    12% {
+        opacity: 0.95;
+        transform: translate(var(--start-x), var(--start-y)) scale(1.15);
     }
-    80% {
-        opacity: 0.8;
-        transform: translate(var(--end-x), var(--end-y)) scale(1);
+    50% {
+        opacity: 1;
+        transform: translate(
+            calc(var(--start-x) + (var(--end-x) - var(--start-x)) * 0.5 + var(--curve-offset, 0px)),
+            calc(var(--start-y) + (var(--end-y) - var(--start-y)) * 0.5 + var(--curve-y, 0px))
+        ) scale(1);
+    }
+    88% {
+        opacity: 0.7;
+        transform: translate(var(--end-x), var(--end-y)) scale(0.85);
     }
     100% {
         opacity: 0;
@@ -1154,6 +1199,35 @@ html {
         0 20px 50px -12px rgba(37, 99, 235, 0.4),
         0 8px 24px -8px rgba(37, 99, 235, 0.3);
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+/* Ambient ion glow when processing - particles arriving */
+.frank-core::before {
+    content: '';
+    position: absolute;
+    inset: -16px;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.12) 0%, rgba(59, 130, 246, 0.06) 40%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+
+.context-web-section.processing .frank-core::before {
+    opacity: 1;
+    animation: ionGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes ionGlow {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
 }
 
 .context-web-section.processing .frank-core {
@@ -1602,7 +1676,8 @@ html {
 
     .frank-node-ring,
     .frank-pulse,
-    .particle {
+    .particle,
+    .frank-core::before {
         animation: none !important;
     }
 
