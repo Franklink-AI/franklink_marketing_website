@@ -309,13 +309,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let prefersReducedMotion = false;
     let revealedProfileIndices = new Set();
 
+    // Rolling profile state
+    let currentProfileIndex = 0;
+    let profileRotationInterval = null;
+    const PROFILE_ROTATION_DELAY = 2000; // 2 seconds per profile
+
     // DOM Elements Cache
     let elements = {
         header: null,
         sourceNodes: [],
         frankNode: null,
         frankContainer: null,
-        profileNodes: [],
+        rollingProfiles: [],
         particleContainer: null,
         progressFill: null
     };
@@ -357,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.sourceNodes = Array.from(section.querySelectorAll('.source-node'));
         elements.frankNode = section.querySelector('.frank-node');
         elements.frankContainer = section.querySelector('.frank-node-container');
-        elements.profileNodes = Array.from(section.querySelectorAll('.profile-node'));
+        elements.rollingProfiles = Array.from(section.querySelectorAll('.rolling-profile'));
         elements.particleContainer = section.querySelector('.particle-container');
         elements.progressFill = section.querySelector('.progress-fill');
     }
@@ -375,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         section.classList.add('in-view');
                         updateScrollProgress();
                         startAnimationLoop();
+                        // Start profile rotation when section is in view
+                        startProfileRotation();
                     } else {
                         section.classList.remove('in-view', 'processing');
                         stopAnimationLoop();
@@ -510,21 +517,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Activate all profile nodes at once (with CSS stagger delays)
+     * Activate rolling profile display (no-op, rotation is time-based)
      */
     function activateAllProfiles() {
-        elements.profileNodes.forEach((node) => {
-            node.classList.add('visible', 'active');
-        });
+        // Rotation is now time-based, started when section comes into view
     }
 
     /**
-     * Deactivate all profile nodes
+     * Deactivate rolling profile display (no-op, rotation continues while in view)
      */
     function deactivateProfileNodes() {
-        elements.profileNodes.forEach((node) => {
-            node.classList.remove('active');
-        });
+        // Rotation continues while section is in view
+    }
+
+    /**
+     * Start automatic profile rotation
+     */
+    function startProfileRotation() {
+        if (profileRotationInterval) return;
+        profileRotationInterval = setInterval(rotateToNextProfile, PROFILE_ROTATION_DELAY);
+    }
+
+    /**
+     * Stop profile rotation
+     */
+    function stopProfileRotation() {
+        if (profileRotationInterval) {
+            clearInterval(profileRotationInterval);
+            profileRotationInterval = null;
+        }
+    }
+
+    /**
+     * Rotate to the next profile in the rolling display
+     */
+    function rotateToNextProfile() {
+        const profiles = elements.rollingProfiles;
+        if (!profiles || profiles.length === 0) return;
+
+        // Exit current profile
+        profiles[currentProfileIndex].classList.add('exiting');
+        profiles[currentProfileIndex].classList.remove('active');
+
+        // Move to next
+        currentProfileIndex = (currentProfileIndex + 1) % profiles.length;
+
+        // Enter new profile after brief delay
+        setTimeout(() => {
+            profiles.forEach(p => p.classList.remove('exiting'));
+            profiles[currentProfileIndex].classList.add('active');
+        }, 300);
+    }
+
+    /**
+     * Reset profile rotation to initial state
+     */
+    function resetProfileRotation() {
+        stopProfileRotation();
+        currentProfileIndex = 0;
+        if (elements.rollingProfiles) {
+            elements.rollingProfiles.forEach((p, i) => {
+                p.classList.remove('active', 'exiting');
+                if (i === 0) p.classList.add('active');
+            });
+        }
     }
 
     /**
@@ -534,9 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.sourceNodes.forEach((node) => {
             node.classList.remove('active');
         });
-        elements.profileNodes.forEach((node) => {
-            node.classList.remove('active');
-        });
+        stopProfileRotation();
     }
 
     /**
@@ -546,9 +600,9 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.sourceNodes.forEach((node) => {
             node.classList.remove('visible', 'active');
         });
-        elements.profileNodes.forEach((node) => {
-            node.classList.remove('visible', 'active');
-        });
+
+        // Reset rolling profiles
+        resetProfileRotation();
 
         if (elements.progressFill) {
             elements.progressFill.style.width = '0%';
