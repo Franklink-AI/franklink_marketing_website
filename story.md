@@ -8,7 +8,7 @@ Then came Facebook. For the first time, people could maintain relationships at s
 
 LinkedIn tried to close that gap. Suddenly, you could search for anyone: a Stanford grad in Singapore, a founder in Sao Paulo, an engineer in Berlin. The internet made everyone visible - but visibility is not connection. **Profile is not context**. A connection request from a stranger is mostly noise. LinkedIn solved discovery. It never solved understanding.
 
-Now we are entering a new era. AI can finally do what search engines never could: **understand who you actually are**.
+Now we are entering a new era. AI can finally do what search engines never could: **give you your own professional agent that truly understands who you are**.
 
 Not just your title, but your ambitions, your skills, what you are building, and what keeps you up at night. Frank connects to your email, your calendar, your documents, your conversations. It sees the full picture: the VC meeting you just had, the deadline you are racing toward, the skill gap you want to close, the career pivot you are quietly considering. **This is not surveillance. It is context.** The same context a great mentor or well-connected friend would have if they were paying attention to every detail of your life.
 
@@ -20,9 +20,9 @@ This is the leap: from searchable to understandable, from profiles to context, f
 
 Franklink is the professional network rebuilt for this moment. No feed to scroll. No posts to perform. No algorithm optimizing for engagement. Just an AI that knows your story, goals, challenges, and trajectory, and introduces you to the exact people who can help you move forward.
 
-The best connections have always come from people who truly know you making introductions on your behalf. Frank is that person - at scale.
+The best connections have always come from people who truly know you making introductions on your behalf. Frank is your professional agent—and when agents network first, the best matches find you, saving you the energy and time of traditional networking.
 
-**Welcome to the AI native professional network.**
+**Welcome to the agentic professional network.**
 
 ## 2) One-line positioning
 > **Franklink: AI that understands your context and introduces the right people at the right time.**
