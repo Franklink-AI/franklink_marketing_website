@@ -11,6 +11,7 @@ from google_auth_oauthlib.flow import Flow
 from datetime import datetime
 import base64
 import json
+import html
 
 # Load environment variables
 load_dotenv()
@@ -523,6 +524,171 @@ def render_error_page(title: str, message: str) -> HTMLResponse:
     return HTMLResponse(content=html_content, status_code=400)
 
 
+def render_conversation_page(conversation: dict) -> HTMLResponse:
+    """Render a discovery conversation as a mobile-friendly chat page."""
+    turns = conversation.get("turns") or []
+    if not isinstance(turns, list):
+        turns = []
+
+    teaser = conversation.get("teaser_summary") or ""
+    if not isinstance(teaser, str):
+        teaser = str(teaser) if teaser else ""
+
+    # Build speaker list (order of appearance)
+    speakers = []
+    speaker_indices = {}
+    for turn in turns:
+        name = turn.get("speaker_name", "Agent")
+        if name not in speaker_indices:
+            speaker_indices[name] = len(speakers)
+            speakers.append(name)
+
+    # Extract display names (strip "'s Agent" suffix)
+    display_names = [s.replace("'s Agent", "") for s in speakers]
+
+    # Format header title
+    if len(display_names) == 2:
+        title_names = f"{display_names[0]} & {display_names[1]}"
+    elif len(display_names) > 2:
+        title_names = f"{', '.join(display_names[:-1])} & {display_names[-1]}"
+    else:
+        title_names = display_names[0] if display_names else "Agents"
+
+    # Color palette
+    colors = [
+        ("#E8F0FE", "#1A73E8"),  # Blue
+        ("#FEF3E8", "#E87A1A"),  # Orange
+        ("#E8FEF0", "#1AE87A"),  # Green
+        ("#F3E8FE", "#7A1AE8"),  # Purple
+        ("#FEE8E8", "#E81A1A"),  # Red
+        ("#E8FEFE", "#1AE8E8"),  # Teal
+    ]
+
+    # Build chat bubbles HTML
+    bubbles_html = ""
+    for turn in turns:
+        name = turn.get("speaker_name", "Agent")
+        raw_content = turn.get("content", "")
+        # Skip empty messages
+        if not raw_content or not str(raw_content).strip():
+            continue
+        content = html.escape(str(raw_content))
+        idx = speaker_indices.get(name, 0)
+        bg, accent = colors[idx % len(colors)]
+        align = "left" if idx % 2 == 0 else "right"
+        margin = "margin-right: 40px;" if align == "left" else "margin-left: 40px;"
+
+        bubbles_html += f'''
+        <div class="bubble" style="text-align: {align};">
+            <div class="bubble-inner" style="background: {bg}; border-left: 3px solid {accent}; {margin}">
+                <div class="speaker" style="color: {accent};">{html.escape(name)}</div>
+                <div class="content">{content}</div>
+            </div>
+        </div>
+        '''
+
+    # Escape teaser for both HTML and OG tag
+    teaser_escaped = html.escape(teaser)
+    title_escaped = html.escape(f"Why {title_names} should connect")
+
+    html_content = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{title_escaped}</title>
+    <meta property="og:title" content="{title_escaped}">
+    <meta property="og:description" content="{teaser_escaped}">
+    <meta property="og:type" content="article">
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: #f5f5f7;
+            color: #1a1a1a;
+            -webkit-font-smoothing: antialiased;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 24px 20px 20px;
+            text-align: center;
+        }}
+        .header-logo {{
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+        }}
+        .header-title {{
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.3;
+        }}
+        .teaser {{
+            background: #fff;
+            padding: 16px 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #555;
+            border-bottom: 1px solid #e5e5e7;
+        }}
+        .conversation {{
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }}
+        .bubble {{
+            margin-bottom: 16px;
+        }}
+        .bubble-inner {{
+            display: inline-block;
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+        }}
+        .speaker {{
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }}
+        .content {{
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }}
+        .footer {{
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #999;
+        }}
+        .footer a {{
+            color: #1A73E8;
+            text-decoration: none;
+        }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-logo">FRANKLINK</div>
+        <h1 class="header-title">{title_escaped}</h1>
+    </div>
+    <div class="teaser">{teaser_escaped}</div>
+    <div class="conversation">
+        {bubbles_html}
+    </div>
+    <footer class="footer">
+        Conversation generated by <a href="https://franklink.ai">Franklink</a> AI agents
+    </footer>
+</body>
+</html>'''
+
+    return HTMLResponse(content=html_content, status_code=200)
+
+
 @app.get("/health")
 async def health_check():
     env_vars = {
@@ -771,3 +937,33 @@ async def oauth_google_callback(code: str = None, state: str = None, error: str 
 @app.post("/oauth/google/callback")
 async def oauth_google_callback_post(callback: OAuthCallback):
     return await oauth_google_callback(code=callback.code, state=callback.state, error=callback.error)
+
+
+@app.get("/c/{slug}")
+async def get_conversation(slug: str):
+    """
+    Render a discovery conversation page for iMessage rich link previews.
+    """
+    # Validate slug (basic XSS prevention)
+    if not slug or len(slug) > 100 or not slug.isalnum():
+        return render_error_page("Not Found", "This conversation doesn't exist.")
+
+    if not supabase:
+        return render_error_page("Error", "Database unavailable. Please try again later.")
+
+    # Fetch conversation from Supabase
+    try:
+        response = supabase.table("discovery_conversations") \
+            .select("slug,turns,teaser_summary") \
+            .eq("slug", slug) \
+            .limit(1) \
+            .single() \
+            .execute()
+    except Exception as e:
+        logger.error(f"Failed to fetch conversation for slug {slug}: {e}", exc_info=True)
+        return render_error_page("Not Found", "This conversation doesn't exist.")
+
+    if not response.data:
+        return render_error_page("Not Found", "This conversation doesn't exist.")
+
+    return render_conversation_page(response.data)
