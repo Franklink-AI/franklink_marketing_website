@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
+    <script>
+        // Redirect /c/[slug] to api.franklink.ai/c/[slug]
+        var path = window.location.pathname;
+        var slug = path.replace('/c/', '').replace('/', '');
+        if (slug) {
+            window.location.href = 'https://api.franklink.ai/c/' + slug;
+        } else {
+            window.location.href = 'https://franklink.ai';
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>
