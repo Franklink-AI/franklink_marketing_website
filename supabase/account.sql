@@ -88,3 +88,23 @@ BEGIN
     CHECK (graduation_year IS NULL OR (graduation_year >= 2020 AND graduation_year <= 2040));
   END IF;
 END $$;
+
+-- ------------------------------------------------------------
+-- 5. Fix RLS policies for connection graph
+-- ------------------------------------------------------------
+
+-- 5a. Users table: allow authenticated users to read any user's basic profile
+--     (needed so the connection graph can fetch names of connected peers)
+--     The old "Users can read their profile" policy only allows id = auth.uid().
+DROP POLICY IF EXISTS "Users can read their profile" ON public.users;
+CREATE POLICY "Authenticated users can read profiles"
+  ON public.users FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+-- 5b. group_chats: ensure RLS is enabled + users can read chats they belong to
+ALTER TABLE public.group_chats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read their group chats" ON public.group_chats;
+CREATE POLICY "Users can read their group chats"
+  ON public.group_chats FOR SELECT
+  USING (user_a_id = auth.uid() OR user_b_id = auth.uid());
