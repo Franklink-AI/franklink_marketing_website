@@ -142,17 +142,9 @@
                             <span class="info-value" id="infoSchool"></span>
                         </div>
                         <div class="info-field">
-                            <span class="info-label">Grade</span>
-                            <span class="info-value" id="infoGrade"></span>
-                        </div>
-                        <div class="info-field">
                             <span class="info-label">Graduation Year</span>
-                            <div class="grad-year-row">
-                                <select id="gradYearSelect" class="grad-year-select">
-                                    <option value="">Select year</option>
-                                </select>
-                                <span class="status-message" id="gradYearStatus" role="status"></span>
-                            </div>
+                            <div class="grad-year-pills" id="gradYearPills" role="radiogroup" aria-label="Graduation year"></div>
+                            <span class="status-message" id="gradYearStatus" role="status"></span>
                         </div>
                         <p class="info-footer">To update other profile details, text Frank.</p>
                     </div>
@@ -191,7 +183,10 @@
 
                 <div class="graph-container" id="graphContainer">
                     <svg class="graph-canvas" id="graphSvg" aria-label="Connection graph"></svg>
-                    <div class="graph-tooltip" id="graphTooltip"></div>
+                    <div class="graph-tooltip" id="graphTooltip">
+                        <div class="tooltip-title" id="tooltipTitle"></div>
+                        <div class="tooltip-subtitle" id="tooltipSubtitle"></div>
+                    </div>
                 </div>
 
                 <!-- Empty state -->

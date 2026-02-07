@@ -97,6 +97,7 @@ END $$;
 --     (needed so the connection graph can fetch names of connected peers)
 --     The old "Users can read their profile" policy only allows id = auth.uid().
 DROP POLICY IF EXISTS "Users can read their profile" ON public.users;
+DROP POLICY IF EXISTS "Authenticated users can read profiles" ON public.users;
 CREATE POLICY "Authenticated users can read profiles"
   ON public.users FOR SELECT
   USING (auth.role() = 'authenticated');
@@ -108,3 +109,33 @@ DROP POLICY IF EXISTS "Users can read their connection requests" ON public.conne
 CREATE POLICY "Users can read their connection requests"
   ON public.connection_requests FOR SELECT
   USING (initiator_user_id = auth.uid() OR target_user_id = auth.uid());
+
+-- ------------------------------------------------------------
+-- 6. RLS policies for group chat tables (needed for connection graph)
+-- ------------------------------------------------------------
+
+-- 6a. group_chat_participants: users can read rows for chats they participate in
+ALTER TABLE public.group_chat_participants ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read their group chat participations" ON public.group_chat_participants;
+CREATE POLICY "Users can read their group chat participations"
+  ON public.group_chat_participants FOR SELECT
+  USING (
+    chat_guid IN (
+      SELECT gcp.chat_guid FROM public.group_chat_participants gcp
+      WHERE gcp.user_id = auth.uid()
+    )
+  );
+
+-- 6b. group_chats: users can read group chats they participate in
+ALTER TABLE public.group_chats ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read their group chats" ON public.group_chats;
+CREATE POLICY "Users can read their group chats"
+  ON public.group_chats FOR SELECT
+  USING (
+    chat_guid IN (
+      SELECT gcp.chat_guid FROM public.group_chat_participants gcp
+      WHERE gcp.user_id = auth.uid()
+    )
+  );

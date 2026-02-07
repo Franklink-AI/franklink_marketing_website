@@ -391,45 +391,52 @@
     font-style: italic;
 }
 
-/* Graduation year select */
-.grad-year-row {
+/* Graduation year pills */
+.grad-year-pills {
     display: flex;
-    align-items: center;
-    gap: var(--space-sm);
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
 }
 
-.grad-year-select {
+.grad-year-pill {
     appearance: none;
-    -webkit-appearance: none;
     background: var(--white);
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-sm);
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: 1.5px solid var(--slate-200);
+    border-radius: 999px;
+    padding: 0.4rem 1rem;
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--slate-800);
+    color: var(--slate-600);
     cursor: pointer;
     outline: none;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
+    transition: all var(--transition-fast);
+    line-height: 1.4;
 }
 
-.grad-year-select:hover {
-    border-color: var(--slate-300);
-}
-
-.grad-year-select:focus {
+.grad-year-pill:hover {
     border-color: var(--blue-600);
+    color: var(--blue-600);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+.grad-year-pill:focus-visible {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.grad-year-row .status-message {
-    font-size: 0.8125rem;
-    min-height: auto;
-    white-space: nowrap;
+.grad-year-pill.selected {
+    background: var(--blue-600);
+    border-color: var(--blue-600);
+    color: var(--white);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.grad-year-pill.selected:hover {
+    background: var(--blue-500);
+    border-color: var(--blue-500);
+    color: var(--white);
 }
 
 .info-footer {
@@ -486,9 +493,26 @@
 .connection-count {
     display: inline-flex;
     align-items: center;
+    gap: 0.5rem;
+}
+
+.connection-count-pill {
+    display: inline-flex;
+    align-items: center;
     padding: 0.375rem 0.875rem;
     background: var(--blue-50);
     color: var(--blue-600);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.connection-count-group {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.875rem;
+    background: #F0FDFA;
+    color: #0D9488;
     border-radius: 999px;
     font-size: 0.8125rem;
     font-weight: 600;
@@ -532,6 +556,17 @@
 
 .graph-tooltip.visible {
     opacity: 1;
+}
+
+.tooltip-title {
+    font-weight: 600;
+    color: var(--slate-900);
+}
+
+.tooltip-subtitle {
+    font-size: 0.75rem;
+    color: var(--slate-400);
+    margin-top: 2px;
 }
 
 /* Empty state */

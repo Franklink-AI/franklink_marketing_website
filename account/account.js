@@ -56,8 +56,7 @@ const el = {
 
   profileName: $("#profileName"),
   infoSchool: $("#infoSchool"),
-  infoGrade: $("#infoGrade"),
-  gradYearSelect: $("#gradYearSelect"),
+  gradYearPills: $("#gradYearPills"),
   gradYearStatus: $("#gradYearStatus"),
 
   changePasswordToggle: $("#changePasswordToggle"),
@@ -220,7 +219,7 @@ async function loadProfile() {
 
   const { data, error } = await sb
     .from(config.tables.users)
-    .select("id, name, phone_number, university, grade_level, agent_avatar_url, graduation_year")
+    .select("id, name, phone_number, university, agent_avatar_url, graduation_year")
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -251,11 +250,9 @@ function renderProfile(profile) {
 
   // Info fields
   setInfoField(el.infoSchool, profile.university);
-  setInfoField(el.infoGrade, profile.grade_level);
 
-  // Graduation year
-  populateGradYearOptions();
-  el.gradYearSelect.value = profile.graduation_year ? String(profile.graduation_year) : "";
+  // Graduation year pills
+  renderGradYearPills(profile.graduation_year);
 }
 
 function setInfoField(element, value) {
@@ -270,38 +267,53 @@ function setInfoField(element, value) {
 
 // ==================== GRADUATION YEAR ====================
 
-function populateGradYearOptions() {
-  const select = el.gradYearSelect;
-  if (select.options.length > 1) return; // already populated
+function renderGradYearPills(selectedYear) {
+  const container = el.gradYearPills;
+  container.innerHTML = "";
   const currentYear = new Date().getFullYear();
   for (let y = currentYear; y <= currentYear + 6; y++) {
-    const opt = document.createElement("option");
-    opt.value = String(y);
-    opt.textContent = String(y);
-    select.appendChild(opt);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "grad-year-pill";
+    btn.setAttribute("role", "radio");
+    btn.setAttribute("aria-checked", String(y === selectedYear));
+    btn.textContent = String(y);
+    if (y === selectedYear) btn.classList.add("selected");
+    btn.addEventListener("click", () => handleGradYearPillClick(y, btn));
+    container.appendChild(btn);
   }
 }
 
-async function handleGradYearChange() {
+async function handleGradYearPillClick(year, clickedBtn) {
   if (!state.profile) return;
 
-  const value = el.gradYearSelect.value;
-  const year = value ? parseInt(value, 10) : null;
+  // Toggle: clicking the already-selected year deselects it
+  const isDeselect = state.profile.graduation_year === year;
+  const newYear = isDeselect ? null : year;
+
+  // Optimistic UI update
+  el.gradYearPills.querySelectorAll(".grad-year-pill").forEach((btn) => {
+    const isSelected = !isDeselect && btn === clickedBtn;
+    btn.classList.toggle("selected", isSelected);
+    btn.setAttribute("aria-checked", String(isSelected));
+  });
 
   setStatus(el.gradYearStatus, "Saving...");
 
   try {
     const { error } = await sb
       .from(config.tables.users)
-      .update({ graduation_year: year })
+      .update({ graduation_year: newYear })
       .eq("id", state.profile.id);
 
     if (error) throw error;
 
-    state.profile.graduation_year = year;
+    state.profile.graduation_year = newYear;
     setStatus(el.gradYearStatus, "Saved", "success");
     setTimeout(() => setStatus(el.gradYearStatus, ""), 2000);
   } catch (err) {
+    // Revert on failure
+    renderGradYearPills(state.profile.graduation_year);
     setStatus(el.gradYearStatus, err?.message || "Failed to save.", "error");
   }
 }
@@ -462,6 +474,14 @@ function formatShortLabel(label) {
   return text.slice(0, 9) + "\u2026";
 }
 
+function generateGroupName(members, myId) {
+  const others = members.filter((m) => m.id !== myId);
+  if (others.length === 0) return "Group Chat";
+  if (others.length <= 2) return others.map((m) => m.name?.split(" ")[0] || "?").join(" & ");
+  const first = others.slice(0, 2).map((m) => m.name?.split(" ")[0] || "?");
+  return `${first.join(", ")} & ${others.length - 2} other${others.length - 2 > 1 ? "s" : ""}`;
+}
+
 async function loadGraphData() {
   const { data: userData } = await sb.auth.getUser();
   const authUserId = userData?.user?.id;
@@ -469,7 +489,7 @@ async function loadGraphData() {
 
   const centerLabel = state.profile?.name || state.profile?.phone_number || "You";
 
-  // Fetch confirmed connections from connection_requests (status = 'group_created')
+  // Phase A: 1:1 connections from connection_requests (status = 'group_created')
   const [{ data: asInitiator, error: errI }, { data: asTarget, error: errT }] = await Promise.all([
     sb.from("connection_requests")
       .select("initiator_user_id, target_user_id")
@@ -487,16 +507,55 @@ async function loadGraphData() {
   if (errT) console.warn("Error loading connections as target:", errT);
 
   const requests = [...(asInitiator || []), ...(asTarget || [])];
-  const connectionIds = new Set();
-
+  const directConnectionIds = new Set();
   for (const row of requests) {
     const otherId = row.initiator_user_id === authUserId ? row.target_user_id : row.initiator_user_id;
-    if (otherId && otherId !== authUserId) connectionIds.add(otherId);
+    if (otherId && otherId !== authUserId) directConnectionIds.add(otherId);
   }
 
-  const ids = [...connectionIds].slice(0, 120);
+  // Phase B: Group chats the user belongs to (member_count > 2)
+  const { data: myParticipations, error: errP } = await sb
+    .from("group_chat_participants")
+    .select("chat_guid")
+    .eq("user_id", authUserId)
+    .limit(100);
+  if (errP) console.warn("Error loading participations:", errP);
 
-  // Fetch names
+  const myChatGuids = (myParticipations || []).map((p) => p.chat_guid);
+  let multiGroups = [];
+  if (myChatGuids.length > 0) {
+    const { data: groups, error: errG } = await sb
+      .from("group_chats")
+      .select("chat_guid, member_count")
+      .in("chat_guid", myChatGuids)
+      .gt("member_count", 2)
+      .limit(50);
+    if (errG) console.warn("Error loading group chats:", errG);
+    multiGroups = groups || [];
+  }
+
+  // Phase C: Fetch all participants for multi-person groups
+  const allGroupMemberIds = new Set();
+  const groupMembersMap = new Map(); // chat_guid → [user_id, ...]
+  if (multiGroups.length > 0) {
+    const groupGuids = multiGroups.map((g) => g.chat_guid);
+    const { data: allParts, error: errAP } = await sb
+      .from("group_chat_participants")
+      .select("chat_guid, user_id")
+      .in("chat_guid", groupGuids)
+      .limit(500);
+    if (errAP) console.warn("Error loading group participants:", errAP);
+    for (const p of allParts || []) {
+      if (!groupMembersMap.has(p.chat_guid)) groupMembersMap.set(p.chat_guid, []);
+      groupMembersMap.get(p.chat_guid).push(p.user_id);
+      if (p.user_id !== authUserId) allGroupMemberIds.add(p.user_id);
+    }
+  }
+
+  // Phase D: Fetch all user profiles (direct connections + group members)
+  const allUserIds = new Set([...directConnectionIds, ...allGroupMemberIds]);
+  const ids = [...allUserIds].slice(0, 200);
+
   let connectionUsers = [];
   if (ids.length > 0) {
     const { data, error } = await sb
@@ -509,21 +568,63 @@ async function loadGraphData() {
 
   const nameMap = new Map();
   for (const user of connectionUsers) {
-    nameMap.set(user.id, user.name || formatPhoneDisplay(user.phone_number) || "Unknown");
+    nameMap.set(user.id, { name: user.name || formatPhoneDisplay(user.phone_number) || "Unknown", id: user.id });
   }
 
+  // Build nodes
   const nodes = [
-    { id: "me", label: centerLabel, shortLabel: formatShortLabel(centerLabel), radius: 44 },
-    ...ids.map((id) => ({
-      id: String(id),
-      label: nameMap.get(id) || "Unknown",
-      shortLabel: formatShortLabel(nameMap.get(id) || "?"),
-      radius: 34,
-    })),
+    { id: "me", type: "user", label: centerLabel, shortLabel: formatShortLabel(centerLabel), radius: 44 },
   ];
+  const addedUserNodes = new Set(["me"]);
 
-  const links = ids.map((id) => ({ source: "me", target: String(id) }));
-  return { nodes, links, count: ids.length };
+  for (const uid of directConnectionIds) {
+    const info = nameMap.get(uid);
+    const label = info?.name || "Unknown";
+    nodes.push({ id: String(uid), type: "user", label, shortLabel: formatShortLabel(label), radius: 34 });
+    addedUserNodes.add(String(uid));
+  }
+
+  for (const uid of allGroupMemberIds) {
+    if (addedUserNodes.has(String(uid))) continue;
+    const info = nameMap.get(uid);
+    const label = info?.name || "Unknown";
+    nodes.push({ id: String(uid), type: "user", label, shortLabel: formatShortLabel(label), radius: 34 });
+    addedUserNodes.add(String(uid));
+  }
+
+  for (const group of multiGroups) {
+    const memberIds = groupMembersMap.get(group.chat_guid) || [];
+    const members = memberIds.map((uid) => nameMap.get(uid) || { id: uid, name: "Unknown" });
+    const groupLabel = generateGroupName(members, authUserId);
+    nodes.push({
+      id: `group-${group.chat_guid}`,
+      type: "group",
+      label: groupLabel,
+      shortLabel: formatShortLabel(groupLabel),
+      radius: 28,
+      memberCount: group.member_count,
+    });
+  }
+
+  // Build links
+  const links = [];
+  for (const uid of directConnectionIds) {
+    links.push({ source: "me", target: String(uid), type: "direct" });
+  }
+  for (const group of multiGroups) {
+    const memberIds = groupMembersMap.get(group.chat_guid) || [];
+    const groupNodeId = `group-${group.chat_guid}`;
+    for (const uid of memberIds) {
+      const nodeId = uid === authUserId ? "me" : String(uid);
+      links.push({ source: nodeId, target: groupNodeId, type: "group" });
+    }
+  }
+
+  return {
+    nodes,
+    links,
+    stats: { directCount: directConnectionIds.size, groupCount: multiGroups.length },
+  };
 }
 
 function renderGraph(nodes, links) {
@@ -533,7 +634,9 @@ function renderGraph(nodes, links) {
   svg.selectAll("*").remove();
 
   const wrap = el.graphContainer;
-  const tooltip = el.graphTooltip;
+  const tooltipEl = el.graphTooltip;
+  const tooltipTitle = document.getElementById("tooltipTitle");
+  const tooltipSubtitle = document.getElementById("tooltipSubtitle");
   const width = wrap.clientWidth || 800;
   const height = wrap.clientHeight || 480;
 
@@ -548,7 +651,6 @@ function renderGraph(nodes, links) {
   // Defs
   const defs = svg.append("defs");
 
-  // Drop shadow
   const dropShadow = defs.append("filter")
     .attr("id", "nodeShadow")
     .attr("x", "-50%").attr("y", "-50%")
@@ -558,33 +660,34 @@ function renderGraph(nodes, links) {
     .attr("stdDeviation", "4")
     .attr("flood-color", "rgba(15, 23, 42, 0.1)");
 
-  // Clip paths
-  nodes.forEach((d, i) => {
-    defs.append("clipPath")
-      .attr("id", `clip-${i}`)
-      .append("circle")
-      .attr("r", d.radius);
-  });
-
   // Layers
   const linkLayer = svg.append("g");
   const nodeLayer = svg.append("g");
 
   // Force simulation
   const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id((d) => d.id).distance(160).strength(0.2))
-    .force("charge", d3.forceManyBody().strength(-400))
+    .force("link", d3.forceLink(links).id((d) => d.id).distance((l) => l.type === "group" ? 100 : 160).strength(0.2))
+    .force("charge", d3.forceManyBody().strength((d) => d.type === "group" ? -200 : -400))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collide", d3.forceCollide().radius((d) => d.radius + 30).strength(0.8))
     .alphaDecay(0.015)
+    .alphaMin(0.001)
     .velocityDecay(0.35);
 
-  // Links — clean flat lines
+  // Safety: stop after 300 ticks
+  let tickCount = 0;
+  simulation.on("tick.safety", () => {
+    tickCount++;
+    if (tickCount > 300) simulation.stop();
+  });
+
+  // Links — differentiate direct vs group
   const link = linkLayer.selectAll("line")
     .data(links).enter().append("line")
-    .attr("stroke", "#E2E8F0")
+    .attr("stroke", (l) => l.type === "group" ? "#5EEAD4" : "#E2E8F0")
     .attr("stroke-width", 1.5)
     .attr("stroke-linecap", "round")
+    .attr("stroke-dasharray", (l) => l.type === "group" ? "6 4" : "none")
     .attr("opacity", 0.8);
 
   // Node groups
@@ -614,38 +717,71 @@ function renderGraph(nodes, links) {
         })
     );
 
-  // Node circles — solid fills
-  node.append("circle")
-    .attr("r", (d) => d.radius)
-    .attr("fill", (d) => d.id === "me" ? "#2563EB" : "#60A5FA")
-    .attr("filter", "url(#nodeShadow)");
+  // User nodes — circles
+  node.filter((d) => d.type === "user").each(function (d) {
+    const g = d3.select(this);
+    g.append("circle")
+      .attr("r", d.radius)
+      .attr("fill", d.id === "me" ? "#2563EB" : "#60A5FA")
+      .attr("filter", "url(#nodeShadow)");
+    g.append("circle")
+      .attr("r", d.radius)
+      .attr("fill", "none")
+      .attr("stroke", d.id === "me" ? "rgba(37,99,235,0.3)" : "rgba(96,165,250,0.3)")
+      .attr("stroke-width", 2);
+    g.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
+      .attr("fill", "white")
+      .attr("font-size", d.id === "me" ? 18 : 14)
+      .attr("font-weight", 700)
+      .attr("font-family", "Figtree, system-ui, sans-serif")
+      .style("pointer-events", "none")
+      .text(getInitials(d.label));
+  });
 
-  // Outer ring
-  node.append("circle")
-    .attr("r", (d) => d.radius)
-    .attr("fill", "none")
-    .attr("stroke", (d) => d.id === "me" ? "rgba(37,99,235,0.3)" : "rgba(96,165,250,0.3)")
-    .attr("stroke-width", 2);
+  // Group nodes — rounded pill rectangles
+  node.filter((d) => d.type === "group").each(function (d) {
+    const g = d3.select(this);
+    const pillW = 56;
+    const pillH = 56;
+    const pillR = 16;
+    g.append("rect")
+      .attr("x", -pillW / 2).attr("y", -pillH / 2)
+      .attr("width", pillW).attr("height", pillH)
+      .attr("rx", pillR)
+      .attr("fill", "#0D9488")
+      .attr("filter", "url(#nodeShadow)");
+    g.append("rect")
+      .attr("x", -pillW / 2).attr("y", -pillH / 2)
+      .attr("width", pillW).attr("height", pillH)
+      .attr("rx", pillR)
+      .attr("fill", "none")
+      .attr("stroke", "rgba(13,148,136,0.3)")
+      .attr("stroke-width", 2)
+      .attr("stroke-dasharray", "4 3");
+    g.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
+      .attr("fill", "white")
+      .attr("font-size", 16)
+      .attr("font-weight", 700)
+      .attr("font-family", "Figtree, system-ui, sans-serif")
+      .style("pointer-events", "none")
+      .text(d.memberCount || "?");
+  });
 
-  // Initials text inside nodes
-  node.append("text")
-    .attr("text-anchor", "middle")
-    .attr("dy", "0.35em")
-    .attr("fill", "white")
-    .attr("font-size", (d) => d.id === "me" ? 18 : 14)
-    .attr("font-weight", 700)
-    .attr("font-family", "Figtree, system-ui, sans-serif")
-    .style("pointer-events", "none")
-    .text((d) => getInitials(d.label));
-
-  // Name badge below node
+  // Name badge below all nodes
   node.append("rect")
     .attr("x", (d) => -Math.max(d.shortLabel.length * 4, 20))
     .attr("y", (d) => d.radius + 6)
     .attr("width", (d) => Math.max(d.shortLabel.length * 8, 40))
     .attr("height", 20)
     .attr("rx", 10)
-    .attr("fill", (d) => d.id === "me" ? "#2563EB" : "#64748B")
+    .attr("fill", (d) => {
+      if (d.type === "group") return "#0D9488";
+      return d.id === "me" ? "#2563EB" : "#64748B";
+    })
     .attr("opacity", 0.9);
 
   node.append("text")
@@ -666,8 +802,7 @@ function renderGraph(nodes, links) {
 
       link.transition().duration(200)
         .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.15)
-        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2.5 : 1.5)
-        .attr("stroke", (l) => (l.source.id === d.id || l.target.id === d.id) ? "#94A3B8" : "#E2E8F0");
+        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2.5 : 1.5);
 
       node.transition().duration(200).attr("opacity", (n) => {
         if (n.id === d.id) return 1;
@@ -681,28 +816,36 @@ function renderGraph(nodes, links) {
     })
     .on("mouseleave", function (_event, d) {
       d3.select(this).transition().duration(250).attr("transform", `translate(${d.x},${d.y}) scale(1)`);
-      link.transition().duration(250).attr("opacity", 0.8).attr("stroke-width", 1.5).attr("stroke", "#E2E8F0");
+      link.transition().duration(250)
+        .attr("opacity", 0.8)
+        .attr("stroke-width", 1.5);
       node.transition().duration(250).attr("opacity", 1);
       hideTooltip();
     });
 
   function showTooltip(event, d) {
-    tooltip.textContent = d.label;
+    if (tooltipTitle) {
+      tooltipTitle.textContent = d.label;
+      tooltipSubtitle.textContent = d.type === "group" ? `${d.memberCount} members` : "";
+      tooltipSubtitle.style.display = d.type === "group" ? "block" : "none";
+    } else {
+      tooltipEl.textContent = d.label;
+    }
     const rect = wrap.getBoundingClientRect();
-    tooltip.style.left = `${event.clientX - rect.left + 15}px`;
-    tooltip.style.top = `${event.clientY - rect.top - 10}px`;
-    tooltip.classList.add("visible");
+    tooltipEl.style.left = `${event.clientX - rect.left + 15}px`;
+    tooltipEl.style.top = `${event.clientY - rect.top - 10}px`;
+    tooltipEl.classList.add("visible");
   }
 
   function hideTooltip() {
-    tooltip.classList.remove("visible");
+    tooltipEl.classList.remove("visible");
   }
 
   svg.on("mousemove", (event) => {
-    if (tooltip.classList.contains("visible")) {
+    if (tooltipEl.classList.contains("visible")) {
       const rect = wrap.getBoundingClientRect();
-      tooltip.style.left = `${event.clientX - rect.left + 15}px`;
-      tooltip.style.top = `${event.clientY - rect.top - 10}px`;
+      tooltipEl.style.left = `${event.clientX - rect.left + 15}px`;
+      tooltipEl.style.top = `${event.clientY - rect.top - 10}px`;
     }
   });
 
@@ -743,17 +886,26 @@ async function ensureGraph() {
   el.graphEmptyState.classList.add("hidden");
 
   try {
-    const { nodes, links, count } = await loadGraphData();
+    const { nodes, links, stats } = await loadGraphData();
 
-    if (count === 0) {
+    if (stats.directCount === 0 && stats.groupCount === 0) {
       el.graphContainer.classList.add("hidden");
       el.graphEmptyState.classList.remove("hidden");
-      el.connectionCount.textContent = "";
+      el.connectionCount.innerHTML = "";
       setStatus(el.graphStatus, "");
       return;
     }
 
-    el.connectionCount.textContent = `${count} connection${count !== 1 ? "s" : ""}`;
+    // Build connection count display
+    const parts = [];
+    if (stats.directCount > 0) {
+      parts.push(`<span class="connection-count-pill">${stats.directCount} connection${stats.directCount !== 1 ? "s" : ""}</span>`);
+    }
+    if (stats.groupCount > 0) {
+      parts.push(`<span class="connection-count-group">${stats.groupCount} group${stats.groupCount !== 1 ? "s" : ""}</span>`);
+    }
+    el.connectionCount.innerHTML = parts.join(" ");
+
     renderGraph(nodes, links);
     setStatus(el.graphStatus, "");
   } catch (err) {
@@ -823,9 +975,6 @@ el.changePhotoLink.addEventListener("click", openFilePicker);
 el.avatarFileInput.addEventListener("change", handleFileSelected);
 el.avatarSaveBtn.addEventListener("click", saveAvatar);
 el.avatarCancelBtn.addEventListener("click", cancelAvatarUpload);
-
-// Graduation year
-el.gradYearSelect.addEventListener("change", handleGradYearChange);
 
 // Password
 el.changePasswordToggle.addEventListener("click", togglePasswordForm);
