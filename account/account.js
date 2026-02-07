@@ -651,49 +651,58 @@ function renderGraph(nodes, links) {
   // Defs
   const defs = svg.append("defs");
 
-  const dropShadow = defs.append("filter")
+  // Subtle glow for center node
+  const glow = defs.append("filter").attr("id", "centerGlow");
+  glow.append("feGaussianBlur").attr("stdDeviation", "6").attr("result", "blur");
+  glow.append("feComposite").attr("in", "SourceGraphic").attr("in2", "blur").attr("operator", "over");
+
+  // Soft shadow for all nodes
+  const shadow = defs.append("filter")
     .attr("id", "nodeShadow")
-    .attr("x", "-50%").attr("y", "-50%")
-    .attr("width", "200%").attr("height", "200%");
-  dropShadow.append("feDropShadow")
-    .attr("dx", "0").attr("dy", "2")
-    .attr("stdDeviation", "4")
-    .attr("flood-color", "rgba(15, 23, 42, 0.1)");
+    .attr("x", "-40%").attr("y", "-40%")
+    .attr("width", "180%").attr("height", "180%");
+  shadow.append("feDropShadow")
+    .attr("dx", "0").attr("dy", "1")
+    .attr("stdDeviation", "3")
+    .attr("flood-color", "rgba(15, 23, 42, 0.08)");
+
+  // Background radial gradient
+  const bgGrad = defs.append("radialGradient").attr("id", "bgGrad");
+  bgGrad.append("stop").attr("offset", "0%").attr("stop-color", "#EFF6FF").attr("stop-opacity", "0.5");
+  bgGrad.append("stop").attr("offset", "70%").attr("stop-color", "#FFFFFF").attr("stop-opacity", "0");
+  svg.append("rect").attr("width", width).attr("height", height).attr("fill", "url(#bgGrad)");
 
   // Layers
   const linkLayer = svg.append("g");
   const nodeLayer = svg.append("g");
 
-  // Force simulation
+  // Force simulation — tighter, more organic layout
   const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id((d) => d.id).distance((l) => l.type === "group" ? 100 : 160).strength(0.2))
-    .force("charge", d3.forceManyBody().strength((d) => d.type === "group" ? -200 : -400))
+    .force("link", d3.forceLink(links).id((d) => d.id).distance((l) => l.type === "group" ? 110 : 140).strength(0.3))
+    .force("charge", d3.forceManyBody().strength((d) => d.type === "group" ? -250 : -350))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collide", d3.forceCollide().radius((d) => d.radius + 30).strength(0.8))
-    .alphaDecay(0.015)
+    .force("collide", d3.forceCollide().radius((d) => d.radius + 24).strength(0.7))
+    .alphaDecay(0.02)
     .alphaMin(0.001)
-    .velocityDecay(0.35);
+    .velocityDecay(0.4);
 
-  // Safety: stop after 300 ticks
   let tickCount = 0;
-  simulation.on("tick.safety", () => {
-    tickCount++;
-    if (tickCount > 300) simulation.stop();
-  });
+  simulation.on("tick.safety", () => { if (++tickCount > 300) simulation.stop(); });
 
-  // Links — differentiate direct vs group
+  // Links — clean, thin lines
   const link = linkLayer.selectAll("line")
     .data(links).enter().append("line")
-    .attr("stroke", (l) => l.type === "group" ? "#5EEAD4" : "#E2E8F0")
-    .attr("stroke-width", 1.5)
+    .attr("stroke", (l) => l.type === "group" ? "#99F6E4" : "#CBD5E1")
+    .attr("stroke-width", 1)
     .attr("stroke-linecap", "round")
-    .attr("stroke-dasharray", (l) => l.type === "group" ? "6 4" : "none")
-    .attr("opacity", 0.8);
+    .attr("stroke-dasharray", (l) => l.type === "group" ? "5 4" : "none")
+    .attr("opacity", 0.7);
 
   // Node groups
   const node = nodeLayer.selectAll("g")
     .data(nodes).enter().append("g")
     .style("cursor", (d) => d.id === "me" ? "default" : "grab")
+    .attr("opacity", 0)
     .call(
       d3.drag()
         .on("start", (event, d) => {
@@ -717,79 +726,73 @@ function renderGraph(nodes, links) {
         })
     );
 
-  // User nodes — circles
-  node.filter((d) => d.type === "user").each(function (d) {
+  // Fade nodes in
+  node.transition().duration(600).delay((_d, i) => i * 40).attr("opacity", 1);
+
+  // All nodes are circles for visual consistency
+  node.each(function (d) {
     const g = d3.select(this);
+    const isMe = d.id === "me";
+    const isGroup = d.type === "group";
+
+    // Circle fill
+    let fill, textColor, fontSize;
+    if (isMe) {
+      fill = "#2563EB";
+      textColor = "#FFFFFF";
+      fontSize = 17;
+    } else if (isGroup) {
+      fill = "#F0FDFA";
+      textColor = "#0D9488";
+      fontSize = 14;
+    } else {
+      fill = "#EFF6FF";
+      textColor = "#2563EB";
+      fontSize = 13;
+    }
+
     g.append("circle")
       .attr("r", d.radius)
-      .attr("fill", d.id === "me" ? "#2563EB" : "#60A5FA")
-      .attr("filter", "url(#nodeShadow)");
+      .attr("fill", fill)
+      .attr("filter", isMe ? "url(#centerGlow)" : "url(#nodeShadow)");
+
+    // Subtle border ring
     g.append("circle")
       .attr("r", d.radius)
       .attr("fill", "none")
-      .attr("stroke", d.id === "me" ? "rgba(37,99,235,0.3)" : "rgba(96,165,250,0.3)")
-      .attr("stroke-width", 2);
+      .attr("stroke", isMe ? "rgba(37,99,235,0.15)" : isGroup ? "rgba(13,148,136,0.2)" : "rgba(37,99,235,0.1)")
+      .attr("stroke-width", isMe ? 3 : 1.5);
+
+    // Inner text (initials or member count)
     g.append("text")
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
-      .attr("fill", "white")
-      .attr("font-size", d.id === "me" ? 18 : 14)
-      .attr("font-weight", 700)
+      .attr("fill", textColor)
+      .attr("font-size", fontSize)
+      .attr("font-weight", isMe ? 700 : 600)
       .attr("font-family", "Figtree, system-ui, sans-serif")
       .style("pointer-events", "none")
-      .text(getInitials(d.label));
+      .text(isGroup ? d.memberCount || "?" : getInitials(d.label));
+
+    // Group icon indicator (small dot badge)
+    if (isGroup) {
+      g.append("circle")
+        .attr("cx", d.radius * 0.65)
+        .attr("cy", -d.radius * 0.65)
+        .attr("r", 6)
+        .attr("fill", "#0D9488")
+        .attr("stroke", "#FFFFFF")
+        .attr("stroke-width", 2);
+    }
   });
 
-  // Group nodes — rounded pill rectangles
-  node.filter((d) => d.type === "group").each(function (d) {
-    const g = d3.select(this);
-    const pillW = 56;
-    const pillH = 56;
-    const pillR = 16;
-    g.append("rect")
-      .attr("x", -pillW / 2).attr("y", -pillH / 2)
-      .attr("width", pillW).attr("height", pillH)
-      .attr("rx", pillR)
-      .attr("fill", "#0D9488")
-      .attr("filter", "url(#nodeShadow)");
-    g.append("rect")
-      .attr("x", -pillW / 2).attr("y", -pillH / 2)
-      .attr("width", pillW).attr("height", pillH)
-      .attr("rx", pillR)
-      .attr("fill", "none")
-      .attr("stroke", "rgba(13,148,136,0.3)")
-      .attr("stroke-width", 2)
-      .attr("stroke-dasharray", "4 3");
-    g.append("text")
-      .attr("text-anchor", "middle")
-      .attr("dy", "0.35em")
-      .attr("fill", "white")
-      .attr("font-size", 16)
-      .attr("font-weight", 700)
-      .attr("font-family", "Figtree, system-ui, sans-serif")
-      .style("pointer-events", "none")
-      .text(d.memberCount || "?");
-  });
-
-  // Name badge below all nodes
-  node.append("rect")
-    .attr("x", (d) => -Math.max(d.shortLabel.length * 4, 20))
-    .attr("y", (d) => d.radius + 6)
-    .attr("width", (d) => Math.max(d.shortLabel.length * 8, 40))
-    .attr("height", 20)
-    .attr("rx", 10)
-    .attr("fill", (d) => {
-      if (d.type === "group") return "#0D9488";
-      return d.id === "me" ? "#2563EB" : "#64748B";
-    })
-    .attr("opacity", 0.9);
-
+  // Clean text labels below nodes (no background rectangles)
   node.append("text")
     .attr("text-anchor", "middle")
-    .attr("y", (d) => d.radius + 20)
-    .attr("fill", "white")
+    .attr("y", (d) => d.radius + 16)
+    .attr("fill", (d) => d.id === "me" ? "#2563EB" : d.type === "group" ? "#0D9488" : "#64748B")
     .attr("font-size", 11)
-    .attr("font-weight", 600)
+    .attr("font-weight", (d) => d.id === "me" ? 700 : 500)
     .attr("font-family", "Figtree, system-ui, sans-serif")
     .style("pointer-events", "none")
     .text((d) => d.shortLabel);
@@ -798,56 +801,49 @@ function renderGraph(nodes, links) {
   node
     .on("mouseenter", function (event, d) {
       d3.select(this).transition().duration(200).ease(d3.easeCubicOut)
-        .attr("transform", `translate(${d.x},${d.y}) scale(1.08)`);
+        .attr("transform", `translate(${d.x},${d.y}) scale(1.1)`);
 
       link.transition().duration(200)
-        .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.15)
-        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2.5 : 1.5);
+        .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.1)
+        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2 : 1);
 
       node.transition().duration(200).attr("opacity", (n) => {
         if (n.id === d.id) return 1;
         const connected = links.some(
           (l) => (l.source.id === d.id && l.target.id === n.id) || (l.target.id === d.id && l.source.id === n.id)
         );
-        return connected ? 1 : 0.35;
+        return connected ? 1 : 0.2;
       });
 
       showTooltip(event, d);
     })
     .on("mouseleave", function (_event, d) {
-      d3.select(this).transition().duration(250).attr("transform", `translate(${d.x},${d.y}) scale(1)`);
-      link.transition().duration(250)
-        .attr("opacity", 0.8)
-        .attr("stroke-width", 1.5);
-      node.transition().duration(250).attr("opacity", 1);
+      d3.select(this).transition().duration(300).ease(d3.easeCubicOut)
+        .attr("transform", `translate(${d.x},${d.y}) scale(1)`);
+      link.transition().duration(300)
+        .attr("opacity", 0.7)
+        .attr("stroke-width", 1);
+      node.transition().duration(300).attr("opacity", 1);
       hideTooltip();
     });
 
-  function showTooltip(event, d) {
-    if (tooltipTitle) {
-      tooltipTitle.textContent = d.label;
-      tooltipSubtitle.textContent = d.type === "group" ? `${d.memberCount} members` : "";
-      tooltipSubtitle.style.display = d.type === "group" ? "block" : "none";
-    } else {
-      tooltipEl.textContent = d.label;
-    }
-    const rect = wrap.getBoundingClientRect();
-    tooltipEl.style.left = `${event.clientX - rect.left + 15}px`;
-    tooltipEl.style.top = `${event.clientY - rect.top - 10}px`;
+  function showTooltip(_event, d) {
+    tooltipTitle.textContent = d.label;
+    tooltipSubtitle.textContent = d.type === "group" ? `${d.memberCount} members` : "";
+    tooltipSubtitle.style.display = d.type === "group" ? "block" : "none";
+    const svgRect = el.graphSvg.getBoundingClientRect();
+    const scaleX = svgRect.width / width;
+    const scaleY = svgRect.height / height;
+    const nodeX = d.x * scaleX;
+    const nodeY = d.y * scaleY;
+    tooltipEl.style.left = `${nodeX}px`;
+    tooltipEl.style.top = `${nodeY - d.radius * scaleY - 12}px`;
     tooltipEl.classList.add("visible");
   }
 
   function hideTooltip() {
     tooltipEl.classList.remove("visible");
   }
-
-  svg.on("mousemove", (event) => {
-    if (tooltipEl.classList.contains("visible")) {
-      const rect = wrap.getBoundingClientRect();
-      tooltipEl.style.left = `${event.clientX - rect.left + 15}px`;
-      tooltipEl.style.top = `${event.clientY - rect.top - 10}px`;
-    }
-  });
 
   // Tick
   simulation.on("tick", () => {
@@ -904,7 +900,7 @@ async function ensureGraph() {
     if (stats.groupCount > 0) {
       parts.push(`<span class="connection-count-group">${stats.groupCount} group${stats.groupCount !== 1 ? "s" : ""}</span>`);
     }
-    el.connectionCount.innerHTML = parts.join(" ");
+    el.connectionCount.innerHTML = parts.join('<span class="connection-count-sep">&middot;</span>');
 
     renderGraph(nodes, links);
     setStatus(el.graphStatus, "");

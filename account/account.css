@@ -486,36 +486,44 @@
 /* ==================== CONNECTIONS / GRAPH PANEL ==================== */
 
 .graph-header {
-    max-width: 640px;
-    margin: 0 auto var(--space-md);
+    max-width: 800px;
+    margin: 0 auto var(--space-lg);
+    text-align: center;
 }
 
 .connection-count {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-}
-
-.connection-count-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.375rem 0.875rem;
-    background: var(--blue-50);
-    color: var(--blue-600);
-    border-radius: 999px;
+    gap: 0.375rem;
     font-size: 0.8125rem;
-    font-weight: 600;
+    color: var(--slate-400);
 }
 
+.connection-count-pill,
 .connection-count-group {
     display: inline-flex;
     align-items: center;
-    padding: 0.375rem 0.875rem;
-    background: #F0FDFA;
-    color: #0D9488;
+    padding: 0.3rem 0.75rem;
     border-radius: 999px;
     font-size: 0.8125rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.connection-count-pill {
+    background: var(--blue-50);
+    color: var(--blue-600);
+}
+
+.connection-count-group {
+    background: #F0FDFA;
+    color: #0D9488;
+}
+
+.connection-count-sep {
+    color: var(--slate-300);
+    font-size: 0.75rem;
+    line-height: 1;
 }
 
 .graph-container {
@@ -524,9 +532,8 @@
     max-width: 800px;
     margin: 0 auto;
     background: var(--white);
-    border: 1px solid var(--slate-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.03);
     overflow: hidden;
     min-height: 400px;
 }
@@ -540,18 +547,21 @@
 .graph-tooltip {
     position: absolute;
     pointer-events: none;
-    background: var(--white);
-    border: 1px solid var(--slate-200);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.6);
     color: var(--slate-900);
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-md);
     font-size: 0.8125rem;
     font-weight: 500;
     max-width: 220px;
     opacity: 0;
-    transition: opacity var(--transition-fast);
-    box-shadow: var(--shadow-md);
-    transform: translate(-50%, calc(-100% - 12px));
+    transition: opacity 150ms ease;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    transform: translate(-50%, -100%);
+    white-space: nowrap;
 }
 
 .graph-tooltip.visible {
@@ -561,12 +571,14 @@
 .tooltip-title {
     font-weight: 600;
     color: var(--slate-900);
+    font-size: 0.8125rem;
 }
 
 .tooltip-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     color: var(--slate-400);
-    margin-top: 2px;
+    font-weight: 500;
+    margin-top: 1px;
 }
 
 /* Empty state */
