@@ -1029,32 +1029,28 @@ async def provision_account(req: ProvisionRequest):
         auth_email = f"{digits}@users.franklink.ai"
         search_value = normalized
 
-    # Look up user in public.users
+    # Look up user in public.users by phone_number
+    # (iMessage identifiers can be emails stored in phone_number column)
     try:
-        if is_real_email:
-            # For real emails, search by email column first, then fall back to phone_number
+        result = supabase_admin.table("users") \
+            .select("id") \
+            .eq("phone_number", search_value) \
+            .limit(1) \
+            .execute()
+    except Exception as e:
+        logger.error(f"Provision lookup failed: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+    # If not found and identity is a real email, also try the email column
+    if not result.data and is_real_email:
+        try:
             result = supabase_admin.table("users") \
                 .select("id") \
                 .eq("email", search_value) \
                 .limit(1) \
                 .execute()
-            if not result.data:
-                # Fall back to phone_number (in case email was stored there)
-                result = supabase_admin.table("users") \
-                    .select("id") \
-                    .eq("phone_number", search_value) \
-                    .limit(1) \
-                    .execute()
-        else:
-            # Phone number lookup (existing behavior)
-            result = supabase_admin.table("users") \
-                .select("id") \
-                .eq("phone_number", search_value) \
-                .limit(1) \
-                .execute()
-    except Exception as e:
-        logger.error(f"Provision lookup failed: {e}")
-        raise HTTPException(status_code=500, detail="Database error")
+        except Exception:
+            pass  # email column may not exist yet
 
     if not result.data:
         return JSONResponse(status_code=404, content={"error": "No account found"})

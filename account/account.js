@@ -526,7 +526,7 @@ async function loadGraphData() {
   if (myChatGuids.length > 0) {
     const { data: groups, error: errG } = await sb
       .from("group_chats")
-      .select("chat_guid, member_count")
+      .select("chat_guid, member_count, display_name")
       .in("chat_guid", myChatGuids)
       .gt("member_count", 2)
       .limit(50);
@@ -595,7 +595,7 @@ async function loadGraphData() {
   for (const group of multiGroups) {
     const memberIds = groupMembersMap.get(group.chat_guid) || [];
     const members = memberIds.map((uid) => nameMap.get(uid) || { id: uid, name: "Unknown" });
-    const groupLabel = generateGroupName(members, authUserId);
+    const groupLabel = group.display_name || generateGroupName(members, authUserId);
     nodes.push({
       id: `group-${group.chat_guid}`,
       type: "group",
