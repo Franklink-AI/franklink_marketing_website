@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Agent - Franklink</title>
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/account/account.css">
+    <link rel="icon" type="image/png" href="/assets/images/branding/frank_new.png">
+
+    <!-- Supabase + D3 (UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+
+    <!-- Supabase config -->
+    <script>
+        window.FRANKLINK_CONFIG = {
+            supabaseUrl: "https://mvjefpgkozyftebhnjbp.supabase.co",
+            supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im12amVmcGdrb3p5ZnRlYmhuamJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNzMzNDgsImV4cCI6MjA3Njc0OTM0OH0.ccxSFlb__1BL23rZsmbDqhZDvG4mNYaQFh3LP2voB3Q",
+            tables: {
+                users: "users",
+                groupChats: "group_chats",
+            },
+            auth: {
+                phoneUsernameEmailDomain: "users.franklink.ai",
+            },
+        };
+    </script>
+</head>
+<body class="page-account">
+    <!-- Navigation -->
+    <div class="nav-slot" data-nav-active="account"></div>
+
+    <main class="account-main">
+        <!-- ============ LOGIN VIEW ============ -->
+        <section id="loginView" class="account-center">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="/assets/images/branding/frank_new.png" alt="Franklink" class="login-logo">
+                    <h1>Sign in to your Agent</h1>
+                    <p>Use the phone number or email you use with Frank.</p>
+                </div>
+
+                <form id="loginForm" class="login-form" autocomplete="on">
+                    <div class="form-field">
+                        <label for="identityInput">Phone number or email</label>
+                        <input
+                            id="identityInput"
+                            name="username"
+                            type="text"
+                            autocomplete="username"
+                            placeholder="+1 (503) 741-0940 or you@icloud.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="passwordInput">Password</label>
+                        <input
+                            id="passwordInput"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Password"
+                            required
+                        >
+                    </div>
+
+                    <button class="btn-primary" type="submit" id="loginButton">Sign in</button>
+                    <div class="status-message" id="loginStatus" role="status"></div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ============ APP VIEW (post-login) ============ -->
+        <section id="appView" class="hidden">
+            <!-- Top bar: tabs + logout -->
+            <div class="app-topbar">
+                <div class="tab-nav" role="tablist" aria-label="Account sections">
+                    <button
+                        class="tab-btn active"
+                        id="tabProfile"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="profilePanel"
+                    >Profile</button>
+                    <button
+                        class="tab-btn"
+                        id="tabConnections"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="graphPanel"
+                    >Connections</button>
+                </div>
+                <button class="btn-logout" id="logoutButton" type="button">Log out</button>
+            </div>
+
+            <!-- ======== PROFILE TAB ======== -->
+            <div class="tab-panel" id="profilePanel" role="tabpanel" aria-labelledby="tabProfile">
+                <div class="profile-container">
+                    <!-- Avatar hero -->
+                    <div class="avatar-section">
+                        <div class="avatar-wrapper" id="avatarWrapper" role="button" tabindex="0" aria-label="Change profile photo">
+                            <div class="avatar-circle" id="avatarCircle">
+                                <img class="avatar-img hidden" id="avatarImg" alt="Agent avatar">
+                                <span class="avatar-initials" id="avatarInitials"></span>
+                            </div>
+                            <div class="avatar-overlay">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                                <span>Change Photo</span>
+                            </div>
+                            <input
+                                type="file"
+                                id="avatarFileInput"
+                                accept="image/jpeg,image/png,image/webp"
+                                class="hidden"
+                                aria-hidden="true"
+                            >
+                        </div>
+
+                        <!-- Upload actions (shown during preview) -->
+                        <div class="avatar-actions hidden" id="avatarActions">
+                            <button class="btn-primary btn-sm" id="avatarSaveBtn" type="button">Save</button>
+                            <button class="btn-secondary btn-sm" id="avatarCancelBtn" type="button">Cancel</button>
+                        </div>
+
+                        <button class="change-photo-link" id="changePhotoLink" type="button">Change photo</button>
+                        <div class="status-message" id="avatarStatus" role="status"></div>
+                    </div>
+
+                    <!-- User name (displayed large below avatar) -->
+                    <h2 class="profile-name" id="profileName"></h2>
+
+                    <!-- Read-only info -->
+                    <div class="info-section">
+                        <div class="info-field">
+                            <span class="info-label">School</span>
+                            <span class="info-value" id="infoSchool"></span>
+                        </div>
+                        <div class="info-field">
+                            <span class="info-label">Grade</span>
+                            <span class="info-value" id="infoGrade"></span>
+                        </div>
+                        <p class="info-footer">To update your profile details, text Frank.</p>
+                    </div>
+
+                    <!-- Change password -->
+                    <div class="password-section">
+                        <button class="change-password-toggle" id="changePasswordToggle" type="button">Change password</button>
+                        <div class="password-form hidden" id="passwordForm">
+                            <div class="form-field">
+                                <label for="currentPasswordInput">Current password</label>
+                                <input id="currentPasswordInput" type="password" autocomplete="current-password">
+                            </div>
+                            <div class="form-field">
+                                <label for="newPasswordInput">New password</label>
+                                <input id="newPasswordInput" type="password" autocomplete="new-password">
+                            </div>
+                            <div class="form-field">
+                                <label for="confirmPasswordInput">Confirm new password</label>
+                                <input id="confirmPasswordInput" type="password" autocomplete="new-password">
+                            </div>
+                            <div class="password-actions">
+                                <button class="btn-primary btn-sm" id="updatePasswordBtn" type="button">Update password</button>
+                                <button class="btn-secondary btn-sm" id="cancelPasswordBtn" type="button">Cancel</button>
+                            </div>
+                            <div class="status-message" id="passwordStatus" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======== CONNECTIONS TAB ======== -->
+            <div class="tab-panel hidden" id="graphPanel" role="tabpanel" aria-labelledby="tabConnections">
+                <div class="graph-header">
+                    <div class="connection-count" id="connectionCount"></div>
+                </div>
+
+                <div class="graph-container" id="graphContainer">
+                    <svg class="graph-canvas" id="graphSvg" aria-label="Connection graph"></svg>
+                    <div class="graph-tooltip" id="graphTooltip"></div>
+                </div>
+
+                <!-- Empty state -->
+                <div class="empty-state hidden" id="graphEmptyState">
+                    <img src="/assets/images/branding/frank_new.png" alt="" class="empty-state-icon" aria-hidden="true">
+                    <h3>Your network is growing</h3>
+                    <p>As Frank connects you with peers, your network graph will appear here.</p>
+                    <a class="btn-primary" href="sms:+15037410940&body=yo, who's here">Text Frank to get started</a>
+                </div>
+
+                <div class="status-message" id="graphStatus" role="status"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (same as marketing site) -->
+    <footer class="legal-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <a href="/" class="footer-logo">
+                    <img src="/assets/images/branding/franklink-banner-2.png" alt="Franklink" class="footer-logo-img">
+                </a>
+                <div class="footer-social">
+                    <a class="footer-social-link" href="https://www.linkedin.com/company/franklink/" aria-label="LinkedIn">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M0 1.146C0 .513.526 0 1.175 0h21.65C23.474 0 24 .513 24 1.146v21.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 24 0 23.487 0 22.854V1.146zm7.368 20.452V9.024H3.92v12.574h3.447zm-1.724-14.3c1.1 0 1.785-.73 1.785-1.647-.02-.936-.686-1.647-1.765-1.647-1.08 0-1.785.711-1.785 1.647 0 .917.686 1.647 1.744 1.647h.02zm4.704 14.3h3.447v-7.017c0-.375.028-.75.14-1.018.304-.75 1-1.526 2.168-1.526 1.53 0 2.143 1.151 2.143 2.84v6.721h3.447v-7.11c0-3.813-2.033-5.588-4.744-5.588-2.194 0-3.157 1.205-3.7 2.053v.041h-.021a5.37 5.37 0 0 1 .021-.041V9.024h-3.447c.045 1.014 0 12.574 0 12.574z"></path>
+                        </svg>
+                    </a>
+                    <a class="footer-social-link" href="https://www.instagram.com/franklink_ai/" aria-label="Instagram">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5a4.25 4.25 0 0 0 4.25-4.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.5a5 5 0 1 1 0 10a5 5 0 0 1 0-10zm0 1.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7zm5.25-.88a1.13 1.13 0 1 1 0 2.26a1.13 1.13 0 0 1 0-2.26z"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-columns">
+                <div class="footer-column">
+                    <h4 class="footer-column-title">Terms and policies</h4>
+                    <ul class="footer-links">
+                        <li><a href="/privacy.html">Privacy Policy</a></li>
+                        <li><a href="/terms.html">Terms of Service</a></li>
+                        <li><a href="/data-deletion.html">Data Deletion</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-column-title">About us</h4>
+                    <ul class="footer-links">
+                        <li><a href="/faq.html">FAQ</a></li>
+                        <li><a href="/story.html">Story</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-column-title">Keep in touch</h4>
+                    <ul class="footer-links">
+                        <li><a href="/contact.html">Contact us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/nav.js"></script>
+    <script src="/account/account.js"></script>
+</body>
+</html>

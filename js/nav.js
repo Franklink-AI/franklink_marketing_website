@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const response = await fetch("partials/nav.html");
+        const response = await fetch("/partials/nav.html");
         if (!response.ok) {
             throw new Error(`Failed to load nav: ${response.status}`);
         }
