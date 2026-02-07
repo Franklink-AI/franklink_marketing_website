@@ -41,6 +41,7 @@ app.add_middleware(
 # Supabase Configuration
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")  # Must be SERVICE_ROLE_KEY to write to other users
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     logger.warning("Supabase credentials not found. Database updates will fail.")
@@ -50,6 +51,16 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize Supabase client: {e}")
     supabase = None
+
+# Admin client (service role) for provisioning auth records
+supabase_admin: Client = None
+if SUPABASE_URL and SUPABASE_SERVICE_KEY:
+    try:
+        supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+    except Exception as e:
+        logger.error(f"Failed to initialize Supabase admin client: {e}")
+
+PRESET_PASSWORD = "franklinkuser"
 
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -71,6 +82,10 @@ class OAuthCallback(BaseModel):
     code: str
     state: str | None = None
     error: str | None = None
+
+class ProvisionRequest(BaseModel):
+    identity: str
+    password: str
 
 def render_success_page(email: str) -> HTMLResponse:
     """Render Franklink success page with logo pattern background and iMessage redirect"""
@@ -967,3 +982,103 @@ async def get_conversation(slug: str):
         return render_error_page("Not Found", "This conversation doesn't exist.")
 
     return render_conversation_page(response.data)
+
+
+# ==================== ACCOUNT PROVISIONING ====================
+
+def normalize_phone(raw: str) -> str:
+    """Normalize phone number to +1XXXXXXXXXX format."""
+    trimmed = raw.strip()
+    if not trimmed:
+        return ""
+    digits = ''.join(c for c in trimmed if c.isdigit())
+    if len(digits) == 10:
+        return f"+1{digits}"
+    if len(digits) == 11 and digits.startswith("1"):
+        return f"+{digits}"
+    if len(digits) >= 11:
+        return f"+{digits}"
+    return trimmed
+
+
+@app.post("/account/provision")
+async def provision_account(req: ProvisionRequest):
+    """
+    Auto-provision an auth record for a user who exists in public.users
+    but doesn't yet have a corresponding auth.users record.
+    Only works with the preset password.
+    """
+    if not supabase_admin:
+        raise HTTPException(status_code=500, detail="Service not configured")
+
+    if req.password != PRESET_PASSWORD:
+        return JSONResponse(status_code=403, content={"error": "Invalid credentials"})
+
+    identity = req.identity.strip()
+    if not identity:
+        raise HTTPException(status_code=400, detail="Identity required")
+
+    # Determine auth email and DB search value
+    if "@" in identity:
+        auth_email = identity
+        search_value = identity
+    else:
+        normalized = normalize_phone(identity)
+        digits = ''.join(c for c in identity if c.isdigit())
+        auth_email = f"{digits}@users.franklink.ai"
+        search_value = normalized
+
+    # Look up user in public.users by phone_number
+    try:
+        result = supabase_admin.table("users") \
+            .select("id") \
+            .eq("phone_number", search_value) \
+            .limit(1) \
+            .execute()
+    except Exception as e:
+        logger.error(f"Provision lookup failed: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+    if not result.data:
+        return JSONResponse(status_code=404, content={"error": "No account found"})
+
+    public_user_id = str(result.data[0]["id"])
+
+    # Create auth record via Supabase Admin API
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{SUPABASE_URL}/auth/v1/admin/users",
+                headers={
+                    "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+                    "apikey": SUPABASE_SERVICE_KEY,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "id": public_user_id,
+                    "email": auth_email,
+                    "password": PRESET_PASSWORD,
+                    "email_confirm": True,
+                },
+            )
+
+        if resp.status_code in (200, 201):
+            logger.info(f"Provisioned auth record for user {public_user_id} ({auth_email})")
+            return {"provisioned": True}
+
+        body = {}
+        try:
+            body = resp.json()
+        except Exception:
+            pass
+        error_msg = body.get("msg", "") or body.get("message", "") or resp.text
+
+        if "already" in error_msg.lower():
+            return {"provisioned": False, "reason": "already_exists"}
+
+        logger.error(f"Auth provision API error: {resp.status_code} {error_msg}")
+        raise HTTPException(status_code=500, detail="Failed to provision account")
+
+    except httpx.HTTPError as e:
+        logger.error(f"HTTP error during provisioning: {e}")
+        raise HTTPException(status_code=500, detail="Service unavailable")

@@ -159,12 +159,33 @@ async function handleLogin(e) {
   el.loginButton.disabled = true;
 
   try {
-    const email = usernameToEmail(el.identityInput.value);
+    const rawIdentity = el.identityInput.value.trim();
+    const email = usernameToEmail(rawIdentity);
     const password = el.passwordInput.value;
     if (!email || !password) throw new Error("Phone/email and password are required.");
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    let result = await sb.auth.signInWithPassword({ email, password });
+
+    // If login failed, try auto-provisioning an auth record
+    if (result.error && result.error.message?.includes("Invalid login")) {
+      try {
+        const provRes = await fetch("/account/provision", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identity: rawIdentity, password }),
+        });
+        const provData = await provRes.json();
+
+        if (provData.provisioned) {
+          // Auth record created — retry login
+          result = await sb.auth.signInWithPassword({ email, password });
+        }
+      } catch (provErr) {
+        console.warn("Provision attempt failed:", provErr);
+      }
+    }
+
+    if (result.error) throw result.error;
 
     setStatus(el.loginStatus, "Signed in.", "success");
     await enterApp();
