@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Graph Demo - Franklink</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/account/account.css">
+    <link rel="icon" type="image/png" href="/assets/images/branding/frank_new.png">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <style>
+        .demo-bar {
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+            padding: 1rem 1.25rem;
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            color: #92400E;
+            line-height: 1.5;
+        }
+        .demo-bar strong { color: #78350F; }
+        .demo-controls {
+            max-width: 800px;
+            margin: 0 auto 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .demo-btn {
+            appearance: none;
+            background: var(--white);
+            border: 1.5px solid var(--slate-200);
+            border-radius: 999px;
+            padding: 0.5rem 1rem;
+            font-family: var(--font-body);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .demo-btn:hover { border-color: var(--blue-600); color: var(--blue-600); }
+        .demo-btn.active { background: var(--blue-600); border-color: var(--blue-600); color: white; }
+    </style>
+</head>
+<body class="page-account">
+    <div class="nav-slot" data-nav-active="account"></div>
+
+    <main class="account-main">
+        <div class="demo-bar">
+            <strong>Demo mode</strong> — This page shows the connection graph with mock data.
+            Use the buttons below to switch between scenarios.
+        </div>
+
+        <div class="demo-controls">
+            <button class="demo-btn active" onclick="loadScenario('mixed')">Mixed (1:1 + Groups)</button>
+            <button class="demo-btn" onclick="loadScenario('directOnly')">Direct Only</button>
+            <button class="demo-btn" onclick="loadScenario('groupsOnly')">Groups Only</button>
+            <button class="demo-btn" onclick="loadScenario('large')">Large Network</button>
+        </div>
+
+        <div class="graph-header">
+            <div class="connection-count" id="connectionCount"></div>
+        </div>
+
+        <div class="graph-container" id="graphContainer">
+            <svg class="graph-canvas" id="graphSvg" aria-label="Connection graph demo"></svg>
+            <div class="graph-tooltip" id="graphTooltip">
+                <div class="tooltip-title" id="tooltipTitle"></div>
+                <div class="tooltip-subtitle" id="tooltipSubtitle"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/nav.js"></script>
+    <script>
+// ==================== MOCK DATA SCENARIOS ====================
+
+const SCENARIOS = {
+    mixed: {
+        label: "Mixed (1:1 + Groups)",
+        nodes: [
+            { id: "me", type: "user", label: "Steven Zhang", shortLabel: "Steven", radius: 44 },
+            { id: "u1", type: "user", label: "Eric Wang", shortLabel: "Eric", radius: 34 },
+            { id: "u2", type: "user", label: "Sarah Chen", shortLabel: "Sarah", radius: 34 },
+            { id: "u3", type: "user", label: "Alex Kim", shortLabel: "Alex", radius: 34 },
+            { id: "u4", type: "user", label: "Jordan Lee", shortLabel: "Jordan", radius: 34 },
+            { id: "u5", type: "user", label: "Maya Patel", shortLabel: "Maya", radius: 34 },
+            { id: "g1", type: "group", label: "Eric, Sarah & Alex", shortLabel: "Eric, Sara\u2026", radius: 28, memberCount: 4 },
+            { id: "g2", type: "group", label: "Jordan & Maya", shortLabel: "Jordan & M\u2026", radius: 28, memberCount: 3 },
+        ],
+        links: [
+            { source: "me", target: "u1", type: "direct" },
+            { source: "me", target: "u2", type: "direct" },
+            { source: "me", target: "g1", type: "group" },
+            { source: "u1", target: "g1", type: "group" },
+            { source: "u2", target: "g1", type: "group" },
+            { source: "u3", target: "g1", type: "group" },
+            { source: "me", target: "g2", type: "group" },
+            { source: "u4", target: "g2", type: "group" },
+            { source: "u5", target: "g2", type: "group" },
+        ],
+        stats: { directCount: 2, groupCount: 2 },
+    },
+
+    directOnly: {
+        label: "Direct Only",
+        nodes: [
+            { id: "me", type: "user", label: "Steven Zhang", shortLabel: "Steven", radius: 44 },
+            { id: "u1", type: "user", label: "Eric Wang", shortLabel: "Eric", radius: 34 },
+            { id: "u2", type: "user", label: "Sarah Chen", shortLabel: "Sarah", radius: 34 },
+            { id: "u3", type: "user", label: "Alex Kim", shortLabel: "Alex", radius: 34 },
+        ],
+        links: [
+            { source: "me", target: "u1", type: "direct" },
+            { source: "me", target: "u2", type: "direct" },
+            { source: "me", target: "u3", type: "direct" },
+        ],
+        stats: { directCount: 3, groupCount: 0 },
+    },
+
+    groupsOnly: {
+        label: "Groups Only",
+        nodes: [
+            { id: "me", type: "user", label: "Steven Zhang", shortLabel: "Steven", radius: 44 },
+            { id: "u1", type: "user", label: "Eric Wang", shortLabel: "Eric", radius: 34 },
+            { id: "u2", type: "user", label: "Sarah Chen", shortLabel: "Sarah", radius: 34 },
+            { id: "u3", type: "user", label: "Alex Kim", shortLabel: "Alex", radius: 34 },
+            { id: "u4", type: "user", label: "Jordan Lee", shortLabel: "Jordan", radius: 34 },
+            { id: "g1", type: "group", label: "Eric, Sarah & 1 other", shortLabel: "Eric, Sara\u2026", radius: 28, memberCount: 4 },
+        ],
+        links: [
+            { source: "me", target: "g1", type: "group" },
+            { source: "u1", target: "g1", type: "group" },
+            { source: "u2", target: "g1", type: "group" },
+            { source: "u3", target: "g1", type: "group" },
+        ],
+        stats: { directCount: 0, groupCount: 1 },
+    },
+
+    large: {
+        label: "Large Network",
+        nodes: [
+            { id: "me", type: "user", label: "Steven Zhang", shortLabel: "Steven", radius: 44 },
+            { id: "u1", type: "user", label: "Eric Wang", shortLabel: "Eric", radius: 34 },
+            { id: "u2", type: "user", label: "Sarah Chen", shortLabel: "Sarah", radius: 34 },
+            { id: "u3", type: "user", label: "Alex Kim", shortLabel: "Alex", radius: 34 },
+            { id: "u4", type: "user", label: "Jordan Lee", shortLabel: "Jordan", radius: 34 },
+            { id: "u5", type: "user", label: "Maya Patel", shortLabel: "Maya", radius: 34 },
+            { id: "u6", type: "user", label: "Chris Nguyen", shortLabel: "Chris", radius: 34 },
+            { id: "u7", type: "user", label: "Priya Sharma", shortLabel: "Priya", radius: 34 },
+            { id: "u8", type: "user", label: "Tyler Brooks", shortLabel: "Tyler", radius: 34 },
+            { id: "u9", type: "user", label: "Lily Zhao", shortLabel: "Lily", radius: 34 },
+            { id: "u10", type: "user", label: "Marcus Johnson", shortLabel: "Marcus", radius: 34 },
+            { id: "g1", type: "group", label: "Eric, Sarah & 2 others", shortLabel: "Eric, Sara\u2026", radius: 28, memberCount: 5 },
+            { id: "g2", type: "group", label: "Jordan & Maya", shortLabel: "Jordan & M\u2026", radius: 28, memberCount: 3 },
+            { id: "g3", type: "group", label: "Chris, Priya & 1 other", shortLabel: "Chris, Pri\u2026", radius: 28, memberCount: 4 },
+        ],
+        links: [
+            { source: "me", target: "u1", type: "direct" },
+            { source: "me", target: "u2", type: "direct" },
+            { source: "me", target: "u6", type: "direct" },
+            { source: "me", target: "u9", type: "direct" },
+            { source: "me", target: "u10", type: "direct" },
+            { source: "me", target: "g1", type: "group" },
+            { source: "u1", target: "g1", type: "group" },
+            { source: "u2", target: "g1", type: "group" },
+            { source: "u3", target: "g1", type: "group" },
+            { source: "u4", target: "g1", type: "group" },
+            { source: "me", target: "g2", type: "group" },
+            { source: "u4", target: "g2", type: "group" },
+            { source: "u5", target: "g2", type: "group" },
+            { source: "me", target: "g3", type: "group" },
+            { source: "u6", target: "g3", type: "group" },
+            { source: "u7", target: "g3", type: "group" },
+            { source: "u8", target: "g3", type: "group" },
+        ],
+        stats: { directCount: 5, groupCount: 3 },
+    },
+};
+
+// ==================== GRAPH RENDERING (same as account.js) ====================
+
+let currentDestroy = null;
+
+function getInitials(name) {
+    if (!name) return "?";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function renderGraph(nodes, links) {
+    if (currentDestroy) currentDestroy();
+
+    // Deep copy so D3 mutations don't corrupt the scenario data
+    nodes = JSON.parse(JSON.stringify(nodes));
+    links = JSON.parse(JSON.stringify(links));
+
+    const svg = d3.select("#graphSvg");
+    svg.selectAll("*").remove();
+
+    const wrap = document.getElementById("graphContainer");
+    const tooltipEl = document.getElementById("graphTooltip");
+    const tooltipTitle = document.getElementById("tooltipTitle");
+    const tooltipSubtitle = document.getElementById("tooltipSubtitle");
+    const width = wrap.clientWidth || 800;
+    const height = wrap.clientHeight || 480;
+
+    svg.attr("viewBox", `0 0 ${width} ${height}`);
+
+    const centerNode = nodes.find((n) => n.id === "me");
+    if (centerNode) {
+        centerNode.fx = width / 2;
+        centerNode.fy = height / 2;
+    }
+
+    const defs = svg.append("defs");
+    const dropShadow = defs.append("filter")
+        .attr("id", "nodeShadow")
+        .attr("x", "-50%").attr("y", "-50%")
+        .attr("width", "200%").attr("height", "200%");
+    dropShadow.append("feDropShadow")
+        .attr("dx", "0").attr("dy", "2")
+        .attr("stdDeviation", "4")
+        .attr("flood-color", "rgba(15, 23, 42, 0.1)");
+
+    const linkLayer = svg.append("g");
+    const nodeLayer = svg.append("g");
+
+    const simulation = d3.forceSimulation(nodes)
+        .force("link", d3.forceLink(links).id((d) => d.id).distance((l) => l.type === "group" ? 100 : 160).strength(0.2))
+        .force("charge", d3.forceManyBody().strength((d) => d.type === "group" ? -200 : -400))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("collide", d3.forceCollide().radius((d) => d.radius + 30).strength(0.8))
+        .alphaDecay(0.015)
+        .alphaMin(0.001)
+        .velocityDecay(0.35);
+
+    let tickCount = 0;
+    simulation.on("tick.safety", () => { tickCount++; if (tickCount > 300) simulation.stop(); });
+
+    // Links
+    const link = linkLayer.selectAll("line")
+        .data(links).enter().append("line")
+        .attr("stroke", (l) => l.type === "group" ? "#5EEAD4" : "#E2E8F0")
+        .attr("stroke-width", 1.5)
+        .attr("stroke-linecap", "round")
+        .attr("stroke-dasharray", (l) => l.type === "group" ? "6 4" : "none")
+        .attr("opacity", 0.8);
+
+    // Node groups
+    const node = nodeLayer.selectAll("g")
+        .data(nodes).enter().append("g")
+        .style("cursor", (d) => d.id === "me" ? "default" : "grab")
+        .call(
+            d3.drag()
+                .on("start", (event, d) => {
+                    if (d.id === "me") return;
+                    if (!event.active) simulation.alphaTarget(0.15).restart();
+                    d.fx = d.x; d.fy = d.y;
+                })
+                .on("drag", (event, d) => {
+                    if (d.id === "me") return;
+                    d.fx = event.x; d.fy = event.y;
+                })
+                .on("end", (event, d) => {
+                    if (d.id === "me") return;
+                    if (!event.active) simulation.alphaTarget(0);
+                    d.fx = null; d.fy = null;
+                })
+        );
+
+    // User nodes
+    node.filter((d) => d.type === "user").each(function (d) {
+        const g = d3.select(this);
+        g.append("circle").attr("r", d.radius)
+            .attr("fill", d.id === "me" ? "#2563EB" : "#60A5FA")
+            .attr("filter", "url(#nodeShadow)");
+        g.append("circle").attr("r", d.radius)
+            .attr("fill", "none")
+            .attr("stroke", d.id === "me" ? "rgba(37,99,235,0.3)" : "rgba(96,165,250,0.3)")
+            .attr("stroke-width", 2);
+        g.append("text")
+            .attr("text-anchor", "middle").attr("dy", "0.35em")
+            .attr("fill", "white")
+            .attr("font-size", d.id === "me" ? 18 : 14)
+            .attr("font-weight", 700)
+            .attr("font-family", "Figtree, system-ui, sans-serif")
+            .style("pointer-events", "none")
+            .text(getInitials(d.label));
+    });
+
+    // Group nodes
+    node.filter((d) => d.type === "group").each(function (d) {
+        const g = d3.select(this);
+        const pillW = 56, pillH = 56, pillR = 16;
+        g.append("rect")
+            .attr("x", -pillW / 2).attr("y", -pillH / 2)
+            .attr("width", pillW).attr("height", pillH)
+            .attr("rx", pillR)
+            .attr("fill", "#0D9488")
+            .attr("filter", "url(#nodeShadow)");
+        g.append("rect")
+            .attr("x", -pillW / 2).attr("y", -pillH / 2)
+            .attr("width", pillW).attr("height", pillH)
+            .attr("rx", pillR)
+            .attr("fill", "none")
+            .attr("stroke", "rgba(13,148,136,0.3)")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "4 3");
+        g.append("text")
+            .attr("text-anchor", "middle").attr("dy", "0.35em")
+            .attr("fill", "white")
+            .attr("font-size", 16).attr("font-weight", 700)
+            .attr("font-family", "Figtree, system-ui, sans-serif")
+            .style("pointer-events", "none")
+            .text(d.memberCount || "?");
+    });
+
+    // Name badges
+    node.append("rect")
+        .attr("x", (d) => -Math.max(d.shortLabel.length * 4, 20))
+        .attr("y", (d) => d.radius + 6)
+        .attr("width", (d) => Math.max(d.shortLabel.length * 8, 40))
+        .attr("height", 20).attr("rx", 10)
+        .attr("fill", (d) => {
+            if (d.type === "group") return "#0D9488";
+            return d.id === "me" ? "#2563EB" : "#64748B";
+        })
+        .attr("opacity", 0.9);
+
+    node.append("text")
+        .attr("text-anchor", "middle")
+        .attr("y", (d) => d.radius + 20)
+        .attr("fill", "white").attr("font-size", 11).attr("font-weight", 600)
+        .attr("font-family", "Figtree, system-ui, sans-serif")
+        .style("pointer-events", "none")
+        .text((d) => d.shortLabel);
+
+    // Hover
+    node
+        .on("mouseenter", function (event, d) {
+            d3.select(this).transition().duration(200).ease(d3.easeCubicOut)
+                .attr("transform", `translate(${d.x},${d.y}) scale(1.08)`);
+            link.transition().duration(200)
+                .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.15)
+                .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2.5 : 1.5);
+            node.transition().duration(200).attr("opacity", (n) => {
+                if (n.id === d.id) return 1;
+                const connected = links.some(
+                    (l) => (l.source.id === d.id && l.target.id === n.id) || (l.target.id === d.id && l.source.id === n.id)
+                );
+                return connected ? 1 : 0.35;
+            });
+            tooltipTitle.textContent = d.label;
+            tooltipSubtitle.textContent = d.type === "group" ? `${d.memberCount} members` : "";
+            tooltipSubtitle.style.display = d.type === "group" ? "block" : "none";
+            const rect = wrap.getBoundingClientRect();
+            tooltipEl.style.left = `${event.clientX - rect.left + 15}px`;
+            tooltipEl.style.top = `${event.clientY - rect.top - 10}px`;
+            tooltipEl.classList.add("visible");
+        })
+        .on("mouseleave", function (_event, d) {
+            d3.select(this).transition().duration(250).attr("transform", `translate(${d.x},${d.y}) scale(1)`);
+            link.transition().duration(250).attr("opacity", 0.8).attr("stroke-width", 1.5);
+            node.transition().duration(250).attr("opacity", 1);
+            tooltipEl.classList.remove("visible");
+        });
+
+    svg.on("mousemove", (event) => {
+        if (tooltipEl.classList.contains("visible")) {
+            const rect = wrap.getBoundingClientRect();
+            tooltipEl.style.left = `${event.clientX - rect.left + 15}px`;
+            tooltipEl.style.top = `${event.clientY - rect.top - 10}px`;
+        }
+    });
+
+    simulation.on("tick", () => {
+        link.attr("x1", (d) => d.source.x).attr("y1", (d) => d.source.y)
+            .attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y);
+        node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+    });
+
+    const onResize = () => {
+        const w = wrap.clientWidth || width;
+        const h = wrap.clientHeight || height;
+        svg.attr("viewBox", `0 0 ${w} ${h}`);
+        if (centerNode) { centerNode.fx = w / 2; centerNode.fy = h / 2; }
+        simulation.force("center", d3.forceCenter(w / 2, h / 2));
+        simulation.alpha(0.3).restart();
+    };
+    window.addEventListener("resize", onResize);
+
+    currentDestroy = () => {
+        window.removeEventListener("resize", onResize);
+        simulation.stop();
+    };
+}
+
+// ==================== SCENARIO LOADING ====================
+
+function loadScenario(name) {
+    const scenario = SCENARIOS[name];
+    if (!scenario) return;
+
+    // Update button states
+    document.querySelectorAll(".demo-btn").forEach((btn) => btn.classList.remove("active"));
+    event.target.classList.add("active");
+
+    // Update count badges
+    const countEl = document.getElementById("connectionCount");
+    const parts = [];
+    if (scenario.stats.directCount > 0) {
+        parts.push(`<span class="connection-count-pill">${scenario.stats.directCount} connection${scenario.stats.directCount !== 1 ? "s" : ""}</span>`);
+    }
+    if (scenario.stats.groupCount > 0) {
+        parts.push(`<span class="connection-count-group">${scenario.stats.groupCount} group${scenario.stats.groupCount !== 1 ? "s" : ""}</span>`);
+    }
+    countEl.innerHTML = parts.join(" ");
+
+    renderGraph(scenario.nodes, scenario.links);
+}
+
+// Init with mixed scenario
+loadScenario("mixed");
+    </script>
+</body>
+</html>
