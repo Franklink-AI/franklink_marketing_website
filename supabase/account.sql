@@ -71,3 +71,20 @@ DO $$ BEGIN
   USING (bucket_id = 'agent-avatars');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+-- ------------------------------------------------------------
+-- 4. Add graduation year column to users table
+-- ------------------------------------------------------------
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS graduation_year integer;
+
+-- Constrain to reasonable year range
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'graduation_year_valid'
+  ) THEN
+    ALTER TABLE public.users
+    ADD CONSTRAINT graduation_year_valid
+    CHECK (graduation_year IS NULL OR (graduation_year >= 2020 AND graduation_year <= 2040));
+  END IF;
+END $$;

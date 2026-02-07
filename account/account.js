@@ -57,6 +57,8 @@ const el = {
   profileName: $("#profileName"),
   infoSchool: $("#infoSchool"),
   infoGrade: $("#infoGrade"),
+  gradYearSelect: $("#gradYearSelect"),
+  gradYearStatus: $("#gradYearStatus"),
 
   changePasswordToggle: $("#changePasswordToggle"),
   passwordForm: $("#passwordForm"),
@@ -218,7 +220,7 @@ async function loadProfile() {
 
   const { data, error } = await sb
     .from(config.tables.users)
-    .select("id, name, phone_number, university, grade_level, agent_avatar_url")
+    .select("id, name, phone_number, university, grade_level, agent_avatar_url, graduation_year")
     .eq("id", userData.user.id)
     .maybeSingle();
 
@@ -250,6 +252,10 @@ function renderProfile(profile) {
   // Info fields
   setInfoField(el.infoSchool, profile.university);
   setInfoField(el.infoGrade, profile.grade_level);
+
+  // Graduation year
+  populateGradYearOptions();
+  el.gradYearSelect.value = profile.graduation_year ? String(profile.graduation_year) : "";
 }
 
 function setInfoField(element, value) {
@@ -259,6 +265,44 @@ function setInfoField(element, value) {
   } else {
     element.textContent = "Not yet available";
     element.classList.add("empty");
+  }
+}
+
+// ==================== GRADUATION YEAR ====================
+
+function populateGradYearOptions() {
+  const select = el.gradYearSelect;
+  if (select.options.length > 1) return; // already populated
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y <= currentYear + 6; y++) {
+    const opt = document.createElement("option");
+    opt.value = String(y);
+    opt.textContent = String(y);
+    select.appendChild(opt);
+  }
+}
+
+async function handleGradYearChange() {
+  if (!state.profile) return;
+
+  const value = el.gradYearSelect.value;
+  const year = value ? parseInt(value, 10) : null;
+
+  setStatus(el.gradYearStatus, "Saving...");
+
+  try {
+    const { error } = await sb
+      .from(config.tables.users)
+      .update({ graduation_year: year })
+      .eq("id", state.profile.id);
+
+    if (error) throw error;
+
+    state.profile.graduation_year = year;
+    setStatus(el.gradYearStatus, "Saved", "success");
+    setTimeout(() => setStatus(el.gradYearStatus, ""), 2000);
+  } catch (err) {
+    setStatus(el.gradYearStatus, err?.message || "Failed to save.", "error");
   }
 }
 
@@ -771,6 +815,9 @@ el.changePhotoLink.addEventListener("click", openFilePicker);
 el.avatarFileInput.addEventListener("change", handleFileSelected);
 el.avatarSaveBtn.addEventListener("click", saveAvatar);
 el.avatarCancelBtn.addEventListener("click", cancelAvatarUpload);
+
+// Graduation year
+el.gradYearSelect.addEventListener("change", handleGradYearChange);
 
 // Password
 el.changePasswordToggle.addEventListener("click", togglePasswordForm);
