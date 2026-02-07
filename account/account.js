@@ -469,20 +469,28 @@ async function loadGraphData() {
 
   const centerLabel = state.profile?.name || state.profile?.phone_number || "You";
 
-  // Fetch connections (user_a or user_b)
-  const [{ data: chatsAsA, error: errA }, { data: chatsAsB, error: errB }] = await Promise.all([
-    sb.from(config.tables.groupChats).select("user_a_id, user_b_id").eq("user_a_id", authUserId).limit(250),
-    sb.from(config.tables.groupChats).select("user_a_id, user_b_id").eq("user_b_id", authUserId).limit(250),
+  // Fetch confirmed connections from connection_requests (status = 'group_created')
+  const [{ data: asInitiator, error: errI }, { data: asTarget, error: errT }] = await Promise.all([
+    sb.from("connection_requests")
+      .select("initiator_user_id, target_user_id")
+      .eq("initiator_user_id", authUserId)
+      .eq("status", "group_created")
+      .limit(250),
+    sb.from("connection_requests")
+      .select("initiator_user_id, target_user_id")
+      .eq("target_user_id", authUserId)
+      .eq("status", "group_created")
+      .limit(250),
   ]);
 
-  if (errA) console.warn("Error loading chats as user_a:", errA);
-  if (errB) console.warn("Error loading chats as user_b:", errB);
+  if (errI) console.warn("Error loading connections as initiator:", errI);
+  if (errT) console.warn("Error loading connections as target:", errT);
 
-  const chats = [...(chatsAsA || []), ...(chatsAsB || [])];
+  const requests = [...(asInitiator || []), ...(asTarget || [])];
   const connectionIds = new Set();
 
-  for (const row of chats) {
-    const otherId = row.user_a_id === authUserId ? row.user_b_id : row.user_a_id;
+  for (const row of requests) {
+    const otherId = row.initiator_user_id === authUserId ? row.target_user_id : row.initiator_user_id;
     if (otherId && otherId !== authUserId) connectionIds.add(otherId);
   }
 

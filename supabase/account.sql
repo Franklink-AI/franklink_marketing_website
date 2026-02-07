@@ -101,10 +101,10 @@ CREATE POLICY "Authenticated users can read profiles"
   ON public.users FOR SELECT
   USING (auth.role() = 'authenticated');
 
--- 5b. group_chats: ensure RLS is enabled + users can read chats they belong to
-ALTER TABLE public.group_chats ENABLE ROW LEVEL SECURITY;
+-- 5b. connection_requests: users can see requests they initiated or received
+ALTER TABLE public.connection_requests ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can read their group chats" ON public.group_chats;
-CREATE POLICY "Users can read their group chats"
-  ON public.group_chats FOR SELECT
-  USING (user_a_id = auth.uid() OR user_b_id = auth.uid());
+DROP POLICY IF EXISTS "Users can read their connection requests" ON public.connection_requests;
+CREATE POLICY "Users can read their connection requests"
+  ON public.connection_requests FOR SELECT
+  USING (initiator_user_id = auth.uid() OR target_user_id = auth.uid());
