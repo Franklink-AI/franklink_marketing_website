@@ -139,3 +139,19 @@ CREATE POLICY "Users can read their group chats"
       WHERE gcp.user_id = auth.uid()
     )
   );
+
+-- ------------------------------------------------------------
+-- 7. Add email column to users table (for email-based login)
+-- ------------------------------------------------------------
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email text;
+
+-- Unique constraint so provisioning can look up by email
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'users_email_unique'
+  ) THEN
+    ALTER TABLE public.users
+    ADD CONSTRAINT users_email_unique UNIQUE (email);
+  END IF;
+END $$;

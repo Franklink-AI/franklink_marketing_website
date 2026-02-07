@@ -1019,6 +1019,7 @@ async def provision_account(req: ProvisionRequest):
         raise HTTPException(status_code=400, detail="Identity required")
 
     # Determine auth email and DB search value
+    is_real_email = "@" in identity and not identity.endswith("@users.franklink.ai")
     if "@" in identity:
         auth_email = identity
         search_value = identity
@@ -1028,13 +1029,29 @@ async def provision_account(req: ProvisionRequest):
         auth_email = f"{digits}@users.franklink.ai"
         search_value = normalized
 
-    # Look up user in public.users by phone_number
+    # Look up user in public.users
     try:
-        result = supabase_admin.table("users") \
-            .select("id") \
-            .eq("phone_number", search_value) \
-            .limit(1) \
-            .execute()
+        if is_real_email:
+            # For real emails, search by email column first, then fall back to phone_number
+            result = supabase_admin.table("users") \
+                .select("id") \
+                .eq("email", search_value) \
+                .limit(1) \
+                .execute()
+            if not result.data:
+                # Fall back to phone_number (in case email was stored there)
+                result = supabase_admin.table("users") \
+                    .select("id") \
+                    .eq("phone_number", search_value) \
+                    .limit(1) \
+                    .execute()
+        else:
+            # Phone number lookup (existing behavior)
+            result = supabase_admin.table("users") \
+                .select("id") \
+                .eq("phone_number", search_value) \
+                .limit(1) \
+                .execute()
     except Exception as e:
         logger.error(f"Provision lookup failed: {e}")
         raise HTTPException(status_code=500, detail="Database error")
