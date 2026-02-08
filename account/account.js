@@ -489,16 +489,20 @@ async function loadGraphData() {
 
   const centerLabel = state.profile?.name || state.profile?.phone_number || "You";
 
+  console.log("[Graph] authUserId:", authUserId);
+
   // Phase A: Find all group chats the user participates in
   const { data: myParticipations, error: errP } = await sb
     .from("group_chat_participants")
     .select("chat_guid")
     .eq("user_id", authUserId)
     .limit(200);
-  if (errP) console.warn("Error loading participations:", errP);
+  if (errP) console.warn("[Graph] Error loading participations:", errP);
+  console.log("[Graph] Phase A — myParticipations:", myParticipations);
 
   const myChatGuids = (myParticipations || []).map((p) => p.chat_guid);
   if (myChatGuids.length === 0) {
+    console.log("[Graph] No participations found, returning empty.");
     return { nodes: [], links: [], stats: { directCount: 0, groupCount: 0 } };
   }
 
@@ -508,7 +512,8 @@ async function loadGraphData() {
     .select("chat_guid, member_count, display_name")
     .in("chat_guid", myChatGuids)
     .limit(200);
-  if (errG) console.warn("Error loading group chats:", errG);
+  if (errG) console.warn("[Graph] Error loading group chats:", errG);
+  console.log("[Graph] Phase B — allChats:", allChats);
 
   const chats = allChats || [];
   const directChats = chats.filter((c) => (c.member_count || 0) <= 2);
