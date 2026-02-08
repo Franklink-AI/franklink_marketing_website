@@ -626,29 +626,41 @@ function renderGraph(nodes, links) {
   const linkLayer = svg.append("g");
   const nodeLayer = svg.append("g");
 
-  // Force simulation — tighter, more organic layout
+  // Force simulation — no forceCenter (center node is pinned via fx/fy)
+  const nodeCount = nodes.length;
   const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id((d) => d.id).distance((l) => l.type === "group" ? 110 : 140).strength(0.3))
-    .force("charge", d3.forceManyBody().strength((d) => d.type === "group" ? -250 : -350))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collide", d3.forceCollide().radius((d) => d.radius + 24).strength(0.7))
-    .alphaDecay(0.02)
+    .force("link", d3.forceLink(links).id((d) => d.id)
+      .distance((l) => {
+        const base = l.type === "group" ? 120 : 160;
+        return nodeCount <= 3 ? base + 40 : base;
+      })
+      .strength(0.4))
+    .force("charge", d3.forceManyBody()
+      .strength((d) => d.type === "group" ? -300 : -400))
+    .force("collide", d3.forceCollide()
+      .radius((d) => d.radius + 32)
+      .strength(0.8))
+    .force("x", d3.forceX(width / 2).strength(0.03))
+    .force("y", d3.forceY(height / 2).strength(0.03))
+    .alphaDecay(0.025)
     .alphaMin(0.001)
-    .velocityDecay(0.4);
+    .velocityDecay(0.35);
 
   let tickCount = 0;
   simulation.on("tick.safety", () => { if (++tickCount > 300) simulation.stop(); });
 
-  // Links — clean, thin lines
+  // Links — clean lines with fade-in
   const link = linkLayer.selectAll("line")
     .data(links).enter().append("line")
-    .attr("stroke", (l) => l.type === "group" ? "#99F6E4" : "#CBD5E1")
-    .attr("stroke-width", 1)
+    .attr("stroke", (l) => l.type === "group" ? "#99F6E4" : "#94A3B8")
+    .attr("stroke-width", 1.5)
     .attr("stroke-linecap", "round")
-    .attr("stroke-dasharray", (l) => l.type === "group" ? "5 4" : "none")
-    .attr("opacity", 0.7);
+    .attr("stroke-dasharray", (l) => l.type === "group" ? "6 4" : "none")
+    .attr("opacity", 0);
 
-  // Node groups
+  link.transition().duration(500).delay(200).attr("opacity", 0.5);
+
+  // Node groups — outer <g> for position (tick), inner <g> for hover scale
   const node = nodeLayer.selectAll("g")
     .data(nodes).enter().append("g")
     .style("cursor", (d) => d.id === "me" ? "default" : "grab")
@@ -657,7 +669,7 @@ function renderGraph(nodes, links) {
       d3.drag()
         .on("start", (event, d) => {
           if (d.id === "me") return;
-          d3.select(event.sourceEvent.target.parentNode).style("cursor", "grabbing");
+          d3.select(event.sourceEvent.target.closest("g")).style("cursor", "grabbing");
           if (!event.active) simulation.alphaTarget(0.15).restart();
           d.fx = d.x;
           d.fy = d.y;
@@ -669,18 +681,21 @@ function renderGraph(nodes, links) {
         })
         .on("end", (event, d) => {
           if (d.id === "me") return;
-          d3.select(event.sourceEvent.target.parentNode).style("cursor", "grab");
+          d3.select(event.sourceEvent.target.closest("g")).style("cursor", "grab");
           if (!event.active) simulation.alphaTarget(0);
           d.fx = null;
           d.fy = null;
         })
     );
 
+  // Inner group for hover scale (doesn't conflict with tick positioning)
+  const nodeInner = node.append("g").attr("class", "node-inner");
+
   // Fade nodes in
   node.transition().duration(600).delay((_d, i) => i * 40).attr("opacity", 1);
 
   // All nodes are circles for visual consistency
-  node.each(function (d) {
+  nodeInner.each(function (d) {
     const g = d3.select(this);
     const isMe = d.id === "me";
     const isGroup = d.type === "group";
@@ -710,8 +725,8 @@ function renderGraph(nodes, links) {
     g.append("circle")
       .attr("r", d.radius)
       .attr("fill", "none")
-      .attr("stroke", isMe ? "rgba(37,99,235,0.15)" : isGroup ? "rgba(13,148,136,0.2)" : "rgba(37,99,235,0.1)")
-      .attr("stroke-width", isMe ? 3 : 1.5);
+      .attr("stroke", isMe ? "rgba(37,99,235,0.2)" : isGroup ? "rgba(13,148,136,0.2)" : "rgba(37,99,235,0.12)")
+      .attr("stroke-width", isMe ? 3.5 : 2);
 
     // Inner text (initials or member count)
     g.append("text")
@@ -736,26 +751,35 @@ function renderGraph(nodes, links) {
     }
   });
 
-  // Clean text labels below nodes (no background rectangles)
-  node.append("text")
+  // Clean text labels below nodes (inside inner group for consistent scaling)
+  nodeInner.append("text")
     .attr("text-anchor", "middle")
-    .attr("y", (d) => d.radius + 16)
+    .attr("y", (d) => d.radius + 18)
     .attr("fill", (d) => d.id === "me" ? "#2563EB" : d.type === "group" ? "#0D9488" : "#64748B")
-    .attr("font-size", 11)
+    .attr("font-size", 12)
     .attr("font-weight", (d) => d.id === "me" ? 700 : 500)
     .attr("font-family", "Figtree, system-ui, sans-serif")
     .style("pointer-events", "none")
-    .text((d) => d.shortLabel);
+    .text((d) => {
+      if (d.id === "me") return d.shortLabel;
+      // Show first name only for peer user nodes
+      if (d.type !== "group" && d.label) {
+        const first = d.label.split(" ")[0];
+        return first.length <= 12 ? first : d.shortLabel;
+      }
+      return d.shortLabel;
+    });
 
-  // Hover effects
+  // Hover effects — scale the inner <g> so tick positioning on outer <g> doesn't conflict
   node
     .on("mouseenter", function (event, d) {
-      d3.select(this).transition().duration(200).ease(d3.easeCubicOut)
-        .attr("transform", `translate(${d.x},${d.y}) scale(1.1)`);
+      d3.select(this).select(".node-inner")
+        .transition().duration(200).ease(d3.easeCubicOut)
+        .attr("transform", "scale(1.08)");
 
       link.transition().duration(200)
-        .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.1)
-        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2 : 1);
+        .attr("opacity", (l) => (l.source.id === d.id || l.target.id === d.id) ? 0.8 : 0.08)
+        .attr("stroke-width", (l) => (l.source.id === d.id || l.target.id === d.id) ? 2.5 : 1);
 
       node.transition().duration(200).attr("opacity", (n) => {
         if (n.id === d.id) return 1;
@@ -767,12 +791,13 @@ function renderGraph(nodes, links) {
 
       showTooltip(event, d);
     })
-    .on("mouseleave", function (_event, d) {
-      d3.select(this).transition().duration(300).ease(d3.easeCubicOut)
-        .attr("transform", `translate(${d.x},${d.y}) scale(1)`);
+    .on("mouseleave", function () {
+      d3.select(this).select(".node-inner")
+        .transition().duration(300).ease(d3.easeCubicOut)
+        .attr("transform", "scale(1)");
       link.transition().duration(300)
-        .attr("opacity", 0.7)
-        .attr("stroke-width", 1);
+        .attr("opacity", 0.5)
+        .attr("stroke-width", 1.5);
       node.transition().duration(300).attr("opacity", 1);
       hideTooltip();
     });
@@ -815,7 +840,8 @@ function renderGraph(nodes, links) {
       centerNode.fx = w / 2;
       centerNode.fy = h / 2;
     }
-    simulation.force("center", d3.forceCenter(w / 2, h / 2));
+    simulation.force("x", d3.forceX(w / 2).strength(0.03));
+    simulation.force("y", d3.forceY(h / 2).strength(0.03));
     simulation.alpha(0.3).restart();
   };
 
