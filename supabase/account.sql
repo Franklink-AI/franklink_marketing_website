@@ -114,18 +114,14 @@ CREATE POLICY "Users can read their connection requests"
 -- 6. RLS policies for group chat tables (needed for connection graph)
 -- ------------------------------------------------------------
 
--- 6a. group_chat_participants: users can read rows for chats they participate in
+-- 6a. group_chat_participants: simple non-circular policy
+--     (The old policy caused infinite recursion by referencing itself.)
 ALTER TABLE public.group_chat_participants ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can read their group chat participations" ON public.group_chat_participants;
 CREATE POLICY "Users can read their group chat participations"
   ON public.group_chat_participants FOR SELECT
-  USING (
-    chat_guid IN (
-      SELECT gcp.chat_guid FROM public.group_chat_participants gcp
-      WHERE gcp.user_id = auth.uid()
-    )
-  );
+  USING (user_id = auth.uid());
 
 -- 6b. group_chats: users can read group chats they participate in
 ALTER TABLE public.group_chats ENABLE ROW LEVEL SECURITY;
@@ -139,6 +135,48 @@ CREATE POLICY "Users can read their group chats"
       WHERE gcp.user_id = auth.uid()
     )
   );
+
+-- 6c. SECURITY DEFINER function to load connection graph data.
+--     Bypasses RLS so we can fetch co-participants in one call.
+--     Callable from the client via supabase.rpc('get_connection_graph').
+CREATE OR REPLACE FUNCTION public.get_connection_graph()
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result json;
+BEGIN
+  WITH my_chats AS (
+    SELECT DISTINCT chat_guid
+    FROM group_chat_participants
+    WHERE user_id = auth.uid()
+  ),
+  chat_info AS (
+    SELECT gc.chat_guid, gc.member_count, gc.display_name
+    FROM group_chats gc
+    JOIN my_chats mc ON gc.chat_guid = mc.chat_guid
+  ),
+  all_participants AS (
+    SELECT gcp.chat_guid, gcp.user_id
+    FROM group_chat_participants gcp
+    JOIN my_chats mc ON gcp.chat_guid = mc.chat_guid
+  ),
+  user_profiles AS (
+    SELECT DISTINCT u.id, u.name, u.phone_number
+    FROM users u
+    WHERE u.id IN (SELECT DISTINCT user_id FROM all_participants)
+  )
+  SELECT json_build_object(
+    'chats', (SELECT COALESCE(json_agg(row_to_json(ci)), '[]'::json) FROM chat_info ci),
+    'participants', (SELECT COALESCE(json_agg(row_to_json(ap)), '[]'::json) FROM all_participants ap),
+    'users', (SELECT COALESCE(json_agg(row_to_json(up)), '[]'::json) FROM user_profiles up)
+  ) INTO result;
+
+  RETURN result;
+END;
+$$;
 
 -- ------------------------------------------------------------
 -- 7. Add email column to users table (for email-based login)

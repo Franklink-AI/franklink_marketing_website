@@ -489,66 +489,30 @@ async function loadGraphData() {
 
   const centerLabel = state.profile?.name || state.profile?.phone_number || "You";
 
-  console.log("[Graph] authUserId:", authUserId);
+  // Single RPC call (SECURITY DEFINER function — bypasses RLS)
+  const { data: graphData, error: rpcError } = await sb.rpc("get_connection_graph");
+  if (rpcError) throw new Error(`Graph RPC failed: ${rpcError.message}`);
+  if (!graphData) return { nodes: [], links: [], stats: { directCount: 0, groupCount: 0 } };
 
-  // Phase A: Find all group chats the user participates in
-  const { data: myParticipations, error: errP } = await sb
-    .from("group_chat_participants")
-    .select("chat_guid")
-    .eq("user_id", authUserId)
-    .limit(200);
-  if (errP) console.warn("[Graph] Error loading participations:", errP);
-  console.log("[Graph] Phase A — myParticipations:", myParticipations);
+  const { chats = [], participants = [], users = [] } = graphData;
 
-  const myChatGuids = (myParticipations || []).map((p) => p.chat_guid);
-  if (myChatGuids.length === 0) {
-    console.log("[Graph] No participations found, returning empty.");
+  if (chats.length === 0) {
     return { nodes: [], links: [], stats: { directCount: 0, groupCount: 0 } };
   }
 
-  // Phase B: Fetch group_chats metadata (member_count, display_name)
-  const { data: allChats, error: errG } = await sb
-    .from("group_chats")
-    .select("chat_guid, member_count, display_name")
-    .in("chat_guid", myChatGuids)
-    .limit(200);
-  if (errG) console.warn("[Graph] Error loading group chats:", errG);
-  console.log("[Graph] Phase B — allChats:", allChats);
-
-  const chats = allChats || [];
   const directChats = chats.filter((c) => (c.member_count || 0) <= 2);
   const multiGroups = chats.filter((c) => (c.member_count || 0) > 2);
 
-  // Phase C: Fetch all participants for all chats the user is in
-  const { data: allParts, error: errAP } = await sb
-    .from("group_chat_participants")
-    .select("chat_guid, user_id")
-    .in("chat_guid", myChatGuids)
-    .limit(1000);
-  if (errAP) console.warn("Error loading participants:", errAP);
-
-  const chatMembersMap = new Map(); // chat_guid → [user_id, ...]
-  const allOtherUserIds = new Set();
-  for (const p of allParts || []) {
+  // Build participant map: chat_guid → [user_id, ...]
+  const chatMembersMap = new Map();
+  for (const p of participants) {
     if (!chatMembersMap.has(p.chat_guid)) chatMembersMap.set(p.chat_guid, []);
     chatMembersMap.get(p.chat_guid).push(p.user_id);
-    if (p.user_id !== authUserId) allOtherUserIds.add(p.user_id);
   }
 
-  // Phase D: Fetch user profiles for all other participants
-  const ids = [...allOtherUserIds].slice(0, 200);
-  let connectionUsers = [];
-  if (ids.length > 0) {
-    const { data, error } = await sb
-      .from(config.tables.users)
-      .select("id, name, phone_number")
-      .in("id", ids);
-    if (error) console.warn("Error loading user names:", error);
-    connectionUsers = data || [];
-  }
-
+  // Build user name map
   const nameMap = new Map();
-  for (const user of connectionUsers) {
+  for (const user of users) {
     nameMap.set(user.id, { name: user.name || formatPhoneDisplay(user.phone_number) || "Unknown", id: user.id });
   }
 
@@ -579,7 +543,6 @@ async function loadGraphData() {
   // Multi-person groups (member_count > 2): group node + links from each member
   for (const group of multiGroups) {
     const memberIds = chatMembersMap.get(group.chat_guid) || [];
-    // Add user nodes for group members not already added
     for (const uid of memberIds) {
       if (uid === authUserId) continue;
       if (addedUserNodes.has(String(uid))) continue;
