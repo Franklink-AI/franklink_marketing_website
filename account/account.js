@@ -489,73 +489,49 @@ async function loadGraphData() {
 
   const centerLabel = state.profile?.name || state.profile?.phone_number || "You";
 
-  // Phase A: 1:1 connections from connection_requests (status = 'group_created')
-  const [{ data: asInitiator, error: errI }, { data: asTarget, error: errT }] = await Promise.all([
-    sb.from("connection_requests")
-      .select("initiator_user_id, target_user_id")
-      .eq("initiator_user_id", authUserId)
-      .eq("status", "group_created")
-      .limit(250),
-    sb.from("connection_requests")
-      .select("initiator_user_id, target_user_id")
-      .eq("target_user_id", authUserId)
-      .eq("status", "group_created")
-      .limit(250),
-  ]);
-
-  if (errI) console.warn("Error loading connections as initiator:", errI);
-  if (errT) console.warn("Error loading connections as target:", errT);
-
-  const requests = [...(asInitiator || []), ...(asTarget || [])];
-  const directConnectionIds = new Set();
-  for (const row of requests) {
-    const otherId = row.initiator_user_id === authUserId ? row.target_user_id : row.initiator_user_id;
-    if (otherId && otherId !== authUserId) directConnectionIds.add(otherId);
-  }
-
-  // Phase B: Group chats the user belongs to (member_count > 2)
+  // Phase A: Find all group chats the user participates in
   const { data: myParticipations, error: errP } = await sb
     .from("group_chat_participants")
     .select("chat_guid")
     .eq("user_id", authUserId)
-    .limit(100);
+    .limit(200);
   if (errP) console.warn("Error loading participations:", errP);
 
   const myChatGuids = (myParticipations || []).map((p) => p.chat_guid);
-  let multiGroups = [];
-  if (myChatGuids.length > 0) {
-    const { data: groups, error: errG } = await sb
-      .from("group_chats")
-      .select("chat_guid, member_count, display_name")
-      .in("chat_guid", myChatGuids)
-      .gt("member_count", 2)
-      .limit(50);
-    if (errG) console.warn("Error loading group chats:", errG);
-    multiGroups = groups || [];
+  if (myChatGuids.length === 0) {
+    return { nodes: [], links: [], stats: { directCount: 0, groupCount: 0 } };
   }
 
-  // Phase C: Fetch all participants for multi-person groups
-  const allGroupMemberIds = new Set();
-  const groupMembersMap = new Map(); // chat_guid → [user_id, ...]
-  if (multiGroups.length > 0) {
-    const groupGuids = multiGroups.map((g) => g.chat_guid);
-    const { data: allParts, error: errAP } = await sb
-      .from("group_chat_participants")
-      .select("chat_guid, user_id")
-      .in("chat_guid", groupGuids)
-      .limit(500);
-    if (errAP) console.warn("Error loading group participants:", errAP);
-    for (const p of allParts || []) {
-      if (!groupMembersMap.has(p.chat_guid)) groupMembersMap.set(p.chat_guid, []);
-      groupMembersMap.get(p.chat_guid).push(p.user_id);
-      if (p.user_id !== authUserId) allGroupMemberIds.add(p.user_id);
-    }
+  // Phase B: Fetch group_chats metadata (member_count, display_name)
+  const { data: allChats, error: errG } = await sb
+    .from("group_chats")
+    .select("chat_guid, member_count, display_name")
+    .in("chat_guid", myChatGuids)
+    .limit(200);
+  if (errG) console.warn("Error loading group chats:", errG);
+
+  const chats = allChats || [];
+  const directChats = chats.filter((c) => (c.member_count || 0) <= 2);
+  const multiGroups = chats.filter((c) => (c.member_count || 0) > 2);
+
+  // Phase C: Fetch all participants for all chats the user is in
+  const { data: allParts, error: errAP } = await sb
+    .from("group_chat_participants")
+    .select("chat_guid, user_id")
+    .in("chat_guid", myChatGuids)
+    .limit(1000);
+  if (errAP) console.warn("Error loading participants:", errAP);
+
+  const chatMembersMap = new Map(); // chat_guid → [user_id, ...]
+  const allOtherUserIds = new Set();
+  for (const p of allParts || []) {
+    if (!chatMembersMap.has(p.chat_guid)) chatMembersMap.set(p.chat_guid, []);
+    chatMembersMap.get(p.chat_guid).push(p.user_id);
+    if (p.user_id !== authUserId) allOtherUserIds.add(p.user_id);
   }
 
-  // Phase D: Fetch all user profiles (direct connections + group members)
-  const allUserIds = new Set([...directConnectionIds, ...allGroupMemberIds]);
-  const ids = [...allUserIds].slice(0, 200);
-
+  // Phase D: Fetch user profiles for all other participants
+  const ids = [...allOtherUserIds].slice(0, 200);
   let connectionUsers = [];
   if (ids.length > 0) {
     const { data, error } = await sb
@@ -571,49 +547,55 @@ async function loadGraphData() {
     nameMap.set(user.id, { name: user.name || formatPhoneDisplay(user.phone_number) || "Unknown", id: user.id });
   }
 
-  // Build nodes
+  // Build nodes & links
   const nodes = [
     { id: "me", type: "user", label: centerLabel, shortLabel: formatShortLabel(centerLabel), radius: 44 },
   ];
   const addedUserNodes = new Set(["me"]);
+  const links = [];
+
+  // 1:1 connections (member_count <= 2): direct link from me → other user
+  const directConnectionIds = new Set();
+  for (const chat of directChats) {
+    const members = chatMembersMap.get(chat.chat_guid) || [];
+    for (const uid of members) {
+      if (uid !== authUserId) directConnectionIds.add(uid);
+    }
+  }
 
   for (const uid of directConnectionIds) {
     const info = nameMap.get(uid);
     const label = info?.name || "Unknown";
     nodes.push({ id: String(uid), type: "user", label, shortLabel: formatShortLabel(label), radius: 34 });
     addedUserNodes.add(String(uid));
+    links.push({ source: "me", target: String(uid), type: "direct" });
   }
 
-  for (const uid of allGroupMemberIds) {
-    if (addedUserNodes.has(String(uid))) continue;
-    const info = nameMap.get(uid);
-    const label = info?.name || "Unknown";
-    nodes.push({ id: String(uid), type: "user", label, shortLabel: formatShortLabel(label), radius: 34 });
-    addedUserNodes.add(String(uid));
-  }
-
+  // Multi-person groups (member_count > 2): group node + links from each member
   for (const group of multiGroups) {
-    const memberIds = groupMembersMap.get(group.chat_guid) || [];
+    const memberIds = chatMembersMap.get(group.chat_guid) || [];
+    // Add user nodes for group members not already added
+    for (const uid of memberIds) {
+      if (uid === authUserId) continue;
+      if (addedUserNodes.has(String(uid))) continue;
+      const info = nameMap.get(uid);
+      const label = info?.name || "Unknown";
+      nodes.push({ id: String(uid), type: "user", label, shortLabel: formatShortLabel(label), radius: 34 });
+      addedUserNodes.add(String(uid));
+    }
+
     const members = memberIds.map((uid) => nameMap.get(uid) || { id: uid, name: "Unknown" });
     const groupLabel = group.display_name || generateGroupName(members, authUserId);
+    const groupNodeId = `group-${group.chat_guid}`;
     nodes.push({
-      id: `group-${group.chat_guid}`,
+      id: groupNodeId,
       type: "group",
       label: groupLabel,
       shortLabel: formatShortLabel(groupLabel),
       radius: 28,
       memberCount: group.member_count,
     });
-  }
 
-  // Build links
-  const links = [];
-  for (const uid of directConnectionIds) {
-    links.push({ source: "me", target: String(uid), type: "direct" });
-  }
-  for (const group of multiGroups) {
-    const memberIds = groupMembersMap.get(group.chat_guid) || [];
-    const groupNodeId = `group-${group.chat_guid}`;
     for (const uid of memberIds) {
       const nodeId = uid === authUserId ? "me" : String(uid);
       links.push({ source: nodeId, target: groupNodeId, type: "group" });
