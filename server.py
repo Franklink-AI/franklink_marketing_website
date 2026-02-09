@@ -33,6 +33,7 @@ def start_server():
     """Start the HTTP server"""
     os.chdir(DIRECTORY)
 
+    socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
         print("=" * 50)
         print("Franklink Marketing Website Server")

@@ -2,62 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Only run this script on the feature page
     if (!document.body.classList.contains('page-feature')) return;
 
-    // --- Hero Background Video + Overlay ---
-    const heroSection = document.getElementById('hero');
+    // --- Hero Background Video ---
     const heroVideo = document.getElementById('hero-background-video');
-    const nextSection = document.getElementById('feature-scroll-container');
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let prefersReducedMotion = reducedMotionQuery.matches;
 
-    function setupHeroVideoSequence() {
-        if (!heroVideo) return;
-
-        const sources = [
-            '/assets/videos/handshaking-1.mp4',
-            '/assets/videos/handshaking-2.mp4'
-        ];
-        let currentIndex = 0;
-        let isSwitching = false;
-
-        const tryPlay = () => {
-            const playPromise = heroVideo.play();
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(() => {});
-            }
-        };
-
-        const switchVideo = () => {
-            if (isSwitching) return;
-            isSwitching = true;
-            currentIndex = (currentIndex + 1) % sources.length;
-            heroVideo.src = sources[currentIndex];
-            heroVideo.load();
-            tryPlay();
-        };
-
-        const maybeSwitchVideo = () => {
-            if (isSwitching || !heroVideo.duration) return;
-            if (heroVideo.duration - heroVideo.currentTime <= 0.35) {
-                switchVideo();
-            }
-        };
-
+    if (heroVideo) {
         heroVideo.muted = true;
         heroVideo.playsInline = true;
-        if (!heroVideo.src) {
-            heroVideo.src = sources[0];
+        heroVideo.loop = true;
+        const playPromise = heroVideo.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(() => {});
         }
-        heroVideo.load();
-        tryPlay();
-
-        heroVideo.addEventListener('timeupdate', maybeSwitchVideo);
-        heroVideo.addEventListener('ended', switchVideo);
-        heroVideo.addEventListener('loadeddata', () => {
-            isSwitching = false;
-        });
     }
-
-    setupHeroVideoSequence();
 
     // --- Configuration ---
     const TYPING_SPEED_MIN = 30;
